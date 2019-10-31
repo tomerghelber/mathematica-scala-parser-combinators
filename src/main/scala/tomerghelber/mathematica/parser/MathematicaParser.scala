@@ -4,7 +4,7 @@ import tomerghelber.mathematica.ast._
 
 import scala.util.control.NonFatal
 import scala.util.parsing.combinator.syntactical.StdTokenParsers
-
+import Delimiters._
 
 /**
  * TODO: follow this:
@@ -17,8 +17,10 @@ class MathematicaParser() extends StdTokenParsers {
   override val lexical = new MathematicaLexer
 
   // Configure lexical parsing
-//  lexical.reserved ++= List("*", "-", "+", "/", "!")
-  lexical.delimiters ++= List("(", ")", "[", "]", ",", "*", "-", "+", "/", "!", "=", "^", "++")
+//  lexical.reserved ++= List()
+  lexical.delimiters ++= List(
+    ",",
+  ) ++ Delimiters.values
 
   private def number: Parser[NumberNode] = numericLit ^^ { n =>
     try {
@@ -32,7 +34,7 @@ class MathematicaParser() extends StdTokenParsers {
 
   private def terminal = number | symbol
 
-  private def lower: Parser[ASTNode] = terminal | "(" ~> root <~ ")"
+  private def lower: Parser[ASTNode] = terminal | ROUND_BRACKET_OPEN ~> root <~ ROUND_BRACKET_CLOSE
 
 //  private def overscriptAndUnderscript: Parser[ASTNode] = lower ~ ("\\+" | "\\&") ~ lower ^^ {
 //    case expr1 ~ "\\&" ~ expr2 => OverscriptNode(expr1, expr2)
@@ -47,12 +49,12 @@ class MathematicaParser() extends StdTokenParsers {
 //    case expr ~ parts => PartNode(expr, parts)
 //  } | subscript
 
-  private def incementAndDecrement: Parser[ASTNode] = lower ~ ("++"|"--") ^^ {
+  private def incementAndDecrement: Parser[ASTNode] = lower ~ (INCREASE | DECREASE) ^^ {
     case expr ~ "++" => IncrementNode(expr)
     case expr ~ "--" => DecrementNode(expr)
   } | lower
 
-  private def preincementAndPredecrement: Parser[ASTNode] = ("++"|"--") ~ incementAndDecrement ^^ {
+  private def preincementAndPredecrement: Parser[ASTNode] = (INCREASE | DECREASE) ~ incementAndDecrement ^^ {
     case "++" ~ expr => PreincrementNode(expr)
     case "--" ~ expr => PredecrementNode(expr)
   } | incementAndDecrement
@@ -69,10 +71,10 @@ class MathematicaParser() extends StdTokenParsers {
 //    case expr1 ~ "@@@" ~ expr2 => Apply3Node(expr1, expr2)
 //  } | composition
 
-  private def factorial: Parser[ASTNode] = preincementAndPredecrement ~ opt("!" ~ opt("!")) ^^ {
+  private def factorial: Parser[ASTNode] = preincementAndPredecrement ~ opt(EXCLAMATION_MARK ~ opt(EXCLAMATION_MARK)) ^^ {
     case expr ~ None => expr
-    case expr ~ Some("!" ~ None) => FactorialNode(expr)
-    case expr ~ Some("!" ~ Some("!")) => Factorial2Node(expr)
+    case expr ~ Some(EXCLAMATION_MARK ~ None) => FactorialNode(expr)
+    case expr ~ Some(EXCLAMATION_MARK ~ Some(EXCLAMATION_MARK)) => Factorial2Node(expr)
   }
 
 //  private def conjugateAndTranspose: Parser[ASTNode] = factorial ~ ("\uF3C8" | "\uF3C7" | "\uF3C9" | "\uF3CE") ^^ {
@@ -89,7 +91,7 @@ class MathematicaParser() extends StdTokenParsers {
 //    case expr1 ~ expr2 ~ expr3 => StringJoinNode(expr1, expr2, expr3)
 //  } | derivative
 
-  private def power: Parser[ASTNode] = rep1sep(factorial, "^") ^^ (values => values.reduceRight(PowerNode))
+  private def power: Parser[ASTNode] = rep1sep(factorial, CARET) ^^ (values => values.reduceRight(PowerNode))
 
 //  // TODO: create this one
 //  private def verticalArrowAndVectorOperators: Parser[ASTNode] = power
@@ -127,9 +129,9 @@ class MathematicaParser() extends StdTokenParsers {
 //    case "∓" ~ expr => SingleMinusPlusNode(expr)
 //  } | dot
 //
-  private def divide: Parser[ASTNode] = rep1sep(power, ("/" | "÷" | "\\/"))  ^^ {_.reduceLeft(DivideNode)}
+  private def divide: Parser[ASTNode] = rep1sep(power, (DIVIDE | OBELUS | "\\/"))  ^^ {_.reduceLeft(DivideNode)}
 
-  private def times: Parser[ASTNode] = rep1sep(divide, opt("*" | "×")) ^^ (_.reduceRight(TimesNode))
+  private def times: Parser[ASTNode] = rep1sep(divide, opt(ASTERISK | MULTIPLICATION_SIGN)) ^^ (_.reduceRight(TimesNode))
 //
 //  private def product: Parser[ASTNode] = times
 //
@@ -145,12 +147,12 @@ class MathematicaParser() extends StdTokenParsers {
 
   private def plusAndMinus: Parser[ASTNode] = {
     val operatorToNodeCreator: String => ((ASTNode, ASTNode) => ASTNode) = {
-      case "+" => PlusNode
-      case "-" => (expr1, expr2) => PlusNode(expr1, TimesNode(IntegerNode(-1), expr2))
-      case "±" => PlusMinusNode
-      case "∓" => MinusPlusNode
+      case PLUS => PlusNode
+      case MINUS => (expr1, expr2) => PlusNode(expr1, TimesNode(IntegerNode(-1), expr2))
+      case PLUS_MINUS => PlusMinusNode
+      case MINUS_PLUS => MinusPlusNode
     }
-    rep(times ~ (("+" | "-" | "±" | "∓") ^^ operatorToNodeCreator)) ~ times ^^ {
+    rep(times ~ ((PLUS | MINUS | PLUS_MINUS | MINUS_PLUS) ^^ operatorToNodeCreator)) ~ times ^^ {
       case tuples ~ last =>
         tuples.foldRight(last){case (n2 ~ creator, n1) => creator(n2, n1)}
     }
