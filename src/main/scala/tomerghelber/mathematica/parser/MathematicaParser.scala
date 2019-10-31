@@ -131,7 +131,7 @@ class MathematicaParser() extends StdTokenParsers {
     case expr1 ~ expr2 => DivideNode(expr1, expr2)
   } | power
 
-  private def times: Parser[ASTNode] = rep1sep(divide, opt("*" | "×")) ^^ (values => values.reduceLeft(TimesNode))
+  private def times: Parser[ASTNode] = rep1sep(divide, opt("*" | "×")) ^^ (values => values.reduceRight(TimesNode))
 //
 //  private def product: Parser[ASTNode] = times
 //

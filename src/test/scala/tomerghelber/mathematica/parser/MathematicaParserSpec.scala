@@ -88,6 +88,13 @@ class MathematicaParserSpec extends FunSuite with Matchers {
     actual shouldBe expected
   }
 
+  test("x*y*z = x*(y*z)") {
+    val p = new MathematicaParser()
+    val actual = p.parse("x*y*z")
+    val expected = p.parse("x*(y*z)")
+    actual shouldBe expected
+  }
+
   test("x^y^z = x^(y^z)") {
     val p = new MathematicaParser()
     val actual = p.parse("x^y^z")
