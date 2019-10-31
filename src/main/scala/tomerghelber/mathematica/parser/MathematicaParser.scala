@@ -18,7 +18,7 @@ class MathematicaParser() extends StdTokenParsers {
 
   // Configure lexical parsing
 //  lexical.reserved ++= List("*", "-", "+", "/", "!")
-  lexical.delimiters ++= List("(", ")", "[", "]", ",", "*", "-", "+", "/", "!", "=", "^")
+  lexical.delimiters ++= List("(", ")", "[", "]", ",", "*", "-", "+", "/", "!", "=", "^", "++")
 
   private def number: Parser[NumberNode] = numericLit ^^ { n =>
     try {
@@ -46,17 +46,17 @@ class MathematicaParser() extends StdTokenParsers {
 //  private def part: Parser[ASTNode] = subscript ~ (("[" ~> rep1sep(subscript, ",") <~ "]") | ("[[" ~> rep1sep(subscript, ",") <~ "]]") | ("〚" ~> rep1sep(subscript, ",") <~ "〛")) ^^ {
 //    case expr ~ parts => PartNode(expr, parts)
 //  } | subscript
-//
-//  private def incementAndDecrement: Parser[ASTNode] = part ~ ("++"|"--") ^^ {
-//    case expr ~ "++" => IncrementNode(expr)
-//    case expr ~ "--" => DecrementNode(expr)
-//  } | part
-//
-//  private def preincementAndPredecrement: Parser[ASTNode] = ("++"|"--") ~ incementAndDecrement ^^ {
-//    case "++" ~ expr => PreincrementNode(expr)
-//    case "--" ~ expr => PredecrementNode(expr)
-//  } | incementAndDecrement
-//
+
+  private def incementAndDecrement: Parser[ASTNode] = lower ~ ("++"|"--") ^^ {
+    case expr ~ "++" => IncrementNode(expr)
+    case expr ~ "--" => DecrementNode(expr)
+  } | lower
+
+  private def preincementAndPredecrement: Parser[ASTNode] = ("++"|"--") ~ incementAndDecrement ^^ {
+    case "++" ~ expr => PreincrementNode(expr)
+    case "--" ~ expr => PredecrementNode(expr)
+  } | incementAndDecrement
+
 //  private def composition: Parser[ASTNode] = preincementAndPredecrement ~ ("@*" | "/*") ~ preincementAndPredecrement ^^ {
 //    case expr1 ~ "@*" ~ expr2 => CompositionNode(expr1, expr2)
 //    case expr1 ~ "/*" ~ expr2 => RightCompositionNode(expr1, expr2)
@@ -69,7 +69,7 @@ class MathematicaParser() extends StdTokenParsers {
 //    case expr1 ~ "@@@" ~ expr2 => Apply3Node(expr1, expr2)
 //  } | composition
 
-  private def factorial: Parser[ASTNode] = lower ~ opt("!" ~ opt("!")) ^^ {
+  private def factorial: Parser[ASTNode] = preincementAndPredecrement ~ opt("!" ~ opt("!")) ^^ {
     case expr ~ None => expr
     case expr ~ Some("!" ~ None) => FactorialNode(expr)
     case expr ~ Some("!" ~ Some("!")) => Factorial2Node(expr)

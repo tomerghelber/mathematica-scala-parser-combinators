@@ -109,6 +109,13 @@ class MathematicaParserSpec extends FunSuite with Matchers {
     actual shouldBe expected
   }
 
+  test("Preincrement is before Increment") {
+    val p = new MathematicaParser()
+    val actual = p.parse("++x++")
+    val expected = PreincrementNode(IncrementNode(SymbolNode("x")))
+    actual shouldBe expected
+  }
+
   test("x y z = x*y*z") {
     val p = new MathematicaParser()
     val actual = p.parse("x y z")
