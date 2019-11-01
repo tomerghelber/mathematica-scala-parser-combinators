@@ -51,13 +51,14 @@ class MathematicaParserSpec extends FunSuite with Matchers with ScalaCheckProper
   }
 
   test("Simple plus") {
-    val p = new MathematicaParser()
-    val actual = p.parse("a + b")
-    val expected = PlusNode(
-      SymbolNode("a"),
-      SymbolNode("b"),
-    )
-    actual shouldBe expected
+    forAll { (p: MathematicaParser, first: SymbolNode, second: SymbolNode) =>
+      val actual = p.parse(first.value + " + " + second.value)
+      val expected = PlusNode(
+        first,
+        second,
+      )
+      actual shouldBe expected
+    }
   }
 
   test("Simple divide") {
