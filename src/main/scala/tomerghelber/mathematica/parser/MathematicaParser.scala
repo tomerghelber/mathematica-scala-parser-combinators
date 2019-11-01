@@ -103,17 +103,17 @@ class MathematicaParser() extends StdTokenParsers {
 
   private def power: Parser[ASTNode] = rep1sep(derivative, CARET) ^^ (values => values.reduceRight(PowerNode))
 
-//  // TODO: create this one
+  // TODO: create this one
   private def verticalArrowAndVectorOperators: Parser[ASTNode] = power
 
   private def sqrt: Parser[ASTNode] = rep("\\@") ~ verticalArrowAndVectorOperators ^^ {
     case sqrts ~ expr => sqrts.foldRight(expr)((_, e) => SqrtNode(e))
   } | verticalArrowAndVectorOperators
 
-//  private def differentialD: Parser[ASTNode] = "d" ~> sqrt ^^ {
-//    expr => DifferentialDNode(expr)
-//  } | sqrt
-//
+  private def differentialD: Parser[ASTNode] = rep("d") ~ sqrt ^^ {
+    case diffs ~ expr => diffs.foldLeft(expr)((e, _) => DifferentialDNode(e))
+  }
+
 //  private def discreteOperators: Parser[ASTNode] = ("∂" | "∇" | "\uF4A3" | "\uF4A5" | "\uF4A4") ~ differentialD ~ differentialD ^^ {
 //    case "∂" ~ expr1 ~ expr2 => DNode(expr1, expr2)
 //    case  "∇" ~ expr1 ~ expr2 => DelNode(expr1, expr2)
@@ -139,7 +139,7 @@ class MathematicaParser() extends StdTokenParsers {
 //    case "∓" ~ expr => SingleMinusPlusNode(expr)
 //  } | dot
 //
-  private def divide: Parser[ASTNode] = rep1sep(sqrt, (DIVIDE | OBELUS | "\\/"))  ^^ {_.reduceLeft(DivideNode)}
+  private def divide: Parser[ASTNode] = rep1sep(differentialD, (DIVIDE | OBELUS | "\\/"))  ^^ {_.reduceLeft(DivideNode)}
 
   private def times: Parser[ASTNode] = rep1sep(divide, opt(ASTERISK | MULTIPLICATION_SIGN)) ^^ (_.reduceRight(TimesNode))
 //
