@@ -92,15 +92,16 @@ class MathematicaParser() extends StdTokenParsers {
     case expr ~ operators => operators.foldLeft(expr)((e, op) => op(e))
   }
 
-//  private def derivative: Parser[ASTNode] = conjugateAndTranspose ~ rep("'") ^^ {
-//    case expr ~ number => DerivativeNode(number.size, expr)
-//  }
-//
+  private def derivative: Parser[ASTNode] = conjugateAndTranspose ~ rep("'") ^^ {
+    case expr ~ Nil => expr
+    case expr ~ derivatives => DerivativeNode(derivatives.size, expr)
+  }
+
 //  private def stringJoin: Parser[ASTNode] = derivative ~ ("<>" ~> derivative <~ "<>") ~ derivative ^^ {
 //    case expr1 ~ expr2 ~ expr3 => StringJoinNode(expr1, expr2, expr3)
 //  } | derivative
 
-  private def power: Parser[ASTNode] = rep1sep(conjugateAndTranspose, CARET) ^^ (values => values.reduceRight(PowerNode))
+  private def power: Parser[ASTNode] = rep1sep(derivative, CARET) ^^ (values => values.reduceRight(PowerNode))
 
 //  // TODO: create this one
 //  private def verticalArrowAndVectorOperators: Parser[ASTNode] = power
