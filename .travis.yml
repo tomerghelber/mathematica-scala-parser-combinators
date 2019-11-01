@@ -15,6 +15,6 @@ script:
   - sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
 
 after_script:
-  - SCALA_DIRECTORY=$(echo $TRAVIS_SCALA_VERSION | grep -o -P '^\d+\.\d+' '-')
-  - ./cc-test-reporter format-coverage -t cobertura target/scala-$SCALA_DIRECTORY/coverage-report/cobertura.xm
+  - SCALA_TARGET_DIRECTORY=target/scala-$(echo $TRAVIS_SCALA_VERSION | grep -o -P '^\d+\.\d+' '-')
+  - ./cc-test-reporter format-coverage -t cobertura $SCALA_TARGET_DIRECTORY/coverage-report/cobertura.xml
   - ./cc-test-reporter upload-coverage
