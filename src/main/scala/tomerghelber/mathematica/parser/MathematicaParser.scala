@@ -48,7 +48,7 @@ class MathematicaParser() extends StdTokenParsers {
     })(subscript)
   }
 
-  private def incementAndDecrement: Parser[ASTNode] = part ~ rep(INCREASE | DECREASE) ^^ {
+  private def incrementAndDecrement: Parser[ASTNode] = part ~ rep(INCREASE | DECREASE) ^^ {
     case expr ~ operators => operators.map{
       case INCREASE => IncrementNode
       case DECREASE => DecrementNode
@@ -56,7 +56,7 @@ class MathematicaParser() extends StdTokenParsers {
     }.foldLeft(expr)((e, op) => op(e))
   }
 
-  private def preincementAndPredecrement: Parser[ASTNode] = rep(INCREASE | DECREASE) ~ incementAndDecrement ^^ {
+  private def preincrementAndPredecrement: Parser[ASTNode] = rep(INCREASE | DECREASE) ~ incrementAndDecrement ^^ {
     case operators ~ expr => operators.map{
       case INCREASE => PreincrementNode
       case DECREASE => PredecrementNode
@@ -76,7 +76,7 @@ class MathematicaParser() extends StdTokenParsers {
 //    case expr1 ~ "@@@" ~ expr2 => Apply3Node(expr1, expr2)
 //  } | composition
 
-  private def factorial: Parser[ASTNode] = preincementAndPredecrement ~ rep(EXCLAMATION_MARK ~ EXCLAMATION_MARK) ~ opt(EXCLAMATION_MARK) ^^ {
+  private def factorial: Parser[ASTNode] = preincrementAndPredecrement ~ rep(EXCLAMATION_MARK ~ EXCLAMATION_MARK) ~ opt(EXCLAMATION_MARK) ^^ {
     case expr ~ factorial2 ~ factorialOpt =>
       val wrapped = factorialOpt.map(_=>FactorialNode(expr)).getOrElse(expr)
       factorial2.foldLeft(wrapped)((e, _)=> Factorial2Node(e))
