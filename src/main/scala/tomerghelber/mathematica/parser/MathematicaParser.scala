@@ -199,11 +199,12 @@ class MathematicaParser() extends StdTokenParsers {
   private def horizontalArrowAndVectorOperators: Parser[ASTNode] = equalities
   private def diagonalArrowOperators: Parser[ASTNode] = horizontalArrowAndVectorOperators
 
-//  private def sameQ: Parser[ASTNode] = diagonalArrowOperators ~ ("===" | "=!=") ~ diagonalArrowOperators ^^ {
-//    case expr1 ~ "===" ~ expr2 => SameQNode(expr1, expr2)
-//    case expr1 ~ "=!=" ~ expr2 => UnSameQNode(expr1, expr2)
-//  } | diagonalArrowOperators
-//
+  private def sameQ: Parser[ASTNode] = chainl1(diagonalArrowOperators,
+    ( "===" ^^ {_ => SameQNode}
+    | "=!=" ^^ {_ => UnSameQNode}
+    )
+  )
+
 //  private def setRelationOperators: Parser[ASTNode] = sameQ ~ ("∈" | "∉" | "⊂" | "⊃") ~ sameQ ^^ {
 //    case expr1 ~ "∈" ~ expr2 => ElementNode(expr1, expr2)
 //    case expr1 ~ "∉" ~ expr2 => NotElementNode(expr1, expr2)
@@ -253,7 +254,7 @@ class MathematicaParser() extends StdTokenParsers {
 //    case expr1 ~ "⊤" ~ expr2 => DownTeeNode(expr1, expr2)
 //  } | implies
 
-  private def root = diagonalArrowOperators
+  private def root = sameQ
 
   /**
    * Parse the given <code>expression</code> String into an ASTNode.
