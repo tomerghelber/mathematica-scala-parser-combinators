@@ -64,11 +64,12 @@ class MathematicaParser() extends StdTokenParsers {
     }.foldLeft(expr)((e, op) => op(e))
   }
 
-//  private def composition: Parser[ASTNode] = preincementAndPredecrement ~ ("@*" | "/*") ~ preincementAndPredecrement ^^ {
-//    case expr1 ~ "@*" ~ expr2 => CompositionNode(expr1, expr2)
-//    case expr1 ~ "/*" ~ expr2 => RightCompositionNode(expr1, expr2)
-//  } | preincementAndPredecrement
-//
+  private def composition: Parser[ASTNode] = chainl1(preincrementAndPredecrement, ("@*" | "/*") ^^ {
+    case "@*" => CompositionNode
+    case "/*" => RightCompositionNode
+    case other => throw new MatchError(other)  // redundant, just to suppress the compile time warning
+  })
+
 //  private def mapAndApply: Parser[ASTNode] = composition ~ ("/@" | "//@" | "@@" | "@@@") ~ composition ^^ {
 //    case expr1 ~ "/@" ~ expr2 => MapNode(expr1, expr2)
 //    case expr1 ~ "//@" ~ expr2 => MapAllNode(expr1, expr2)
@@ -76,7 +77,7 @@ class MathematicaParser() extends StdTokenParsers {
 //    case expr1 ~ "@@@" ~ expr2 => Apply3Node(expr1, expr2)
 //  } | composition
 
-  private def factorial: Parser[ASTNode] = preincrementAndPredecrement ~ rep(EXCLAMATION_MARK ~ EXCLAMATION_MARK) ~ opt(EXCLAMATION_MARK) ^^ {
+  private def factorial: Parser[ASTNode] = composition ~ rep(EXCLAMATION_MARK ~ EXCLAMATION_MARK) ~ opt(EXCLAMATION_MARK) ^^ {
     case expr ~ factorial2 ~ factorialOpt =>
       val wrapped = factorialOpt.map(_=>FactorialNode(expr)).getOrElse(expr)
       factorial2.foldLeft(wrapped)((e, _)=> Factorial2Node(e))
