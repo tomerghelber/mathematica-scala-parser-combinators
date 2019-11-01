@@ -16,8 +16,22 @@ package object mathematica {
 
   // Strings
   val symbolStringGen = Gen.alphaStr.withFilter(_.nonEmpty)
+  private val posIntegerGen = Gen.numStr.withFilter(_.nonEmpty)
+  val integerStringGen = for (signOpt <- Gen.option("-"); posInteger <-posIntegerGen) yield {
+    signOpt match {
+      case None => posInteger
+      case Some(sign) => sign + posInteger
+    }
+  }
+  val floatStringGen = for (integer <- integerStringGen; posInteger <- posIntegerGen) yield {
+    integer + "." + posInteger
+  }
+  val scientificNotationGen = for (base <- floatStringGen; expo <- integerStringGen) yield {
+    base + "E" + expo
+  }
+  val numberStringGen = Gen.oneOf(integerStringGen, floatStringGen, scientificNotationGen)
 
   // Nodes
   val symbolNodeGen = symbolStringGen.map(SymbolNode)
-  val numberNodeGen = Gen.choose(Double.MinValue, Double.MaxValue).map(NumberNode)
+  val numberNodeGen = numberStringGen.map(_.toDouble).map(NumberNode)
 }
