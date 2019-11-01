@@ -121,9 +121,9 @@ class MathematicaParser() extends StdTokenParsers {
 //    case "\uF4A5" ~ expr1 ~ expr2 => DiscreteRatioNode(expr1, expr2)
 //    case "\uF4A4" ~ expr1 ~ expr2 => DifferenceDeltaNode(expr1, expr2)
 //  } | differentialD
-//
-//  private def squareAndCircle: Parser[ASTNode] = discreteOperators
-//
+
+  private def squareAndCircle: Parser[ASTNode] = differentialD
+
 //  private def cross: Parser[ASTNode] = squareAndCircle ~ ("\uF4A0" ~> squareAndCircle <~ "\uF4A0") ~ squareAndCircle ^^ {
 //    case expr1 ~ expr2 ~ expr3 => CrossNode(expr1, expr2 , expr3)
 //  } | squareAndCircle
@@ -138,11 +138,11 @@ class MathematicaParser() extends StdTokenParsers {
 //    case "±" ~ expr => SinglePlusMinusNode(expr)
 //    case "∓" ~ expr => SingleMinusPlusNode(expr)
 //  } | dot
-//
-  private def divide: Parser[ASTNode] = rep1sep(differentialD, (DIVIDE | OBELUS | "\\/"))  ^^ {_.reduceLeft(DivideNode)}
+
+  private def divide: Parser[ASTNode] = rep1sep(squareAndCircle, (DIVIDE | OBELUS | "\\/"))  ^^ {_.reduceLeft(DivideNode)}
 
   private def times: Parser[ASTNode] = rep1sep(divide, opt(ASTERISK | MULTIPLICATION_SIGN)) ^^ (_.reduceRight(TimesNode))
-//
+
 //  private def product: Parser[ASTNode] = times
 //
 //  private def integrate: Parser[ASTNode] = "∫" ~> product ~ product ^^ {
