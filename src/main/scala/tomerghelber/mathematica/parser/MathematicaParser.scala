@@ -43,8 +43,8 @@ class MathematicaParser() extends StdTokenParsers {
   private def subscript: Parser[ASTNode] = rep1sep(overAndUnderscript, SUBSCRIPT) ^^ (subscripts => subscripts.reduceRight(SubscriptNode))
 
   private def part: Parser[ASTNode] = {
-    ((underparts: Parser[ASTNode]) => underparts ~ opt(("[" ~> rep1sep(underparts, ",") <~ "]") | ("[[" ~> rep1sep(underparts, ",") <~ "]]") | ("〚" ~> rep1sep(underparts, ",") <~ "〛")) ^^ {
-      case expr ~ parts => parts.getOrElse(Seq.empty).foldLeft(expr)(PartNode)
+    ((underparts: Parser[ASTNode]) => underparts ~ rep(("[" ~> rep1sep(underparts, ",") <~ "]") | ("[[" ~> rep1sep(underparts, ",") <~ "]]") | ("〚" ~> rep1sep(underparts, ",") <~ "〛")) ^^ {
+      case expr ~ parts => parts.flatten.foldLeft(expr)(PartNode)
     })(subscript)
   }
 
@@ -83,12 +83,15 @@ class MathematicaParser() extends StdTokenParsers {
       factorial2.foldLeft(wrapped)((e, _)=> Factorial2Node(e))
   }
 
-//  private def conjugateAndTranspose: Parser[ASTNode] = factorial ~ ("\uF3C8" | "\uF3C7" | "\uF3C9" | "\uF3CE") ^^ {
-//    case expr ~ "\uF3C8" => ConjugateNode(expr)
-//    case expr ~ "\uF3C7" => TransposeNode(expr)
-//    case expr ~ ("\uF3C9"|"\uF3CE") => ConjugateTransposeNode(expr)
-//  } | factorial
-//
+  private def conjugateAndTranspose: Parser[ASTNode] = factorial ~ rep(("\uF3C8" | "\uF3C7" | "\uF3C9" | "\uF3CE") ^^ {
+    case "\uF3C8" => ConjugateNode
+    case "\uF3C7" => TransposeNode
+    case "\uF3C9" | "\uF3CE" => ConjugateTransposeNode
+    case other => throw new MatchError(other)  // redundant, just to suppress the compile time warning
+  }) ^^ {
+    case expr ~ operators => operators.foldLeft(expr)((e, op) => op(e))
+  }
+
 //  private def derivative: Parser[ASTNode] = conjugateAndTranspose ~ rep("'") ^^ {
 //    case expr ~ number => DerivativeNode(number.size, expr)
 //  }
@@ -97,7 +100,7 @@ class MathematicaParser() extends StdTokenParsers {
 //    case expr1 ~ expr2 ~ expr3 => StringJoinNode(expr1, expr2, expr3)
 //  } | derivative
 
-  private def power: Parser[ASTNode] = rep1sep(factorial, CARET) ^^ (values => values.reduceRight(PowerNode))
+  private def power: Parser[ASTNode] = rep1sep(conjugateAndTranspose, CARET) ^^ (values => values.reduceRight(PowerNode))
 
 //  // TODO: create this one
 //  private def verticalArrowAndVectorOperators: Parser[ASTNode] = power
