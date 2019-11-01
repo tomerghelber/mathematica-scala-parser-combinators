@@ -1,15 +1,22 @@
 package tomerghelber.mathematica.parser
 
 import org.scalatest.{FunSuite, Matchers}
+import org.scalacheck.Gen
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import tomerghelber.mathematica.ast._
 
-class MathematicaParserSpec extends FunSuite with Matchers {
+class MathematicaParserSpec extends FunSuite with Matchers with ScalaCheckPropertyChecks {
+
+  val symbolStringGen = Gen.alphaStr
+  val symbolNodeGen = symbolStringGen.map(SymbolNode)
+  val mathematicaParserGen = Gen.choose(1, 1).map(_ => new MathematicaParser())
 
   test("Simple symbol") {
-    val p = new MathematicaParser()
-    val actual = p.parse("a")
-    val expected = SymbolNode("a")
-    actual shouldBe expected
+    forAll (mathematicaParserGen, symbolStringGen) { (p: MathematicaParser, symbolString: String) =>
+      val actual = p.parse(symbolString)
+      val expected = SymbolNode(symbolString)
+      actual shouldBe expected
+    }
   }
 
   test("Simple integer") {
