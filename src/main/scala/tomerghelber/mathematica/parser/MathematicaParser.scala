@@ -25,7 +25,7 @@ class MathematicaParser() extends StdTokenParsers {
 
   private val terminal = number | symbol
 
-  private val lower: Parser[ASTNode] = terminal | ROUND_BRACKET_OPEN ~> root <~ ROUND_BRACKET_CLOSE
+  private def lower: Parser[ASTNode] = terminal | ROUND_BRACKET_OPEN ~> root <~ ROUND_BRACKET_CLOSE
 
   private val overAndUnderscript: Parser[ASTNode] = {
     val operators = (UNDERSCRIPT | OVERSCRIPT) ^^ {
@@ -252,7 +252,7 @@ class MathematicaParser() extends StdTokenParsers {
 //    case expr1 ~ "⊤" ~ expr2 => DownTeeNode(expr1, expr2)
 //  } | implies
 
-  private val root = plusAndMinus
+  private def root = plusAndMinus
 
   /**
    * Parse the given <code>expression</code> String into an ASTNode.
