@@ -31,7 +31,7 @@ class MathematicaParser() extends StdTokenParsers {
     val operators = (UNDERSCRIPT | OVERSCRIPT) ^^ {
       case OVERSCRIPT => OverscriptNode
       case UNDERSCRIPT => UnderscriptNode
-      case other => throw new MatchError(other)  // redundant, just to suppress the compile time warning
+      case other: Any => throw new MatchError(other)  // redundant, just to suppress the compile time warning
     }
     rep(lower ~ operators) ~ lower ^^ {
       case reps ~ expr => reps.foldRight(expr){case (lhs ~ op, rhs) => op(lhs, rhs)}
@@ -55,7 +55,7 @@ class MathematicaParser() extends StdTokenParsers {
     case expr ~ operators => operators.map{
       case INCREASE => IncrementNode
       case DECREASE => DecrementNode
-      case other => throw new MatchError(other)  // redundant, just to suppress the compile time warning
+      case other: Any => throw new MatchError(other)  // redundant, just to suppress the compile time warning
     }.foldLeft(expr)((e, op) => op(e))
   }
 
@@ -63,7 +63,7 @@ class MathematicaParser() extends StdTokenParsers {
     case operators ~ expr => operators.map{
       case INCREASE => PreincrementNode
       case DECREASE => PredecrementNode
-      case other => throw new MatchError(other)  // redundant, just to suppress the compile time warning
+      case other: Any => throw new MatchError(other)  // redundant, just to suppress the compile time warning
     }.foldLeft(expr)((e, op) => op(e))
   }
 
@@ -71,7 +71,7 @@ class MathematicaParser() extends StdTokenParsers {
     (COMPOSITION | RIGHT_COMPOSITION) ^^ {
       case COMPOSITION => CompositionNode
       case RIGHT_COMPOSITION => RightCompositionNode
-      case other => throw new MatchError(other)  // redundant, just to suppress the compile time warning
+      case other: Any => throw new MatchError(other)  // redundant, just to suppress the compile time warning
     }
   )
 
@@ -94,7 +94,7 @@ class MathematicaParser() extends StdTokenParsers {
     case CONJUGATE => ConjugateNode
     case TRANSPOSE => TransposeNode
     case CONJUGATE_TRANSPOSE | CONJUGATE_TRANSPOSE2 => ConjugateTransposeNode
-    case other => throw new MatchError(other)  // redundant, just to suppress the compile time warning
+    case other: Any => throw new MatchError(other)  // redundant, just to suppress the compile time warning
   }) ^^ {
     case expr ~ operators => operators.foldLeft(expr)((e, op) => op(e))
   }
@@ -269,7 +269,7 @@ class MathematicaParser() extends StdTokenParsers {
     val reader = new lexical.Scanner(expressionString)
     phrase(root)(reader) match {
       case Success(result, _) => result
-      case noSuccess => throw SyntaxException(noSuccess.toString)
+      case noSuccess: NoSuccess => throw SyntaxException(noSuccess.toString)
     }
   }
 }
