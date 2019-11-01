@@ -42,15 +42,17 @@ class MathematicaParser() extends StdTokenParsers {
 //    case expr ~ parts => PartNode(expr, parts)
 //  } | subscript
 
-  private def incementAndDecrement: Parser[ASTNode] = lower ~ (INCREASE | DECREASE) ^^ {
-    case expr ~ "++" => IncrementNode(expr)
-    case expr ~ "--" => DecrementNode(expr)
-  } | lower
+  private def incementAndDecrement: Parser[ASTNode] = lower ~ opt(INCREASE | DECREASE) ^^ {
+    case expr ~ None => expr
+    case expr ~ Some(INCREASE) => IncrementNode(expr)
+    case expr ~ Some(DECREASE) => DecrementNode(expr)
+  }
 
-  private def preincementAndPredecrement: Parser[ASTNode] = (INCREASE | DECREASE) ~ incementAndDecrement ^^ {
-    case "++" ~ expr => PreincrementNode(expr)
-    case "--" ~ expr => PredecrementNode(expr)
-  } | incementAndDecrement
+  private def preincementAndPredecrement: Parser[ASTNode] = opt(INCREASE | DECREASE) ~ incementAndDecrement ^^ {
+    case None ~ expr => expr
+    case Some(INCREASE) ~ expr => PreincrementNode(expr)
+    case Some(DECREASE) ~ expr => PredecrementNode(expr)
+  }
 
 //  private def composition: Parser[ASTNode] = preincementAndPredecrement ~ ("@*" | "/*") ~ preincementAndPredecrement ^^ {
 //    case expr1 ~ "@*" ~ expr2 => CompositionNode(expr1, expr2)
@@ -64,10 +66,10 @@ class MathematicaParser() extends StdTokenParsers {
 //    case expr1 ~ "@@@" ~ expr2 => Apply3Node(expr1, expr2)
 //  } | composition
 
-  private def factorial: Parser[ASTNode] = preincementAndPredecrement ~ opt(EXCLAMATION_MARK ~ opt(EXCLAMATION_MARK)) ^^ {
-    case expr ~ None => expr
-    case expr ~ Some(EXCLAMATION_MARK ~ None) => FactorialNode(expr)
-    case expr ~ Some(EXCLAMATION_MARK ~ Some(EXCLAMATION_MARK)) => Factorial2Node(expr)
+  private def factorial: Parser[ASTNode] = preincementAndPredecrement ~ rep(EXCLAMATION_MARK ~ EXCLAMATION_MARK) ~ opt(EXCLAMATION_MARK) ^^ {
+    case expr ~ factorial2 ~ factorialOpt =>
+      val wrapped = factorialOpt.map(_=>FactorialNode(expr)).getOrElse(expr)
+      factorial2.foldLeft(wrapped)((e, _)=> Factorial2Node(e))
   }
 
 //  private def conjugateAndTranspose: Parser[ASTNode] = factorial ~ ("\uF3C8" | "\uF3C7" | "\uF3C9" | "\uF3CE") ^^ {
