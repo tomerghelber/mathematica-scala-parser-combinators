@@ -62,90 +62,101 @@ class MathematicaParserSpec extends FunSuite with Matchers with ScalaCheckProper
   }
 
   test("Simple divide") {
-    val p = new MathematicaParser()
-    val actual = p.parse("a / b")
-    val expected = DivideNode(
-      SymbolNode("a"),
-      SymbolNode("b"),
-    )
-    actual shouldBe expected
+    forAll { (p: MathematicaParser, first: SymbolNode, second: SymbolNode) =>
+      val actual = p.parse(first.value + " / " + second.value)
+      val expected = DivideNode(
+        first,
+        second,
+      )
+      actual shouldBe expected
+    }
   }
 
   test("Simple power") {
-    val p = new MathematicaParser()
-    val actual = p.parse("a ^ b")
-    val expected = PowerNode(
-      SymbolNode("a"),
-      SymbolNode("b"),
-    )
-    actual shouldBe expected
+    forAll { (p: MathematicaParser, first: SymbolNode, second: SymbolNode) =>
+      val actual = p.parse(first.value + " ^ " + second.value)
+      val expected = PowerNode(
+        first,
+        second,
+      )
+      actual shouldBe expected
+    }
   }
 
   test("Simple factor") {
-    val p = new MathematicaParser()
-    val actual = p.parse("a!")
-    val expected = FactorialNode(
-      SymbolNode("a"),
-    )
-    actual shouldBe expected
+    forAll { (p: MathematicaParser, first: SymbolNode) =>
+      val actual = p.parse(first.value + "!")
+      val expected = FactorialNode(
+        first,
+      )
+      actual shouldBe expected
+    }
   }
 
   test("Simple factor2") {
-    val p = new MathematicaParser()
-    val actual = p.parse("a!!")
-    val expected = Factorial2Node(
-      SymbolNode("a"),
-    )
-    actual shouldBe expected
+    forAll { (p: MathematicaParser, first: SymbolNode) =>
+      val actual = p.parse(first.value + "!!")
+      val expected = Factorial2Node(
+        first,
+      )
+      actual shouldBe expected
+    }
   }
 
   test("x+y+z = x+(y+z)") {
-    val p = new MathematicaParser()
-    val actual = p.parse("x+y+z")
-    val expected = p.parse("x+(y+z)")
-    actual shouldBe expected
+    forAll(mathematicaParserGen, symbolStringGen, symbolStringGen, symbolStringGen) { (p: MathematicaParser, x: String, y: String, z: String) =>
+      val actual = p.parse(f"$x+$y+$z")
+      val expected = p.parse(f"$x+($y+$z)")
+      actual shouldBe expected
+    }
   }
 
   test("x*y*z = x*(y*z)") {
-    val p = new MathematicaParser()
-    val actual = p.parse("x*y*z")
-    val expected = p.parse("x*(y*z)")
-    actual shouldBe expected
+    forAll(mathematicaParserGen, symbolStringGen, symbolStringGen, symbolStringGen) { (p: MathematicaParser, x: String, y: String, z: String) =>
+      val actual = p.parse(f"$x*$y*$z")
+      val expected = p.parse(f"$x*($y*$z)")
+      actual shouldBe expected
+    }
   }
 
   test("x/y/z = (x/y)/z") {
-    val p = new MathematicaParser()
-    val actual = p.parse("x/y/z")
-    val expected = p.parse("(x/y)/z")
-    actual shouldBe expected
+    forAll(mathematicaParserGen, symbolStringGen, symbolStringGen, symbolStringGen) { (p: MathematicaParser, x: String, y: String, z: String) =>
+      val actual = p.parse(f"$x/$y/$z")
+      val expected = p.parse(f"($x/$y)/$z")
+      actual shouldBe expected
+    }
   }
 
   test("x^y^z = x^(y^z)") {
-    val p = new MathematicaParser()
-    val actual = p.parse("x^y^z")
-    val expected = p.parse("x^(y^z)")
-    actual shouldBe expected
+    forAll(mathematicaParserGen, symbolStringGen, symbolStringGen, symbolStringGen) { (p: MathematicaParser, x: String, y: String, z: String) =>
+      val actual = p.parse(f"$x^$y^$z")
+      val expected = p.parse(f"$x^($y^$z)")
+      actual shouldBe expected
+    }
   }
 
   test("Preincrement is before Increment") {
-    val p = new MathematicaParser()
-    val actual = p.parse("++x++")
-    val expected = PreincrementNode(IncrementNode(SymbolNode("x")))
-    actual shouldBe expected
+    forAll { (p: MathematicaParser, x: SymbolNode) =>
+      val actual = p.parse(f"++${x.value}++")
+      val expected = PreincrementNode(IncrementNode(x))
+      actual shouldBe expected
+    }
   }
 
   test("Plus is before Preincrement") {
-    val p = new MathematicaParser()
-    val actual = p.parse("x+++y")
-    val expected = PlusNode(IncrementNode(SymbolNode("x")), SymbolNode("y"))
-    actual shouldBe expected
+    forAll { (p: MathematicaParser, x: SymbolNode, y: SymbolNode) =>
+      val actual = p.parse(f"${x.value}+++${y.value}")
+      val expected = PlusNode(IncrementNode(x), y)
+      actual shouldBe expected
+    }
   }
 
   test("x y z = x*y*z") {
-    val p = new MathematicaParser()
-    val actual = p.parse("x y z")
-    val expected = p.parse("x*y*z")
-    actual shouldBe expected
+    forAll(mathematicaParserGen, symbolStringGen, symbolStringGen, symbolStringGen) { (p: MathematicaParser, x: String, y: String, z: String) =>
+      val actual = p.parse(f"$x $y $z")
+      val expected = p.parse(f"$x * $y * $z")
+      actual shouldBe expected
+    }
   }
 
   test("2x = 2*x") {

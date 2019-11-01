@@ -15,7 +15,7 @@ package object mathematica {
   val mathematicaEvaluatorGen = Gen.choose(1, 1).map(_ => new MathematicaEvaluator())
 
   // Strings
-  val symbolStringGen = Gen.alphaStr.withFilter(_.nonEmpty)
+  val symbolStringGen = Gen.alphaStr.filter(_.nonEmpty)
   private val posIntegerGen = Gen.numStr.withFilter(_.nonEmpty)
   val integerStringGen = for (signOpt <- Gen.option("-"); posInteger <-posIntegerGen) yield {
     signOpt match {
