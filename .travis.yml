@@ -7,8 +7,9 @@ jobs:
   - stage: test
     name: "Unit Tests"
     script: sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
-  - name: "Mutation Tests"
-    script: sbt stryker
+# "Mutation Tests" are too long and travis kills the job.
+#  - name: "Mutation Tests"
+#    script: sbt stryker
 
 before_cache:
   # Tricks to avoid unnecessary cache updates
