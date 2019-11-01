@@ -1,10 +1,9 @@
 package tomerghelber.mathematica.parser
 
 import tomerghelber.mathematica.ast._
+import tomerghelber.mathematica.parser.Delimiters._
 
-import scala.util.control.NonFatal
 import scala.util.parsing.combinator.syntactical.StdTokenParsers
-import Delimiters._
 
 /**
  * TODO: follow this:
@@ -22,13 +21,7 @@ class MathematicaParser() extends StdTokenParsers {
     ",",
   ) ++ Delimiters.values
 
-  private def number: Parser[NumberNode] = numericLit ^^ { n =>
-    try {
-      IntegerNode(BigInt(n))
-    } catch {
-      case NonFatal(_) => FloatNode(n.toDouble)
-    }
-  }
+  private def number: Parser[NumberNode] = numericLit ^^ { n => NumberNode(n.toDouble) }
 
   private def symbol: Parser[SymbolNode] = ident ^^ SymbolNode
 
@@ -148,7 +141,7 @@ class MathematicaParser() extends StdTokenParsers {
   private def plusAndMinus: Parser[ASTNode] = {
     val operatorToNodeCreator: String => ((ASTNode, ASTNode) => ASTNode) = {
       case PLUS => PlusNode
-      case MINUS => (expr1, expr2) => PlusNode(expr1, TimesNode(IntegerNode(-1), expr2))
+      case MINUS => (expr1, expr2) => PlusNode(expr1, TimesNode(NumberNode(-1), expr2))
       case PLUS_MINUS => PlusMinusNode
       case MINUS_PLUS => MinusPlusNode
     }

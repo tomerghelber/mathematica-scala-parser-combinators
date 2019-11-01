@@ -24,21 +24,21 @@ class MathematicaParserSpec extends FunSuite with Matchers with ScalaCheckProper
   test("Simple integer") {
     val p = new MathematicaParser()
     val actual = p.parse("-4242424242424242")
-    val expected = IntegerNode(BigInt("-4242424242424242"))
+    val expected = NumberNode(-4242424242424242.0)
     actual shouldBe expected
   }
 
   test("Simple float") {
     val p = new MathematicaParser()
     val actual = p.parse("-4242424242424242.125")
-    val expected = FloatNode(-4242424242424242.125)
+    val expected = NumberNode(-4242424242424242.125)
     actual shouldBe expected
   }
 
   test("Simple scientific notation") {
     val p = new MathematicaParser()
     val actual = p.parse("-4242424242424242.125E-1")
-    val expected = FloatNode(-424242424242424.2125)
+    val expected = NumberNode(-424242424242424.2125)
     actual shouldBe expected
   }
 

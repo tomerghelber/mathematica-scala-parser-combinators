@@ -2,11 +2,9 @@ package tomerghelber.mathematica.ast
 
 trait ASTNode
 
-trait NumberNode extends ASTNode
 trait ScriptNode extends ASTNode
 
-case class IntegerNode(value: BigInt) extends NumberNode
-case class FloatNode(value: Double) extends NumberNode
+case class NumberNode(value: Double) extends ASTNode
 case class StringNode(value: String) extends ASTNode
 case class SymbolNode (value: String) extends ASTNode
 
