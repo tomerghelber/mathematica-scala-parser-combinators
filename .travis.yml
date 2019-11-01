@@ -1,7 +1,6 @@
 language: scala
 scala:
   - 2.12.8
-  - 2.13.1
 
 before_cache:
   # Tricks to avoid unnecessary cache updates
@@ -16,6 +15,9 @@ cache:
     - $HOME/.sbt/boot/
 
 # single test suite, non-parallel build.
+
+install:
+  - sbt compile
 
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
