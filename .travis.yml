@@ -1,5 +1,9 @@
 language: scala
 
+cache:
+  directories:
+    - $HOME/.m2  # maven directory
+
 # single test suite, non-parallel build.
 
 before_script:
