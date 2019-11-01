@@ -42,18 +42,20 @@ class MathematicaParser() extends StdTokenParsers {
 //    case expr ~ parts => PartNode(expr, parts)
 //  } | subscript
 
-  private def incementAndDecrement: Parser[ASTNode] = lower ~ opt(INCREASE | DECREASE) ^^ {
-    case expr ~ None => expr
-    case expr ~ Some(INCREASE) => IncrementNode(expr)
-    case expr ~ Some(DECREASE) => DecrementNode(expr)
-    case _ => throw new MatchError()  // redundant, just to suppress the compile time warning
+  private def incementAndDecrement: Parser[ASTNode] = lower ~ rep(INCREASE | DECREASE) ^^ {
+    case expr ~ operators => operators.map{
+      case INCREASE => IncrementNode
+      case DECREASE => DecrementNode
+      case other => throw new MatchError(other)  // redundant, just to suppress the compile time warning
+    }.foldLeft(expr)((e, op) => op(e))
   }
 
-  private def preincementAndPredecrement: Parser[ASTNode] = opt(INCREASE | DECREASE) ~ incementAndDecrement ^^ {
-    case None ~ expr => expr
-    case Some(INCREASE) ~ expr => PreincrementNode(expr)
-    case Some(DECREASE) ~ expr => PredecrementNode(expr)
-    case _ => throw new MatchError()  // redundant, just to suppress the compile time warning
+  private def preincementAndPredecrement: Parser[ASTNode] = rep(INCREASE | DECREASE) ~ incementAndDecrement ^^ {
+    case operators ~ expr => operators.map{
+      case INCREASE => PreincrementNode
+      case DECREASE => PredecrementNode
+      case other => throw new MatchError(other)  // redundant, just to suppress the compile time warning
+    }.foldLeft(expr)((e, op) => op(e))
   }
 
 //  private def composition: Parser[ASTNode] = preincementAndPredecrement ~ ("@*" | "/*") ~ preincementAndPredecrement ^^ {
