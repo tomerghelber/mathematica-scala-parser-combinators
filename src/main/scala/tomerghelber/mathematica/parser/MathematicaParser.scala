@@ -46,12 +46,14 @@ class MathematicaParser() extends StdTokenParsers {
     case expr ~ None => expr
     case expr ~ Some(INCREASE) => IncrementNode(expr)
     case expr ~ Some(DECREASE) => DecrementNode(expr)
+    case _ => throw new MatchError()  // redundant, just to suppress the compile time warning
   }
 
   private def preincementAndPredecrement: Parser[ASTNode] = opt(INCREASE | DECREASE) ~ incementAndDecrement ^^ {
     case None ~ expr => expr
     case Some(INCREASE) ~ expr => PreincrementNode(expr)
     case Some(DECREASE) ~ expr => PredecrementNode(expr)
+    case _ => throw new MatchError()  // redundant, just to suppress the compile time warning
   }
 
 //  private def composition: Parser[ASTNode] = preincementAndPredecrement ~ ("@*" | "/*") ~ preincementAndPredecrement ^^ {
