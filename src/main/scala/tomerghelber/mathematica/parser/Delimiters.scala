@@ -25,6 +25,7 @@ object Delimiters {
   val OBELUS = "÷"
   val INCREASE = "++"
   val DECREASE = "--"
+  val SUBSCRIPT = "\\_"
 
   def values: Set[String] = Set(
     ROUND_BRACKET_OPEN,
@@ -46,5 +47,6 @@ object Delimiters {
     OBELUS,
     INCREASE,
     DECREASE,
+    SUBSCRIPT,
   )
 }

@@ -83,6 +83,17 @@ class MathematicaParserSpec extends FunSuite with Matchers with ScalaCheckProper
     }
   }
 
+  test("Simple subscript") {
+    forAll { (p: MathematicaParser, first: SymbolNode, second: SymbolNode) =>
+      val actual = p.parse(first.value + " \\_ " + second.value)
+      val expected = SubscriptNode(
+        first,
+        second,
+      )
+      actual shouldBe expected
+    }
+  }
+
   test("Simple factor") {
     forAll { (p: MathematicaParser, first: SymbolNode) =>
       val actual = p.parse(first.value + "!")
@@ -99,6 +110,14 @@ class MathematicaParserSpec extends FunSuite with Matchers with ScalaCheckProper
       val expected = Factorial2Node(
         first,
       )
+      actual shouldBe expected
+    }
+  }
+
+  test("x \\_ y \\_ z = x \\_ (y \\_ z)") {
+    forAll(mathematicaParserGen, symbolStringGen, symbolStringGen, symbolStringGen) { (p: MathematicaParser, x: String, y: String, z: String) =>
+      val actual = p.parse(f"$x \\_ $y \\_ $z")
+      val expected = p.parse(f"$x \\_ ($y \\_ $z)")
       actual shouldBe expected
     }
   }
