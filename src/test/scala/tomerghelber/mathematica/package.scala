@@ -2,6 +2,7 @@ package tomerghelber
 
 import org.scalacheck.Gen
 import tomerghelber.mathematica.ast.{NumberNode, SymbolNode}
+import tomerghelber.mathematica.eval.MathematicaEvaluator
 import tomerghelber.mathematica.parser.MathematicaParser
 
 /**
@@ -11,6 +12,7 @@ import tomerghelber.mathematica.parser.MathematicaParser
 package object mathematica {
   // Singletons
   val mathematicaParserGen = Gen.choose(1, 1).map(_ => new MathematicaParser())
+  val mathematicaEvaluatorGen = Gen.choose(1, 1).map(_ => new MathematicaEvaluator())
 
   // Strings
   val symbolStringGen = Gen.alphaStr.withFilter(_.nonEmpty)
