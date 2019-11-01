@@ -185,7 +185,7 @@ class MathematicaParser() extends StdTokenParsers {
     case i ~ j ~ k => SpanNode(i, j, k)
   } | union
 
-  private def equalities: Parser[ASTNode] = chainl1(span,
+  private val equalities: Parser[ASTNode] = chainl1(span,
     ( ("==" | "\uF7D9") ^^ {_ => EqualNode}
     | "!=" ^^ { _ => UnequalNode}
     | ">" ^^ { _ => GreaterNode}
@@ -196,32 +196,33 @@ class MathematicaParser() extends StdTokenParsers {
   )
 
   // TODO: check those
-  private def horizontalArrowAndVectorOperators: Parser[ASTNode] = equalities
-  private def diagonalArrowOperators: Parser[ASTNode] = horizontalArrowAndVectorOperators
+  private val horizontalArrowAndVectorOperators: Parser[ASTNode] = equalities
+  private val diagonalArrowOperators: Parser[ASTNode] = horizontalArrowAndVectorOperators
 
-  private def sameQ: Parser[ASTNode] = chainl1(diagonalArrowOperators,
+  private val sameQ: Parser[ASTNode] = chainl1(diagonalArrowOperators,
     ( "===" ^^ {_ => SameQNode}
     | "=!=" ^^ {_ => UnSameQNode}
     )
   )
 
-//  private def setRelationOperators: Parser[ASTNode] = sameQ ~ ("∈" | "∉" | "⊂" | "⊃") ~ sameQ ^^ {
-//    case expr1 ~ "∈" ~ expr2 => ElementNode(expr1, expr2)
-//    case expr1 ~ "∉" ~ expr2 => NotElementNode(expr1, expr2)
-//    case expr1 ~ "⊂" ~ expr2 => SubsetNode(expr1, expr2)
-//    case expr1 ~ "⊃" ~ expr2 => SupersetNode(expr1, expr2)
-//  } | sameQ
-//
+  private val setRelationOperators: Parser[ASTNode] = chainl1(sameQ,
+    ( "∈" ^^ {_ => ElementNode}
+    | "∉" ^^ {_ => NotElementNode}
+    | "⊂" ^^ {_ => SubsetNode}
+    | "⊃" ^^ {_ => SupersetNode}
+    )
+  )
+
 //  private def forallAndExists: Parser[ASTNode] = setRelationOperators ~ ("∀" | "∃" | "∄") ~ setRelationOperators ^^ {
 //    case expr1 ~ "∀" ~ expr2 => ForAllNode(expr1, expr2)
 //    case expr1 ~ "∃" ~ expr2 => ExistsNode(expr1, expr2)
 //    case expr1 ~ "∄" ~ expr2 => NotExistsNode(expr1, expr2)
 //  } | setRelationOperators
 //
-//  private def not: Parser[ASTNode] = ("!" | "¬") ~> forallAndExists ^^ {
-//    expr => NotNode(expr)
-//  } | forallAndExists
-//
+  private val not: Parser[ASTNode] = rep("!" | "¬") ~ setRelationOperators ^^ {
+    case nots ~ expr => nots.foldLeft(expr)((e, _) => NotNode(e))
+  }
+
 //  private def and: Parser[ASTNode] = not ~ ("&&" | "∧" | "⊼") ~ not ^^ {
 //    case expr1 ~ ("&&" | "∧") ~ expr2 => AndNode(expr1, expr2)
 //    case expr1 ~ "⊼" ~ expr2 => NandNode(expr1, expr2)
@@ -254,7 +255,7 @@ class MathematicaParser() extends StdTokenParsers {
 //    case expr1 ~ "⊤" ~ expr2 => DownTeeNode(expr1, expr2)
 //  } | implies
 
-  private def root = sameQ
+  private def root = not
 
   /**
    * Parse the given <code>expression</code> String into an ASTNode.
