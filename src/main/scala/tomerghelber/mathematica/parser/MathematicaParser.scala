@@ -185,19 +185,20 @@ class MathematicaParser() extends StdTokenParsers {
     case i ~ j ~ k => SpanNode(i, j, k)
   } | union
 
-//  private def equalities: Parser[ASTNode] = span ~ ("==" | "\uF7D9" | "!=" | ">" | ">=" | "≥" | "⩾" | "<" | "<=" | "≤" | "⩽") ~ span ^^ {
-//    case expr1 ~ ("==" | "\uF7D9") ~ expr2 => EqualNode(expr1, expr2)
-//    case expr1 ~ "!=" ~ expr2 => UnequalNode(expr1, expr2)
-//    case expr1 ~ ">" ~ expr2 => GreaterNode(expr1, expr2)
-//    case expr1 ~ (">=" | "≥" | "⩾") ~ expr2 => GreaterEqualNode(expr1, expr2)
-//    case expr1 ~ "<" ~ expr2 => LessNode(expr1, expr2)
-//    case expr1 ~ ("<=" | "≤" | "⩽") ~ expr2 => LessEqualNode(expr1, expr2)
-//  } | span
-//
-//  // TODO: check those
-//  private def horizontalArrowAndVectorOperators: Parser[ASTNode] = equalities
-//  private def diagonalArrowOperators: Parser[ASTNode] = horizontalArrowAndVectorOperators
-//
+  private def equalities: Parser[ASTNode] = chainl1(span,
+    ( ("==" | "\uF7D9") ^^ {_ => EqualNode}
+    | "!=" ^^ { _ => UnequalNode}
+    | ">" ^^ { _ => GreaterNode}
+    | (">=" | "≥" | "⩾") ^^ { _ => GreaterEqualNode}
+    | "<" ^^ { _ => LessNode}
+    | ("<=" | "≤" | "⩽") ^^ { _ => LessEqualNode}
+    )
+  )
+
+  // TODO: check those
+  private def horizontalArrowAndVectorOperators: Parser[ASTNode] = equalities
+  private def diagonalArrowOperators: Parser[ASTNode] = horizontalArrowAndVectorOperators
+
 //  private def sameQ: Parser[ASTNode] = diagonalArrowOperators ~ ("===" | "=!=") ~ diagonalArrowOperators ^^ {
 //    case expr1 ~ "===" ~ expr2 => SameQNode(expr1, expr2)
 //    case expr1 ~ "=!=" ~ expr2 => UnSameQNode(expr1, expr2)
@@ -252,7 +253,7 @@ class MathematicaParser() extends StdTokenParsers {
 //    case expr1 ~ "⊤" ~ expr2 => DownTeeNode(expr1, expr2)
 //  } | implies
 
-  private def root = plusAndMinus
+  private def root = diagonalArrowOperators
 
   /**
    * Parse the given <code>expression</code> String into an ASTNode.
