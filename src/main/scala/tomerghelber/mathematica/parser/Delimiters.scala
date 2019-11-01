@@ -26,6 +26,8 @@ object Delimiters {
   val INCREASE = "++"
   val DECREASE = "--"
   val SUBSCRIPT = "\\_"
+  val OVERSCRIPT = "\\&"
+  val UNDERSCRIPT = "\\+"
 
   def values: Set[String] = Set(
     ROUND_BRACKET_OPEN,
@@ -48,5 +50,7 @@ object Delimiters {
     INCREASE,
     DECREASE,
     SUBSCRIPT,
+    OVERSCRIPT,
+    UNDERSCRIPT,
   )
 }

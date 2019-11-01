@@ -29,12 +29,18 @@ class MathematicaParser() extends StdTokenParsers {
 
   private def lower: Parser[ASTNode] = terminal | ROUND_BRACKET_OPEN ~> root <~ ROUND_BRACKET_CLOSE
 
-//  private def overscriptAndUnderscript: Parser[ASTNode] = lower ~ ("\\+" | "\\&") ~ lower ^^ {
-//    case expr1 ~ "\\&" ~ expr2 => OverscriptNode(expr1, expr2)
-//    case expr1 ~ "\\+" ~ expr2 => UnderscriptNode(expr1, expr2)
-//  } | lower
+  private def overAndUnderscript: Parser[ASTNode] = {
+    val operators = ("\\+" | "\\&") ^^ {
+      case "\\&" => OverscriptNode
+      case "\\+" => UnderscriptNode
+      case other => throw new MatchError(other)  // redundant, just to suppress the compile time warning
+    }
+    rep(lower ~ operators) ~ lower ^^ {
+      case reps ~ expr => reps.foldRight(expr){case (lhs ~ op, rhs) => op(lhs, rhs)}
+    }
+  }
 
-  private def subscript: Parser[ASTNode] = rep1sep(lower, SUBSCRIPT) ^^ (subscripts => subscripts.reduceRight(SubscriptNode))
+  private def subscript: Parser[ASTNode] = rep1sep(overAndUnderscript, SUBSCRIPT) ^^ (subscripts => subscripts.reduceRight(SubscriptNode))
 
 //  private def part: Parser[ASTNode] = subscript ~ (("[" ~> rep1sep(subscript, ",") <~ "]") | ("[[" ~> rep1sep(subscript, ",") <~ "]]") | ("〚" ~> rep1sep(subscript, ",") <~ "〛")) ^^ {
 //    case expr ~ parts => PartNode(expr, parts)
