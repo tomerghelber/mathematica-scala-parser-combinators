@@ -13,7 +13,7 @@ case class OverscriptNode(expr1: ASTNode, expr2: ASTNode) extends ScriptNode
 case class UnderscriptNode(expr1: ASTNode, expr2: ASTNode) extends ScriptNode
 case class SubscriptNode(expr1: ASTNode, expr2: ASTNode) extends ScriptNode
 
-case class PartNode(expr: ASTNode, parts: List[ASTNode]) extends ASTNode
+case class PartNode(expr: ASTNode, part: ASTNode) extends ASTNode
 
 case class IncrementNode(expr: ASTNode) extends ASTNode
 case class DecrementNode(expr: ASTNode) extends ASTNode

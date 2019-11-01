@@ -42,11 +42,13 @@ class MathematicaParser() extends StdTokenParsers {
 
   private def subscript: Parser[ASTNode] = rep1sep(overAndUnderscript, SUBSCRIPT) ^^ (subscripts => subscripts.reduceRight(SubscriptNode))
 
-//  private def part: Parser[ASTNode] = subscript ~ (("[" ~> rep1sep(subscript, ",") <~ "]") | ("[[" ~> rep1sep(subscript, ",") <~ "]]") | ("〚" ~> rep1sep(subscript, ",") <~ "〛")) ^^ {
-//    case expr ~ parts => PartNode(expr, parts)
-//  } | subscript
+  private def part: Parser[ASTNode] = {
+    ((underparts: Parser[ASTNode]) => underparts ~ opt(("[" ~> rep1sep(underparts, ",") <~ "]") | ("[[" ~> rep1sep(underparts, ",") <~ "]]") | ("〚" ~> rep1sep(underparts, ",") <~ "〛")) ^^ {
+      case expr ~ parts => parts.getOrElse(Seq.empty).foldLeft(expr)(PartNode)
+    })(subscript)
+  }
 
-  private def incementAndDecrement: Parser[ASTNode] = subscript ~ rep(INCREASE | DECREASE) ^^ {
+  private def incementAndDecrement: Parser[ASTNode] = part ~ rep(INCREASE | DECREASE) ^^ {
     case expr ~ operators => operators.map{
       case INCREASE => IncrementNode
       case DECREASE => DecrementNode
