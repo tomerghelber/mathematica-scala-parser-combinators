@@ -19,24 +19,35 @@ class MathematicaParserSpec extends FunSuite with Matchers with ScalaCheckProper
   }
 
   test("Simple integer") {
-    val p = new MathematicaParser()
-    val actual = p.parse("-4242424242424242")
-    val expected = NumberNode(-4242424242424242.0)
-    actual shouldBe expected
+    forAll (mathematicaParserGen, integerStringGen) { (p: MathematicaParser, integerString: String) =>
+      val actual = p.parse(integerString)
+      val expected = NumberNode(integerString.toDouble)
+      actual shouldBe expected
+    }
   }
 
   test("Simple float") {
-    val p = new MathematicaParser()
-    val actual = p.parse("-4242424242424242.125")
-    val expected = NumberNode(-4242424242424242.125)
-    actual shouldBe expected
+    forAll (mathematicaParserGen, floatStringGen) { (p: MathematicaParser, floatString: String) =>
+      val actual = p.parse(floatString)
+      val expected = NumberNode(floatString.toDouble)
+      actual shouldBe expected
+    }
   }
 
   test("Simple scientific notation") {
-    val p = new MathematicaParser()
-    val actual = p.parse("-4242424242424242.125E-1")
-    val expected = NumberNode(-424242424242424.2125)
-    actual shouldBe expected
+    forAll (mathematicaParserGen, scientificNotationGen) { (p: MathematicaParser, scientificNotation: String) =>
+      val actual = p.parse(scientificNotation)
+      val expected = NumberNode(scientificNotation.toDouble)
+      actual shouldBe expected
+    }
+  }
+
+  test("Simple numbers") {
+    forAll (mathematicaParserGen, numberStringGen) { (p: MathematicaParser, numberString: String) =>
+      val actual = p.parse(numberString)
+      val expected = NumberNode(numberString.toDouble)
+      actual shouldBe expected
+    }
   }
 
   test("Simple plus") {
