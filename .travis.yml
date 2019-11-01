@@ -15,5 +15,7 @@ script:
   - sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
 
 after_script:
-  - ./cc-test-reporter format-coverage -t cobertura target/scala-*/coverage-report/cobertura.xm
+
+  - SCALA_DIRECTORY=LESS_V=$(echo $TRAVIS_SCALA_VERSION | grep -o -P '^\d+\.\d+' '-')
+  - ./cc-test-reporter format-coverage -t cobertura target/scala-$SCALA_DIRECTORY/coverage-report/cobertura.xm
   - ./cc-test-reporter upload-coverage
