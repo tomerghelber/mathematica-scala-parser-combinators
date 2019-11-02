@@ -1,8 +1,6 @@
 package tomerghelber.mathematica.parser
 
 import com.typesafe.scalalogging.LazyLogging
-import tomerghelber.mathematica.ast._
-import tomerghelber.mathematica.parser.Delimiters.{DECREASE, MINUS, MINUS_PLUS, PLUS, PLUS_MINUS, _}
 
 import scala.util.parsing.combinator.syntactical.StdTokenParsers
 
@@ -12,6 +10,8 @@ import scala.util.parsing.combinator.syntactical.StdTokenParsers
  * The only important method is [[parse]].
  */
 class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging {
+  import tomerghelber.mathematica.ast._
+  import tomerghelber.mathematica.parser.Delimiters._
 
   // Fill in abstract defs
   override type Tokens = MathematicaLexer
