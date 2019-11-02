@@ -20,6 +20,7 @@ class MathematicaEvaluator(globalEnvironment: mutable.Map[String, ASTNode]= muta
   private def eval(node: ASTNode, environment: mutable.Map[String, ASTNode]): ASTNode = {
     node match {
       case node: NumberNode => node
+      case node: StringNode => node
       case SymbolNode(symbol) => environment(symbol)
 //      case FunctionNode(name, arguments) =>
 //        logger.debug("Unknown function")
