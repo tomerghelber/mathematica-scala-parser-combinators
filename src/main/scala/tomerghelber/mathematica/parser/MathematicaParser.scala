@@ -50,9 +50,8 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
   }
 
   private val incrementAndDecrement: Parser[ASTNode] = lastFolderRight(part,
-    ( INCREASE ^^ { _=>(e1: ASTNode) => IncrementNode.apply(e1) }
-    | DECREASE ^^ { _=>(e1: ASTNode) => DecrementNode.apply(e1) }
-    )
+    INCREASE ^^ { _=>(e1: ASTNode) => IncrementNode.apply(e1) }
+  | DECREASE ^^ { _=>(e1: ASTNode) => DecrementNode.apply(e1) }
   )
 
   private val preincrementAndPredecrement: Parser[ASTNode] = firstFolderRight(
