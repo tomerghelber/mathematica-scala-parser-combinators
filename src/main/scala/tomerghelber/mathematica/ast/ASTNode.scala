@@ -25,3 +25,19 @@ case class MaxLimitNode(expr1: ASTNode, expr3: ASTNode, expr2: ASTNode) extends 
 case class MinLimitNode(expr1: ASTNode, expr3: ASTNode, expr2: ASTNode) extends ASTNode
 
 case class SpanNode(expr1: ASTNode, expr3: ASTNode, expr2: ASTNode) extends ASTNode
+
+trait ApplyUnaryFunctionNode {
+  protected def name: String
+  def apply(first: ASTNode): FunctionNode = FunctionNode(SymbolNode(name), Seq(first))
+}
+trait ApplyBinaryFunctionNode {
+  protected def name: String
+  def apply(first: ASTNode, second: ASTNode): FunctionNode = FunctionNode(SymbolNode(name), Seq(first, second))
+}
+trait UnapplyFunctionNode {
+  protected def name: String
+  def unapply(arg: FunctionNode): Option[Seq[ASTNode]] = arg match {
+    case FunctionNode(SymbolNode(name), arguments) => Some(arguments)
+    case _ => None
+  }
+}
