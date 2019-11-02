@@ -2,5 +2,9 @@ package tomerghelber.mathematica.ast
 
 trait VectorOperationNode extends ASTNode
 
-case class CrossNode(expr1: ASTNode, expr3: ASTNode, expr2: ASTNode) extends VectorOperationNode
-case class DotNode(expr1: ASTNode, expr3: ASTNode, expr2: ASTNode) extends VectorOperationNode
+object CrossNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Cross"
+}
+object DotNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Dot"
+}

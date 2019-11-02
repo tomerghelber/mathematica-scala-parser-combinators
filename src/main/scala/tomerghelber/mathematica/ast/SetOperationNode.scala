@@ -2,9 +2,21 @@ package tomerghelber.mathematica.ast
 
 trait SetOperationNode extends ASTNode
 
-case class IntersectionNode(expr1: ASTNode, expr2: ASTNode) extends SetOperationNode
-case class UnionNode(expr1: ASTNode, expr2: ASTNode) extends SetOperationNode
-case class ElementNode(expr1: ASTNode, expr2: ASTNode) extends SetOperationNode
-case class NotElementNode(expr1: ASTNode, expr2: ASTNode) extends SetOperationNode
-case class SubsetNode(expr1: ASTNode, expr2: ASTNode) extends SetOperationNode
-case class SupersetNode(expr1: ASTNode, expr2: ASTNode) extends SetOperationNode
+object IntersectionNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Intersection"
+}
+object UnionNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Union"
+}
+object ElementNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Element"
+}
+object NotElementNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "NotElement"
+}
+object SubsetNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Subset"
+}
+object SupersetNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Superset"
+}

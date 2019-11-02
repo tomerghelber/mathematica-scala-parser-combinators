@@ -2,9 +2,21 @@ package tomerghelber.mathematica.ast
 
 trait ComparationNode extends ASTNode
 
-case class EqualNode(expr1: ASTNode, expr2: ASTNode) extends ComparationNode
-case class UnequalNode(expr1: ASTNode, expr2: ASTNode) extends ComparationNode
-case class GreaterNode(expr1: ASTNode, expr2: ASTNode) extends ComparationNode
-case class GreaterEqualNode(expr1: ASTNode, expr2: ASTNode) extends ComparationNode
-case class LessNode(expr1: ASTNode, expr2: ASTNode) extends ComparationNode
-case class LessEqualNode(expr1: ASTNode, expr2: ASTNode) extends ComparationNode
+object EqualNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Equal"
+}
+object UnequalNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Unequal"
+}
+object GreaterNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Greater"
+}
+object GreaterEqualNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "GreaterEqual"
+}
+object LessNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Less"
+}
+object LessEqualNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "LessEqual"
+}

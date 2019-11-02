@@ -29,13 +29,12 @@ class MathematicaParser extends StdTokenParsers with ParserUtil {
   private def lower: Parser[ASTNode] = terminal | ROUND_BRACKET_OPEN ~> root <~ ROUND_BRACKET_CLOSE
 
   private val overAndUnderscript: Parser[ASTNode] = chainr1(lower,
-    ( UNDERSCRIPT ^^ {_=>UnderscriptNode}
-    | OVERSCRIPT ^^ {_=>OverscriptNode}
-    )
+    UNDERSCRIPT ^^ {_=>(e1: ASTNode, e2: ASTNode)=>UnderscriptNode(e1, e2)}
+  | OVERSCRIPT ^^ {_=>(e1: ASTNode, e2: ASTNode)=>OverscriptNode(e1, e2)}
   )
 
   private val subscript: Parser[ASTNode] = rep1sep(overAndUnderscript, SUBSCRIPT) ^^
-    (subscripts => subscripts.reduceRight(SubscriptNode))
+    (subscripts => subscripts.reduceRight((e1, e2)=>SubscriptNode(e1, e2)))
 
   private val part: Parser[ASTNode] = {
     ((underparts: Parser[ASTNode]) => underparts ~ rep(
@@ -152,28 +151,27 @@ class MathematicaParser extends StdTokenParsers with ParserUtil {
 //  //  } | integrate
 
   private val plusAndMinus: Parser[ASTNode] = chainr1(times,
-    ( PLUS ^^ {_=> (e1: ASTNode, e2: ASTNode) => PlusNode.apply(e1, e2)}
-    | MINUS ^^ {_=>(expr1: ASTNode, expr2: ASTNode) => PlusNode(expr1, TimesNode(NumberNode(-1), expr2))}
-    | PLUS_MINUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => PlusMinusNode(expr1, expr2)}
-    | MINUS_PLUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => MinusPlusNode(expr1, expr2)}
-    )
+    PLUS ^^ {_=> (e1: ASTNode, e2: ASTNode) => PlusNode(e1, e2)}
+  | MINUS ^^ {_=>(expr1: ASTNode, expr2: ASTNode) => PlusNode(expr1, TimesNode(NumberNode(-1), expr2))}
+  | PLUS_MINUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => PlusMinusNode(expr1, expr2)}
+  | MINUS_PLUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => MinusPlusNode(expr1, expr2)}
   )
 
-  private val intersection: Parser[ASTNode] = rep1sep(plusAndMinus, INTERSECTION) ^^ (_.reduce(IntersectionNode))
+  private val intersection: Parser[ASTNode] = rep1sep(plusAndMinus, INTERSECTION) ^^ (_.reduce(IntersectionNode.apply))
 
-  private val union: Parser[ASTNode] = rep1sep(intersection, UNION) ^^ (_.reduce(UnionNode))
+  private val union: Parser[ASTNode] = rep1sep(intersection, UNION) ^^ (_.reduce(UnionNode.apply))
 
   private val span: Parser[ASTNode] = union ~ (SPAN ~> union <~ SPAN) ~ union ^^ {
     case i ~ j ~ k => SpanNode(i, j, k)
   } | union
 
   private val equalities: Parser[ASTNode] = chainl1(span,
-     ("==" | "\uF7D9") ^^ {_ => EqualNode}
-   | "!=" ^^ { _ => UnequalNode}
-   | ">" ^^ { _ => GreaterNode}
-   | (">=" | "≥" | "⩾") ^^ { _ => GreaterEqualNode}
-   | "<" ^^ { _ => LessNode}
-   | ("<=" | "≤" | "⩽") ^^ { _ => LessEqualNode}
+     ("==" | "\uF7D9")  ^^ { _ => (e1: ASTNode, e2: ASTNode)=>EqualNode(e1, e2)        }
+   | "!="               ^^ { _ => (e1: ASTNode, e2: ASTNode)=>UnequalNode(e1, e2)      }
+   | ">"                ^^ { _ => (e1: ASTNode, e2: ASTNode)=>GreaterNode(e1, e2)      }
+   | (">=" | "≥" | "⩾") ^^ { _ => (e1: ASTNode, e2: ASTNode)=>GreaterEqualNode(e1, e2) }
+   | "<"                ^^ { _ => (e1: ASTNode, e2: ASTNode)=>LessNode(e1, e2)         }
+   | ("<=" | "≤" | "⩽") ^^ { _ => (e1: ASTNode, e2: ASTNode)=>LessEqualNode(e1, e2)    }
   )
 
   // TODO: check those
@@ -186,10 +184,10 @@ class MathematicaParser extends StdTokenParsers with ParserUtil {
   )
 
   private val setRelationOperators: Parser[ASTNode] = chainl1(sameQ,
-    "∈" ^^ {_ => ElementNode}
-   | "∉" ^^ {_ => NotElementNode}
-   | "⊂" ^^ {_ => SubsetNode}
-   | "⊃" ^^ {_ => SupersetNode}
+    "∈" ^^ {_ =>(e1: ASTNode, e2: ASTNode)=>ElementNode(e1, e2)}
+   | "∉" ^^ {_ =>(e1: ASTNode, e2: ASTNode)=>NotElementNode(e1, e2)}
+   | "⊂" ^^ {_ =>(e1: ASTNode, e2: ASTNode)=>SubsetNode(e1, e2)}
+   | "⊃" ^^ {_ =>(e1: ASTNode, e2: ASTNode)=>SupersetNode(e1, e2)}
   )
 
 //  private def forallAndExists: Parser[ASTNode] = setRelationOperators ~ ("∀" | "∃" | "∄") ~ setRelationOperators ^^ {
