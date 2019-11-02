@@ -1,7 +1,7 @@
 package tomerghelber.mathematica.parser
 
 import tomerghelber.mathematica.ast._
-import tomerghelber.mathematica.parser.Delimiters._
+import tomerghelber.mathematica.parser.Delimiters.{MINUS, MINUS_PLUS, PLUS, PLUS_MINUS, _}
 
 import scala.util.parsing.combinator.syntactical.StdTokenParsers
 
@@ -29,11 +29,10 @@ class MathematicaParser extends StdTokenParsers {
   private def lower: Parser[ASTNode] = terminal | ROUND_BRACKET_OPEN ~> root <~ ROUND_BRACKET_CLOSE
 
   private val overAndUnderscript: Parser[ASTNode] = {
-    val operators = (UNDERSCRIPT | OVERSCRIPT) ^^ {
-      case OVERSCRIPT => OverscriptNode
-      case UNDERSCRIPT => UnderscriptNode
-      case other: Any => throw new MatchError(other)  // redundant, just to suppress the compile time warning
-    }
+    val operators =
+      ( UNDERSCRIPT ^^ {_=>UnderscriptNode}
+      | OVERSCRIPT ^^ {_=>OverscriptNode}
+      )
     rep(lower ~ operators) ~ lower ^^ {
       case reps ~ expr => reps.foldRight(expr){case (lhs ~ op, rhs) => op(lhs, rhs)}
     }
@@ -52,28 +51,22 @@ class MathematicaParser extends StdTokenParsers {
     })(subscript)
   }
 
-  private val incrementAndDecrement: Parser[ASTNode] = part ~ rep(INCREASE | DECREASE) ^^ {
-    case expr ~ operators => operators.map{
-      case INCREASE => IncrementNode
-      case DECREASE => DecrementNode
-      case other: Any => throw new MatchError(other)  // redundant, just to suppress the compile time warning
-    }.foldLeft(expr)((e, op) => op(e))
-  }
+  private val incrementAndDecrement: Parser[ASTNode] = part ~ rep(
+      INCREASE ^^ {_=>IncrementNode}
+    | DECREASE ^^ {_=>DecrementNode}
+    ) ^^ { case expr ~ operators => operators.foldRight(expr)(_(_)) }
 
-  private val preincrementAndPredecrement: Parser[ASTNode] = rep(INCREASE | DECREASE) ~ incrementAndDecrement ^^ {
-    case operators ~ expr => operators.map{
-      case INCREASE => PreincrementNode
-      case DECREASE => PredecrementNode
-      case other: Any => throw new MatchError(other)  // redundant, just to suppress the compile time warning
-    }.foldLeft(expr)((e, op) => op(e))
+  private val preincrementAndPredecrement: Parser[ASTNode] =
+    rep( INCREASE ^^ {_=>PreincrementNode}
+       | DECREASE ^^ {_=>PredecrementNode}
+    ) ~ incrementAndDecrement ^^ {
+    case operators ~ expr => operators.foldRight(expr)(_(_))
   }
 
   private val composition: Parser[ASTNode] = chainl1(preincrementAndPredecrement,
-    (COMPOSITION | RIGHT_COMPOSITION) ^^ {
-      case COMPOSITION => CompositionNode
-      case RIGHT_COMPOSITION => RightCompositionNode
-      case other: Any => throw new MatchError(other)  // redundant, just to suppress the compile time warning
-    }
+    ( COMPOSITION ^^ {_=>CompositionNode}
+    | RIGHT_COMPOSITION ^^ {_=>RightCompositionNode}
+    )
   )
 
 //  private def mapAndApply: Parser[ASTNode] = composition ~ ("/@" | "//@" | "@@" | "@@@") ~ composition ^^ {
@@ -91,14 +84,11 @@ class MathematicaParser extends StdTokenParsers {
   }
 
   private val conjugateAndTranspose: Parser[ASTNode] = factorial ~ rep(
-    (CONJUGATE | TRANSPOSE | CONJUGATE_TRANSPOSE | CONJUGATE_TRANSPOSE2) ^^ {
-    case CONJUGATE => ConjugateNode
-    case TRANSPOSE => TransposeNode
-    case CONJUGATE_TRANSPOSE | CONJUGATE_TRANSPOSE2 => ConjugateTransposeNode
-    case other: Any => throw new MatchError(other)  // redundant, just to suppress the compile time warning
-  }) ^^ {
-    case expr ~ operators => operators.foldLeft(expr)((e, op) => op(e))
-  }
+    ( CONJUGATE ^^ {_=>ConjugateNode}
+    | TRANSPOSE ^^ {_=>TransposeNode}
+    | (CONJUGATE_TRANSPOSE | CONJUGATE_TRANSPOSE2) ^^ {_=>ConjugateTransposeNode}
+    )
+  ) ^^ { case expr ~ operators => operators.foldRight(expr)(_(_)) }
 
   private val derivative: Parser[ASTNode] = conjugateAndTranspose ~ rep("'") ^^ {
     case expr ~ Nil => expr
@@ -116,7 +106,7 @@ class MathematicaParser extends StdTokenParsers {
 
   private val sqrt: Parser[ASTNode] = rep(SQRT) ~ verticalArrowAndVectorOperators ^^ {
     case sqrts ~ expr => sqrts.foldRight(expr)((_, e) => SqrtNode(e))
-  } | verticalArrowAndVectorOperators
+  }
 
   private val differentialD: Parser[ASTNode] = rep("d") ~ sqrt ^^ {
     case diffs ~ expr => diffs.foldLeft(expr)((e, _) => DifferentialDNode(e))
@@ -148,10 +138,10 @@ class MathematicaParser extends StdTokenParsers {
 //  } | dot
 
   private val divide: Parser[ASTNode] = rep1sep(squareAndCircle, (DIVIDE | OBELUS | DIVIDE2)) ^^
-    {_.reduceLeft(DivideNode)}
+    {_.reduceLeft(DivideNode.apply)}
 
   private val times: Parser[ASTNode] = rep1sep(divide, opt(ASTERISK | MULTIPLICATION_SIGN)) ^^
-    (_.reduceRight(TimesNode))
+    (_.reduceRight(TimesNode.apply))
 
 //  private def product: Parser[ASTNode] = times
 //
@@ -166,13 +156,13 @@ class MathematicaParser extends StdTokenParsers {
 //  //  } | integrate
 
   private val plusAndMinus: Parser[ASTNode] = {
-    val operatorToNodeCreator: String => ((ASTNode, ASTNode) => ASTNode) = {
-      case PLUS => PlusNode
-      case MINUS => (expr1, expr2) => PlusNode(expr1, TimesNode(NumberNode(-1), expr2))
-      case PLUS_MINUS => PlusMinusNode
-      case MINUS_PLUS => MinusPlusNode
-    }
-    rep(times ~ ((PLUS | MINUS | PLUS_MINUS | MINUS_PLUS) ^^ operatorToNodeCreator)) ~ times ^^ {
+    val operators: Parser[(ASTNode, ASTNode) => ASTNode] =
+    ( PLUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => PlusNode(expr1, expr2)}
+    | MINUS ^^ {_=>(expr1: ASTNode, expr2: ASTNode) => PlusNode(expr1, TimesNode(NumberNode(-1), expr2))}
+    | PLUS_MINUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => PlusMinusNode(expr1, expr2)}
+    | MINUS_PLUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => MinusPlusNode(expr1, expr2)}
+    )
+    rep(times ~ operators) ~ times ^^ {
       case tuples ~ last =>
         tuples.foldRight(last){case (n2 ~ creator, n1) => creator(n2, n1)}
     }
@@ -220,8 +210,8 @@ class MathematicaParser extends StdTokenParsers {
 //    case expr1 ~ "∄" ~ expr2 => NotExistsNode(expr1, expr2)
 //  } | setRelationOperators
 //
-  private val not: Parser[ASTNode] = rep("!" | "¬") ~ setRelationOperators ^^ {
-    case nots ~ expr => nots.foldLeft(expr)((e, _) => NotNode(e))
+  private val not: Parser[ASTNode] = rep(("!" | "¬")^^{_=>NotNode}) ~ setRelationOperators ^^ {
+    case nots ~ expr => nots.foldRight(expr)(_(_))
   }
 
 //  private def and: Parser[ASTNode] = not ~ ("&&" | "∧" | "⊼") ~ not ^^ {
