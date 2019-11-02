@@ -22,8 +22,13 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
 
   describe("Simple") {
     it("number evaluated") {
-      forAll { (eval: MathematicaEvaluator, expected: NumberNode) =>
-        val actual = eval.eval(expected)
+      forAll { (eval: MathematicaEvaluator, base: NumberNode) =>
+        val actual = eval.eval(base)
+        val expected = if (base.value.contains("/")) {
+          NumberNode(base.value.split("/").map(_.toDouble).reduce(_ / _).toString)
+        } else {
+          base
+        }
         actual shouldBe expected
       }
     }
@@ -45,7 +50,10 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
     it("plus evaluated") {
       forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
         val actual = eval.eval(FunctionNode(SymbolNode("Plus"), Seq(first, second)))
-        val expected = NumberNode(first.value + second.value)
+        val expected = NumberNode((eval.eval(first), eval.eval(second)) match {
+          case (NumberNode(a), NumberNode(b)) => (a.toDouble + b.toDouble).toString
+          case other => throw new MatchError(other)
+        })
         actual shouldBe expected
       }
     }
@@ -53,18 +61,23 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
     it("times evaluated") {
       forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
         val actual = eval.eval(FunctionNode(SymbolNode("Times"), Seq(first, second)))
-        val expected = NumberNode(first.value * second.value)
+        val expected = NumberNode((eval.eval(first), eval.eval(second)) match {
+          case (NumberNode(a), NumberNode(b)) => (a.toDouble * b.toDouble).toString
+          case other => throw new MatchError(other)
+        })
         actual shouldBe expected
       }
     }
 
     it("divide evaluated") {
       forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
-        whenever(second.value != 0) {
+        whenever(second.value.toDouble != 0) {
           val actual = eval.eval(FunctionNode(SymbolNode("Divide"), Seq(first, second)))
-          val expected = first.value / second.value
-          actual shouldBe a[NumberNode]
-          actual.asInstanceOf[NumberNode].value shouldBe (expected +- 0.001)
+          val expected = NumberNode((eval.eval(first), eval.eval(second)) match {
+            case (NumberNode(a), NumberNode(b)) => (a.toDouble / b.toDouble).toString
+            case other => throw new MatchError(other)
+          })
+          actual shouldBe expected
         }
       }
     }

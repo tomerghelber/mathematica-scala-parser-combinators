@@ -11,30 +11,39 @@ import tomerghelber.mathematica.parser.MathematicaParser
  */
 package object mathematica {
   // Singletons
-  val mathematicaParserGen = Gen.choose(1, 1).map(_ => new MathematicaParser())
-  val mathematicaEvaluatorGen = Gen.choose(1, 1).map(_ => new MathematicaEvaluator())
+  val mathematicaParserGen: Gen[MathematicaParser] = Gen.const(1).map(_ => new MathematicaParser())
+  val mathematicaEvaluatorGen: Gen[MathematicaEvaluator] = Gen.const(1).map(_ => new MathematicaEvaluator())
 
   // Strings
-  private val stringStringWithoutWrappersGen = Gen.alphaStr
-  val stringStringGen = stringStringWithoutWrappersGen.map(s => "\"" + s + "\"")
-  val symbolStringGen = Gen.alphaStr.filter(_.nonEmpty)
+  /** Generates a Unicode character, excluding noncharacters and invalid standalone surrogates: */
+  val unicodeChar: Gen[Char] = Gen.frequency(
+    Seq(0 -> 55295, 57344 -> 65533).map(x => (1 + x._2 - x._1, Gen.choose(x._1.toChar, x._2.toChar))):_*
+  )
+  val unicode: Gen[String] = Gen.listOf(unicodeChar).map(_.mkString)
+  private val stringStringWithoutWrappersGen = unicode
+    .map(_.replaceAll("\\\\", "\\\\")
+      .replaceAll("\"", "\\\""))
+  val stringStringGen: Gen[String] = stringStringWithoutWrappersGen.map(s => "\"" + s + "\"")
+  val symbolStringGen: Gen[String] = for (head <- Gen.alphaChar; last <- Gen.alphaNumStr) yield { head + last }
   private val posIntegerGen = Gen.numStr.withFilter(_.nonEmpty)
-  val integerStringGen = for (signOpt <- Gen.option("-"); posInteger <-posIntegerGen) yield {
+  val integerStringGen: Gen[String] = for (signOpt <- Gen.option("-"); posInteger <-posIntegerGen) yield {
     signOpt match {
       case None => posInteger
       case Some(sign) => sign + posInteger
     }
   }
-  val floatStringGen = for (integer <- integerStringGen; posInteger <- posIntegerGen) yield {
+  val rationalStringGen = for(q <-integerStringGen; p <-integerStringGen) yield { q + "/" + p}
+  val floatStringGen: Gen[String] = for (integer <- integerStringGen; posInteger <- posIntegerGen) yield {
     integer + "." + posInteger
   }
-  val scientificNotationGen = for (base <- floatStringGen; expo <- integerStringGen) yield {
+  val scientificNotationGen: Gen[String] = for (base <- floatStringGen; expo <- integerStringGen) yield {
     base + "E" + expo
   }
-  val numberStringGen = Gen.oneOf(integerStringGen, floatStringGen, scientificNotationGen)
+  val numberStringGen: Gen[String] = Gen.oneOf(integerStringGen, /*rationalStringGen,*/ floatStringGen,
+    scientificNotationGen)
 
   // Nodes
-  val symbolNodeGen = symbolStringGen.map(SymbolNode)
-  val stringNodeGen = stringStringWithoutWrappersGen.map(StringNode)
-  val numberNodeGen = numberStringGen.map(_.toDouble).map(NumberNode)
+  val symbolNodeGen: Gen[SymbolNode] = symbolStringGen.map(SymbolNode)
+  val stringNodeGen: Gen[StringNode] = stringStringWithoutWrappersGen.map(StringNode)
+  val numberNodeGen: Gen[NumberNode] = numberStringGen.map(NumberNode)
 }

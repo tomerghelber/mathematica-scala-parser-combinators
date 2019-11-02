@@ -30,7 +30,7 @@ class MathematicaParserSpec extends FunSpec with Matchers with ScalaCheckPropert
     it("Simple integer") {
       forAll(mathematicaParserGen, integerStringGen) { (p: MathematicaParser, integerString: String) =>
         val actual = p.parse(integerString)
-        val expected = NumberNode(integerString.toDouble)
+        val expected = NumberNode(integerString)
         actual shouldBe expected
       }
     }
@@ -38,7 +38,7 @@ class MathematicaParserSpec extends FunSpec with Matchers with ScalaCheckPropert
     it("Simple float") {
       forAll(mathematicaParserGen, floatStringGen) { (p: MathematicaParser, floatString: String) =>
         val actual = p.parse(floatString)
-        val expected = NumberNode(floatString.toDouble)
+        val expected = NumberNode(floatString)
         actual shouldBe expected
       }
     }
@@ -46,7 +46,7 @@ class MathematicaParserSpec extends FunSpec with Matchers with ScalaCheckPropert
     it("Simple scientific notation") {
       forAll(mathematicaParserGen, scientificNotationGen) { (p: MathematicaParser, scientificNotation: String) =>
         val actual = p.parse(scientificNotation)
-        val expected = NumberNode(scientificNotation.toDouble)
+        val expected = NumberNode(scientificNotation)
         actual shouldBe expected
       }
     }
@@ -54,7 +54,7 @@ class MathematicaParserSpec extends FunSpec with Matchers with ScalaCheckPropert
     it("Simple numbers") {
       forAll(mathematicaParserGen, numberStringGen) { (p: MathematicaParser, numberString: String) =>
         val actual = p.parse(numberString)
-        val expected = NumberNode(numberString.toDouble)
+        val expected = NumberNode(numberString)
         actual shouldBe expected
       }
     }

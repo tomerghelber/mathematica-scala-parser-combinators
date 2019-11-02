@@ -16,19 +16,26 @@ class MathematicaLexer extends Lexical with StdTokens {
       | failure("illegal character")
       )
 
-  private def sign = accept("sign", {case '+' => "+" case '-' => "-"})
-  private def signedInteger = opt(sign) ~ rep1(digit) ^^ {
-    case signOptional ~ number => (signOptional ++ number).mkString
+  private def number: Parser[NumericLit] = {
+    val sign: Parser[String] = accept("sign", {case '+' => "+" case '-' => "-"})
+    val unsignedInteger: Parser[String] = rep1(digit) ^^ { number => number.mkString }
+    val signedInteger: Parser[String] = opt(sign) ~ unsignedInteger ^^ {
+      case signOptional ~ number => (signOptional ++ number).mkString
+    }
+    val signedFraction: Parser[String] = signedInteger ~ ('/' ~> signedInteger) ^^ {
+      case p ~ q => p + "/" + q
+    }
+    val signedFloat: Parser[String] = signedInteger ~ ('.' ~> unsignedInteger) ^^ {
+      case beforeDot ~ afterDot => beforeDot + "." + afterDot
+    }
+    val scientificNotation: Parser[String] = signedFloat ~ ('E' ~> signedInteger) ^^ {
+      case base ~ expo => base + "E" + expo
+    }
+    (scientificNotation | signedFloat | signedFraction | signedInteger) ^^ NumericLit
   }
-  private def number: Parser[NumericLit] = signedInteger ~ opt('.' ~> rep1(digit)) ~ opt('E' ~> signedInteger) ^^ {
-    case number ~ afterDotOptional ~ exponentOptional =>
-      val afterDotString = afterDotOptional.map(afterDot => ('.' :: afterDot).mkString).getOrElse("")
-      val exponentString = exponentOptional.map("E" + _).getOrElse("")
-      NumericLit(number + afterDotString + exponentString)
-  }
-  private def identifier = opt('$') ~ rep1(letter) ^^ {
-    case dollar ~ letters =>
-      val name = (dollar ++ letters).mkString
+  private def identifier = letter ~ rep(letter | digit) ^^ {
+    case first ~ lasts =>
+      val name = (first :: lasts).mkString
       if (reserved contains name) Keyword(name) else Identifier(name)
   }
   private def string =

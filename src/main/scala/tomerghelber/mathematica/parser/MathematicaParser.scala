@@ -21,7 +21,7 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 //  lexical.reserved ++= List()
   lexical.delimiters ++= Delimiters.values
 
-  private val number: Parser[NumberNode] = numericLit ^^ { n => NumberNode(n.toDouble) }
+  private val number: Parser[NumberNode] = numericLit ^^ NumberNode
 
   private val symbol: Parser[SymbolNode] = ident ^^ SymbolNode
 
@@ -153,7 +153,7 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 
   private val plusAndMinus: Parser[ASTNode] = chainr1(times,
     PLUS ^^ {_=> (e1: ASTNode, e2: ASTNode) => PlusNode(e1, e2)}
-  | MINUS ^^ {_=>(expr1: ASTNode, expr2: ASTNode) => PlusNode(expr1, TimesNode(NumberNode(-1), expr2))}
+  | MINUS ^^ {_=>(expr1: ASTNode, expr2: ASTNode) => PlusNode(expr1, TimesNode(NumberNode("-1"), expr2))}
   | PLUS_MINUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => PlusMinusNode(expr1, expr2)}
   | MINUS_PLUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => MinusPlusNode(expr1, expr2)}
   )
@@ -240,7 +240,7 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
    * @param expressionString
    *            a formula string which should be parsed.
    * @return the parsed ASTNode representation of the given formula string
-   * @throws SyntaxException
+   * @throws SyntaxException Thrown when given expression is failed to par
    */
   def parse(expressionString: String): ASTNode = {
     logger.debug("Parsing " + expressionString)

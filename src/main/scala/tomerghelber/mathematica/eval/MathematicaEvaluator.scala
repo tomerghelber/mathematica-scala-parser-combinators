@@ -19,16 +19,18 @@ class MathematicaEvaluator(globalEnvironment: mutable.Map[String, ASTNode]= muta
 
   private def eval(node: ASTNode, environment: mutable.Map[String, ASTNode]): ASTNode = {
     node match {
+      case NumberNode(fraction) if fraction.contains("/") =>
+        NumberNode(fraction.split("/").map(_.toDouble).reduce(_ / _).toString)
       case node: NumberNode => node
       case node: StringNode => node
       case SymbolNode(symbol) => environment(symbol)
       case PlusNode(arguments) =>
-        NumberNode(arguments.map(eval(_, environment).asInstanceOf[NumberNode]).map(_.value).sum)
+        NumberNode(arguments.map(eval(_, environment).asInstanceOf[NumberNode]).map(_.value.toDouble).sum.toString)
       case TimesNode(arguments) =>
-        NumberNode(arguments.map(eval(_, environment).asInstanceOf[NumberNode]).map(_.value).product)
+        NumberNode(arguments.map(eval(_, environment).asInstanceOf[NumberNode]).map(_.value.toDouble).product.toString)
       case DivideNode(Seq(first, second)) =>
         (eval(first), eval(second)) match {
-          case (NumberNode(a) , NumberNode(b)) => NumberNode(a / b)
+          case (NumberNode(a) , NumberNode(b)) => NumberNode((a.toDouble / b.toDouble).toString)
           case other => throw new MatchError(other)
         }
       case other => throw new MatchError(other)
