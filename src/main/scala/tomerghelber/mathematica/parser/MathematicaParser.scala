@@ -10,7 +10,7 @@ import scala.util.parsing.combinator.syntactical.StdTokenParsers
  *
  * The only important method is [[parse]].
  */
-class MathematicaParser extends StdTokenParsers {
+class MathematicaParser extends StdTokenParsers with ParserUtil {
 
   // Fill in abstract defs
   override type Tokens = MathematicaLexer
@@ -28,15 +28,11 @@ class MathematicaParser extends StdTokenParsers {
 
   private def lower: Parser[ASTNode] = terminal | ROUND_BRACKET_OPEN ~> root <~ ROUND_BRACKET_CLOSE
 
-  private val overAndUnderscript: Parser[ASTNode] = {
-    val operators =
-      ( UNDERSCRIPT ^^ {_=>UnderscriptNode}
-      | OVERSCRIPT ^^ {_=>OverscriptNode}
-      )
-    rep(lower ~ operators) ~ lower ^^ {
-      case reps ~ expr => reps.foldRight(expr){case (lhs ~ op, rhs) => op(lhs, rhs)}
-    }
-  }
+  private val overAndUnderscript: Parser[ASTNode] = chainr1(lower,
+    ( UNDERSCRIPT ^^ {_=>UnderscriptNode}
+    | OVERSCRIPT ^^ {_=>OverscriptNode}
+    )
+  )
 
   private val subscript: Parser[ASTNode] = rep1sep(overAndUnderscript, SUBSCRIPT) ^^
     (subscripts => subscripts.reduceRight(SubscriptNode))
@@ -155,18 +151,13 @@ class MathematicaParser extends StdTokenParsers {
 //  //    case "\uF43A" ~ e3 => MinLimitNode(e3, e1, e2)
 //  //  } | integrate
 
-  private val plusAndMinus: Parser[ASTNode] = {
-    val operators: Parser[(ASTNode, ASTNode) => ASTNode] =
+  private val plusAndMinus: Parser[ASTNode] = chainr1(times,
     ( PLUS ^^ {_=> (e1: ASTNode, e2: ASTNode) => PlusNode.apply(e1, e2)}
     | MINUS ^^ {_=>(expr1: ASTNode, expr2: ASTNode) => PlusNode(expr1, TimesNode(NumberNode(-1), expr2))}
     | PLUS_MINUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => PlusMinusNode(expr1, expr2)}
     | MINUS_PLUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => MinusPlusNode(expr1, expr2)}
     )
-    rep(times ~ operators) ~ times ^^ {
-      case tuples ~ last =>
-        tuples.foldRight(last){case (n2 ~ creator, n1) => creator(n2, n1)}
-    }
-  }
+  )
 
   private val intersection: Parser[ASTNode] = rep1sep(plusAndMinus, INTERSECTION) ^^ (_.reduce(IntersectionNode))
 
