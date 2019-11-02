@@ -2,10 +2,24 @@ package tomerghelber.mathematica.ast
 
 trait BinaryOperationNode extends ASTNode
 
-case class NotNode(expr: ASTNode) extends BinaryOperationNode
-case class AndNode(expr1: ASTNode, expr2: ASTNode) extends BinaryOperationNode
-case class NandNode(expr1: ASTNode, expr2: ASTNode) extends BinaryOperationNode
-case class XorNode(expr1: ASTNode, expr2: ASTNode) extends BinaryOperationNode
-case class XnorNode(expr1: ASTNode, expr2: ASTNode) extends BinaryOperationNode
-case class OrNode(expr1: ASTNode, expr2: ASTNode) extends BinaryOperationNode
-case class NorNode(expr1: ASTNode, expr2: ASTNode) extends BinaryOperationNode
+object NotNode extends ApplyUnaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Not"
+}
+object AndNode extends ApplyUnaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "And"
+}
+object NandNode extends ApplyUnaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Nand"
+}
+object XorNode extends ApplyUnaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Xor"
+}
+object XnorNode extends ApplyUnaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Xnor"
+}
+object OrNode extends ApplyUnaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Or"
+}
+object NorNode extends ApplyUnaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Nor"
+}
