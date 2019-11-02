@@ -1,5 +1,7 @@
 package tomerghelber.mathematica.ast
 
-case class ConjugateNode(expr: ASTNode) extends ASTNode
-case class TransposeNode(expr: ASTNode) extends ASTNode
-case class ConjugateTransposeNode(expr: ASTNode) extends ASTNode
+trait MatrixOperationNode extends ASTNode
+
+case class ConjugateNode(expr: ASTNode) extends MatrixOperationNode
+case class TransposeNode(expr: ASTNode) extends MatrixOperationNode
+case class ConjugateTransposeNode(expr: ASTNode) extends MatrixOperationNode

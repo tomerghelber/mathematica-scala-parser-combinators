@@ -1,5 +1,7 @@
 package tomerghelber.mathematica.ast
 
-case class NumberNode(value: Double) extends ASTNode
-case class StringNode(value: String) extends ASTNode
-case class SymbolNode (value: String) extends ASTNode
+trait TerminalNode extends ASTNode
+
+case class NumberNode(value: Double) extends TerminalNode
+case class StringNode(value: String) extends TerminalNode
+case class SymbolNode (value: String) extends TerminalNode

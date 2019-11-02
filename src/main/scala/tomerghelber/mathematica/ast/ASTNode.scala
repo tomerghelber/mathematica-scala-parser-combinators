@@ -2,8 +2,6 @@ package tomerghelber.mathematica.ast
 
 trait ASTNode
 
-trait ScriptNode extends ASTNode
-
 case class PartNode(expr: ASTNode, part: ASTNode) extends ASTNode
 
 case class CompositionNode(expr1: ASTNode, expr2: ASTNode) extends ASTNode
