@@ -71,14 +71,12 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
 
     it("divide evaluated") {
       forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
-        whenever(second.value.toDouble != 0) {
-          val actual = eval.eval(FunctionNode(SymbolNode("Divide"), Seq(first, second)))
-          val expected = NumberNode((eval.eval(first), eval.eval(second)) match {
-            case (NumberNode(a), NumberNode(b)) => (a.toDouble / b.toDouble).toString
-            case other => throw new MatchError(other)
-          })
-          actual shouldBe expected
-        }
+        val actual = eval.eval(FunctionNode(SymbolNode("Divide"), Seq(first, second)))
+        val expected = NumberNode((eval.eval(first), eval.eval(second)) match {
+          case (NumberNode(a), NumberNode(b)) => (a.toDouble / b.toDouble).toString
+          case other => throw new MatchError(other)
+        })
+        actual shouldBe expected
       }
     }
 

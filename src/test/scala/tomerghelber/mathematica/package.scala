@@ -32,14 +32,14 @@ package object mathematica {
       case Some(sign) => sign + posInteger
     }
   }
-  val rationalStringGen = for(q <-integerStringGen; p <-integerStringGen) yield { q + "/" + p}
+  val rationalStringGen: Gen[String] = for(q <-integerStringGen; p <-integerStringGen) yield { q + "/" + p}
   val floatStringGen: Gen[String] = for (integer <- integerStringGen; posInteger <- posIntegerGen) yield {
     integer + "." + posInteger
   }
   val scientificNotationGen: Gen[String] = for (base <- floatStringGen; expo <- integerStringGen) yield {
     base + "E" + expo
   }
-  val numberStringGen: Gen[String] = Gen.oneOf(integerStringGen, /*rationalStringGen,*/ floatStringGen,
+  val numberStringGen: Gen[String] = Gen.oneOf(integerStringGen, rationalStringGen, floatStringGen,
     scientificNotationGen)
 
   // Nodes
