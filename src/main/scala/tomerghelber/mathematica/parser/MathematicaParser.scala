@@ -96,12 +96,11 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 
   private val power: Parser[ASTNode] = rep1sep(derivative, CARET) ^^ (values => values.reduceRight(PowerNode.apply))
 
-  // TODO: create this one
-  private val verticalArrowAndVectorOperators: Parser[ASTNode] = power
+//  private val verticalArrowAndVectorOperators: Parser[ASTNode] = power
 
   private val sqrt: Parser[ASTNode] = firstFolderRight(
     SQRT ^^ {_=>(e:ASTNode)=>SqrtNode(e)},
-    verticalArrowAndVectorOperators
+    power
   )
 
   private val differentialD: Parser[ASTNode] = firstFolderRight(
@@ -176,11 +175,10 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
    | ("<=" | "≤" | "⩽") ^^ { _ => (e1: ASTNode, e2: ASTNode)=>LessEqualNode(e1, e2)    }
   )
 
-  // TODO: check those
-  private val horizontalArrowAndVectorOperators: Parser[ASTNode] = equalities
-  private val diagonalArrowOperators: Parser[ASTNode] = horizontalArrowAndVectorOperators
+//  private val horizontalArrowAndVectorOperators: Parser[ASTNode] = equalities
+//  private val diagonalArrowOperators: Parser[ASTNode] = horizontalArrowAndVectorOperators
 
-  private val sameQ: Parser[ASTNode] = chainl1(diagonalArrowOperators,
+  private val sameQ: Parser[ASTNode] = chainl1(equalities,
     "===" ^^ {_ => (e1: ASTNode,e2: ASTNode)=>SameQNode(e1,e2)}
    | "=!=" ^^ {_ => (e1: ASTNode,e2: ASTNode)=>UnSameQNode(e1,e2)}
   )
