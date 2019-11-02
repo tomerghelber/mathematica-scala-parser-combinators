@@ -1,7 +1,5 @@
 package tomerghelber.mathematica.ast
 
-trait BinaryOperationNode extends ASTNode
-
 object NotNode extends ApplyUnaryFunctionNode with UnapplyFunctionNode {
   protected val name: String = "Not"
 }

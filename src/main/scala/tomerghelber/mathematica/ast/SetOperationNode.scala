@@ -1,7 +1,5 @@
 package tomerghelber.mathematica.ast
 
-trait SetOperationNode extends ASTNode
-
 object IntersectionNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
   protected val name: String = "Intersection"
 }

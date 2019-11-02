@@ -1,7 +1,5 @@
 package tomerghelber.mathematica.ast
 
-trait ScriptNode extends ASTNode
-
 object MessageNameNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
   protected val name: String = "MessageName"
 }

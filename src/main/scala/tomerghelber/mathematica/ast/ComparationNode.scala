@@ -1,7 +1,5 @@
 package tomerghelber.mathematica.ast
 
-trait ComparationNode extends ASTNode
-
 object EqualNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
   protected val name: String = "Equal"
 }
