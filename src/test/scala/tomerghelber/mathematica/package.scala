@@ -1,7 +1,7 @@
 package tomerghelber
 
 import org.scalacheck.Gen
-import tomerghelber.mathematica.ast.{NumberNode, SymbolNode}
+import tomerghelber.mathematica.ast.{NumberNode, StringNode, SymbolNode}
 import tomerghelber.mathematica.eval.MathematicaEvaluator
 import tomerghelber.mathematica.parser.MathematicaParser
 
@@ -15,7 +15,8 @@ package object mathematica {
   val mathematicaEvaluatorGen = Gen.choose(1, 1).map(_ => new MathematicaEvaluator())
 
   // Strings
-  val stringStringGen = Gen.alphaStr.map(s => "\"" + s + "\"")
+  private val stringStringWithoutWrappersGen = Gen.alphaStr
+  val stringStringGen = stringStringWithoutWrappersGen.map(s => "\"" + s + "\"")
   val symbolStringGen = Gen.alphaStr.filter(_.nonEmpty)
   private val posIntegerGen = Gen.numStr.withFilter(_.nonEmpty)
   val integerStringGen = for (signOpt <- Gen.option("-"); posInteger <-posIntegerGen) yield {
@@ -34,5 +35,6 @@ package object mathematica {
 
   // Nodes
   val symbolNodeGen = symbolStringGen.map(SymbolNode)
+  val stringNodeGen = stringStringWithoutWrappersGen.map(StringNode)
   val numberNodeGen = numberStringGen.map(_.toDouble).map(NumberNode)
 }
