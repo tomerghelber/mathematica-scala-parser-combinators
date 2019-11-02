@@ -4,7 +4,7 @@ import org.scalacheck.Arbitrary
 import org.scalatest.{FunSpec, Matchers}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import tomerghelber.mathematica._
-import tomerghelber.mathematica.ast.{NumberNode, SymbolNode}
+import tomerghelber.mathematica.ast.{FunctionNode, NumberNode, SymbolNode}
 import tomerghelber.mathematica.parser.MathematicaParser
 
 import scala.collection.mutable
@@ -33,6 +33,45 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
         val eval = new MathematicaEvaluator(mutable.Map((symbol.value, expected)))
         val actual = eval.eval(symbol)
         actual shouldBe expected
+      }
+    }
+
+    it("symbol is unknown") {
+      forAll { (eval: MathematicaEvaluator, symbol: SymbolNode) =>
+        a [NoSuchElementException] should be thrownBy eval.eval(symbol)
+      }
+    }
+
+    it("plus evaluated") {
+      forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
+        val actual = eval.eval(FunctionNode(SymbolNode("Plus"), Seq(first, second)))
+        val expected = NumberNode(first.value + second.value)
+        actual shouldBe expected
+      }
+    }
+
+    it("times evaluated") {
+      forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
+        val actual = eval.eval(FunctionNode(SymbolNode("Times"), Seq(first, second)))
+        val expected = NumberNode(first.value * second.value)
+        actual shouldBe expected
+      }
+    }
+
+    it("divide evaluated") {
+      forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
+        whenever(second.value != 0) {
+          val actual = eval.eval(FunctionNode(SymbolNode("Divide"), Seq(first, second)))
+          val expected = first.value / second.value
+          actual shouldBe a[NumberNode]
+          actual.asInstanceOf[NumberNode].value shouldBe (expected +- 0.001)
+        }
+      }
+    }
+
+    it("wrong number of parameters evaluated") {
+      forAll { (eval: MathematicaEvaluator, first: NumberNode) =>
+        a [MatchError] should be thrownBy eval.eval(FunctionNode(SymbolNode("Divide"), Seq(first, first, first)))
       }
     }
   }
