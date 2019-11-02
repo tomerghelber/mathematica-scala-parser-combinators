@@ -280,4 +280,39 @@ class MathematicaParserSpec extends FunSpec with Matchers with ScalaCheckPropert
       actual2 shouldBe expected
     }
   }
+
+
+  describe("Examples from WolfRam site") {
+    ignore("https://www.wolfram.com/language/gallery/implement-hello-world-in-the-cloud/") {
+      forAll { p: MathematicaParser =>
+
+        val out1 = p.parse("\"Hello, World\"")
+        val out2 = p.parse("Do[Print[\"Hello, World\"], {5}]")
+        val out3 = p.parse("CloudObject[\"Hello, World\"]")
+        val out4 = p.parse(
+          "CloudDeploy[\n" +
+            " ExportForm[Style[Framed[\"Hello, World\", ImageMargins -> 60],\n" +
+            "   80, Orange, FontFamily -> \"Verdana\"], \"GIF\"], \n" +
+            " Permissions -> \"Public\"]"
+        )
+      }
+    }
+
+    ignore("https://www.wolfram.com/language/gallery/make-a-hipstamatic-filter/") {
+      forAll { p: MathematicaParser =>
+        val out1 = p.parse(
+          "CloudDeploy[\n" +
+            " FormFunction[FormObject[{\"ImageURL\" -> \"String\"}], \n" +
+            "  ImageEffect[\n" +
+            "    ColorConvert[\n" +
+            "     ImageMultiply[\n" +
+            "      ColorConvert[\n" +
+            "       ImageAdd[ImageAdjust[Import[#ImageURL], .2], \n" +
+            "        RGBColor[.25, .25, -.1]], \"HSB\"], Hue[1, .7, 1]], \n" +
+            "     \"RGB\"], {\"PoissonNoise\", .5}] &, \"JPEG\"], \n" +
+            " Permissions -> \"Public\"]"
+        )
+      }
+    }
+  }
 }
