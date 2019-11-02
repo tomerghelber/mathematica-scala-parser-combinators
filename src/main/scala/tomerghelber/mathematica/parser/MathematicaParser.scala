@@ -1,7 +1,7 @@
 package tomerghelber.mathematica.parser
 
 import tomerghelber.mathematica.ast._
-import tomerghelber.mathematica.parser.Delimiters.{MINUS, MINUS_PLUS, PLUS, PLUS_MINUS, _}
+import tomerghelber.mathematica.parser.Delimiters.{DECREASE, MINUS, MINUS_PLUS, PLUS, PLUS_MINUS, _}
 
 import scala.util.parsing.combinator.syntactical.StdTokenParsers
 
@@ -52,13 +52,13 @@ class MathematicaParser extends StdTokenParsers {
   }
 
   private val incrementAndDecrement: Parser[ASTNode] = part ~ rep(
-      INCREASE ^^ {_=>IncrementNode}
-    | DECREASE ^^ {_=>DecrementNode}
+      INCREASE ^^ { _=>(e1: ASTNode) => IncrementNode.apply(e1) }
+    | DECREASE ^^ { _=>(e1: ASTNode) => DecrementNode.apply(e1) }
     ) ^^ { case expr ~ operators => operators.foldRight(expr)(_(_)) }
 
   private val preincrementAndPredecrement: Parser[ASTNode] =
-    rep( INCREASE ^^ {_=>PreincrementNode}
-       | DECREASE ^^ {_=>PredecrementNode}
+    rep( INCREASE ^^ { _=>(e1: ASTNode) => PreincrementNode.apply(e1)}
+       | DECREASE ^^ { _=>(e1: ASTNode) => PredecrementNode.apply(e1)}
     ) ~ incrementAndDecrement ^^ {
     case operators ~ expr => operators.foldRight(expr)(_(_))
   }
@@ -99,7 +99,7 @@ class MathematicaParser extends StdTokenParsers {
 //    case expr1 ~ expr2 ~ expr3 => StringJoinNode(expr1, expr2, expr3)
 //  } | derivative
 
-  private val power: Parser[ASTNode] = rep1sep(derivative, CARET) ^^ (values => values.reduceRight(PowerNode))
+  private val power: Parser[ASTNode] = rep1sep(derivative, CARET) ^^ (values => values.reduceRight(PowerNode.apply))
 
   // TODO: create this one
   private val verticalArrowAndVectorOperators: Parser[ASTNode] = power
@@ -157,7 +157,7 @@ class MathematicaParser extends StdTokenParsers {
 
   private val plusAndMinus: Parser[ASTNode] = {
     val operators: Parser[(ASTNode, ASTNode) => ASTNode] =
-    ( PLUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => PlusNode(expr1, expr2)}
+    ( PLUS ^^ {_=> (e1: ASTNode, e2: ASTNode) => PlusNode.apply(e1, e2)}
     | MINUS ^^ {_=>(expr1: ASTNode, expr2: ASTNode) => PlusNode(expr1, TimesNode(NumberNode(-1), expr2))}
     | PLUS_MINUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => PlusMinusNode(expr1, expr2)}
     | MINUS_PLUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => MinusPlusNode(expr1, expr2)}
@@ -177,13 +177,12 @@ class MathematicaParser extends StdTokenParsers {
   } | union
 
   private val equalities: Parser[ASTNode] = chainl1(span,
-    ( ("==" | "\uF7D9") ^^ {_ => EqualNode}
-    | "!=" ^^ { _ => UnequalNode}
-    | ">" ^^ { _ => GreaterNode}
-    | (">=" | "≥" | "⩾") ^^ { _ => GreaterEqualNode}
-    | "<" ^^ { _ => LessNode}
-    | ("<=" | "≤" | "⩽") ^^ { _ => LessEqualNode}
-    )
+     ("==" | "\uF7D9") ^^ {_ => EqualNode}
+   | "!=" ^^ { _ => UnequalNode}
+   | ">" ^^ { _ => GreaterNode}
+   | (">=" | "≥" | "⩾") ^^ { _ => GreaterEqualNode}
+   | "<" ^^ { _ => LessNode}
+   | ("<=" | "≤" | "⩽") ^^ { _ => LessEqualNode}
   )
 
   // TODO: check those
@@ -191,17 +190,15 @@ class MathematicaParser extends StdTokenParsers {
   private val diagonalArrowOperators: Parser[ASTNode] = horizontalArrowAndVectorOperators
 
   private val sameQ: Parser[ASTNode] = chainl1(diagonalArrowOperators,
-    ( "===" ^^ {_ => SameQNode}
-    | "=!=" ^^ {_ => UnSameQNode}
-    )
+    "===" ^^ {_ => SameQNode}
+   | "=!=" ^^ {_ => UnSameQNode}
   )
 
   private val setRelationOperators: Parser[ASTNode] = chainl1(sameQ,
-    ( "∈" ^^ {_ => ElementNode}
-    | "∉" ^^ {_ => NotElementNode}
-    | "⊂" ^^ {_ => SubsetNode}
-    | "⊃" ^^ {_ => SupersetNode}
-    )
+    "∈" ^^ {_ => ElementNode}
+   | "∉" ^^ {_ => NotElementNode}
+   | "⊂" ^^ {_ => SubsetNode}
+   | "⊃" ^^ {_ => SupersetNode}
   )
 
 //  private def forallAndExists: Parser[ASTNode] = setRelationOperators ~ ("∀" | "∃" | "∄") ~ setRelationOperators ^^ {
