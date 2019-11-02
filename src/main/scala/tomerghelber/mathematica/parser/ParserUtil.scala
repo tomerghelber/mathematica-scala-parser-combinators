@@ -14,4 +14,12 @@ trait ParserUtil {
   = rep(p ~ q) ~ first ^^ {
     case xs ~ x => xs.foldRight(x){case (b ~ f, a) => f(b, a)}
   }
+
+  def lastFolderRight[T](p: => Parser[T], q: => Parser[T => T]): Parser[T] = p ~ rep(q) ^^ {
+    case first ~ functions => functions.foldRight(first)(_(_))
+  }
+
+  def firstFolderRight[T](q: => Parser[T => T], p: => Parser[T]): Parser[T] = rep(q) ~ p ^^ {
+    case functions ~ last => functions.foldRight(last)(_(_))
+  }
 }
