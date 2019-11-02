@@ -1,7 +1,7 @@
 package tomerghelber.mathematica.eval
 
 import com.typesafe.scalalogging.LazyLogging
-import tomerghelber.mathematica.ast.ASTNode
+import tomerghelber.mathematica.ast._
 
 import scala.collection.mutable
 
@@ -18,16 +18,10 @@ class MathematicaEvaluator(globalEnvironment: mutable.Map[String, ASTNode]= muta
   }
 
   private def eval(node: ASTNode, environment: mutable.Map[String, ASTNode]): ASTNode = {
-    import tomerghelber.mathematica.ast._
     node match {
       case node: NumberNode => node
       case node: StringNode => node
       case SymbolNode(symbol) => environment(symbol)
-//      case FunctionNode(name, arguments) =>
-//        logger.debug("Unknown function")
-//        environment(name) match {
-//          case
-//        }
     }
   }
 }
