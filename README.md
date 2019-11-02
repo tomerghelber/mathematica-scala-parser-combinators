@@ -9,11 +9,14 @@ This repository directed to crate a parser for [Mathematica Language](https://ww
 The parser is written in scala using [scala-parser-combinators](https://github.com/scala/scala-parser-combinators)
 
 ## Development
+
 ### New feature
+
 To focus on the main reason for this repository,
 only parsing related code will be accepted.
 
 ### Bug
+
 For every new bug we create a test case to reveal the bug.
 
 After aknowlege the bug we fix it.
