@@ -19,6 +19,14 @@ class MathematicaParserSpec extends FunSpec with Matchers with ScalaCheckPropert
       }
     }
 
+    it("Simple string") {
+      forAll(mathematicaParserGen, stringStringGen) { (p: MathematicaParser, stringString: String) =>
+        val actual = p.parse(stringString)
+        val expected = StringNode(stringString.substring(1, stringString.length - 1))
+        actual shouldBe expected
+      }
+    }
+
     it("Simple integer") {
       forAll(mathematicaParserGen, integerStringGen) { (p: MathematicaParser, integerString: String) =>
         val actual = p.parse(integerString)
