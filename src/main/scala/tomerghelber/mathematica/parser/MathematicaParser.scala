@@ -25,7 +25,9 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 
   private val symbol: Parser[SymbolNode] = ident ^^ SymbolNode
 
-  private val terminal = number | symbol
+  private val string: Parser[StringNode] = stringLit ^^ StringNode
+
+  private val terminal: Parser[TerminalNode] = number | symbol | string
 
   private def lower: Parser[ASTNode] = terminal | ROUND_BRACKET_OPEN ~> root <~ ROUND_BRACKET_CLOSE
 
