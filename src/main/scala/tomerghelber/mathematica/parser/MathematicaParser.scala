@@ -39,7 +39,7 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 
   private val part: Parser[ASTNode] = {
     ((underparts: Parser[ASTNode]) => underparts ~ rep(
-          (ROUND_BRACKET_OPEN ~> rep1sep(underparts, COMMA) <~ ROUND_BRACKET_CLOSE)
+          (SQUARE_BRACKET_OPEN  ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE )
         | (SQUARE_BRACKET_OPEN2 ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE2)
         | (SQUARE_BRACKET_OPEN3 ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE3)
     ) ^^ {
