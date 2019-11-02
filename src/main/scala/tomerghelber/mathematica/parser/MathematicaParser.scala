@@ -42,7 +42,7 @@ class MathematicaParser extends StdTokenParsers with ParserUtil {
         | (SQUARE_BRACKET_OPEN2 ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE2)
         | (SQUARE_BRACKET_OPEN3 ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE3)
     ) ^^ {
-      case expr ~ parts => parts.flatten.foldLeft(expr)(PartNode)
+      case expr ~ parts => parts.flatten.foldLeft(expr)(PartNode.apply)
     })(subscript)
   }
 
@@ -59,8 +59,8 @@ class MathematicaParser extends StdTokenParsers with ParserUtil {
   }
 
   private val composition: Parser[ASTNode] = chainl1(preincrementAndPredecrement,
-    ( COMPOSITION ^^ {_=>CompositionNode}
-    | RIGHT_COMPOSITION ^^ {_=>RightCompositionNode}
+    ( COMPOSITION ^^ {_=>(e1: ASTNode,e2: ASTNode)=>CompositionNode(e1,e2)}
+    | RIGHT_COMPOSITION ^^ {_=>(e1: ASTNode,e2: ASTNode)=>RightCompositionNode(e1,e2)}
     )
   )
 
@@ -179,8 +179,8 @@ class MathematicaParser extends StdTokenParsers with ParserUtil {
   private val diagonalArrowOperators: Parser[ASTNode] = horizontalArrowAndVectorOperators
 
   private val sameQ: Parser[ASTNode] = chainl1(diagonalArrowOperators,
-    "===" ^^ {_ => SameQNode}
-   | "=!=" ^^ {_ => UnSameQNode}
+    "===" ^^ {_ => (e1: ASTNode,e2: ASTNode)=>SameQNode(e1,e2)}
+   | "=!=" ^^ {_ => (e1: ASTNode,e2: ASTNode)=>UnSameQNode(e1,e2)}
   )
 
   private val setRelationOperators: Parser[ASTNode] = chainl1(sameQ,

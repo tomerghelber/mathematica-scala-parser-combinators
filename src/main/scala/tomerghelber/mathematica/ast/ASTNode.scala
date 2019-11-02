@@ -4,21 +4,42 @@ trait ASTNode
 
 case class FunctionNode(name: ASTNode, arguments: Seq[ASTNode]) extends ASTNode
 
-case class PartNode(expr: ASTNode, part: ASTNode) extends ASTNode
+object PartNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Part"
+}
 
-case class CompositionNode(expr1: ASTNode, expr2: ASTNode) extends ASTNode
-case class RightCompositionNode(expr1: ASTNode, expr2: ASTNode) extends ASTNode
+object CompositionNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Composition"
+}
+object RightCompositionNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "RightComposition"
+}
 case class DerivativeNode(num: Int, expr: ASTNode) extends ASTNode
-case class DifferentialDNode(expr: ASTNode) extends ASTNode
-case class IntegrateNode(expr1: ASTNode, expr2: ASTNode) extends ASTNode
+object DifferentialDNode extends ApplyUnaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "DifferentialD"
+}
+object IntegrateNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Integrate"
+}
 
-case class SameQNode(expr1: ASTNode, expr2: ASTNode) extends ASTNode
-case class UnSameQNode(expr1: ASTNode, expr2: ASTNode) extends ASTNode
-case class ForAllNode(expr1: ASTNode, expr2: ASTNode) extends ASTNode
-case class ExistsNode(expr1: ASTNode, expr2: ASTNode) extends ASTNode
-case class NotExistsNode(expr1: ASTNode, expr2: ASTNode) extends ASTNode
-case class EquivalentNode(expr1: ASTNode, expr2: ASTNode) extends ASTNode
-case class Implies(expr1: ASTNode, expr2: ASTNode) extends ASTNode
+object SameQNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "SameQ"
+}
+object UnSameQNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "UnSameQ"
+}
+object ForAllNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "ForAll"
+}
+object ExistsNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Exists"
+}
+object NotExistsNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "NotExists"
+}
+object EquivalentNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name = "Equivalent"
+}
 
 case class LimitNode(expr1: ASTNode, expr3: ASTNode, expr2: ASTNode) extends ASTNode
 case class MaxLimitNode(expr1: ASTNode, expr3: ASTNode, expr2: ASTNode) extends ASTNode
@@ -37,7 +58,7 @@ trait ApplyBinaryFunctionNode {
 trait UnapplyFunctionNode {
   protected def name: String
   def unapply(arg: FunctionNode): Option[Seq[ASTNode]] = arg match {
-    case FunctionNode(SymbolNode(name), arguments) => Some(arguments)
+    case FunctionNode(SymbolNode(functionName), arguments) if functionName == name => Some(arguments)
     case _ => None
   }
 }
