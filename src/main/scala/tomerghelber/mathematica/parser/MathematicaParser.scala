@@ -5,11 +5,12 @@ import tomerghelber.mathematica.parser.Delimiters._
 
 import scala.util.parsing.combinator.syntactical.StdTokenParsers
 
-/**
- * TODO: follow this:
- * https://reference.wolfram.com/language/tutorial/OperatorInputForms.html
+/** This is a parser of Mathematica language as described at
+ * [[https://reference.wolfram.com/language/tutorial/OperatorInputForms.html the official site]].
+ *
+ * The only important method is [[parse]].
  */
-class MathematicaParser() extends StdTokenParsers {
+class MathematicaParser extends StdTokenParsers {
 
   // Fill in abstract defs
   override type Tokens = MathematicaLexer
