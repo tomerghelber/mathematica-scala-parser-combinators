@@ -16,7 +16,7 @@ jobs:
 
 stages:
   - name: deploy
-    if: branch = master
+    if: branch IN (master, develop)
 
 before_cache:
   # Tricks to avoid unnecessary cache updates
