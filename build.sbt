@@ -12,7 +12,7 @@ libraryDependencies += "org.scalatest" %% "scalatest" %  "3.0.8" % Test
 libraryDependencies += "org.scalacheck" %% "scalacheck" %  "1.14.2" % Test
 
 // POM settings for Sonatype
-organization := "com.example"
+organization := "com.github.tomerghelber"
 homepage := Some(url("https://github.com/tomerghelber/mathematica-scala-parser-combinators"))
 scmInfo := Some(ScmInfo(url("https://github.com/tomerghelber/mathematica-scala-parser-combinators") "git@github.com:tomerghelber/mathematica-scala-parser-combinators.git"))
 developers := List(Developer("tomerghelber", "Tomer Ghelber", "tomergelber@gmail.com", url("https://github.com/tomerghelber")))
