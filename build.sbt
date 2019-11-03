@@ -13,9 +13,23 @@ libraryDependencies += "org.scalacheck" %% "scalacheck" %  "1.14.2" % Test
 
 // POM settings for Sonatype
 organization := "com.github.tomerghelber"
-homepage := Some(url("https://github.com/tomerghelber/mathematica-scala-parser-combinators"))
-scmInfo := Some(ScmInfo(url("https://github.com/tomerghelber/mathematica-scala-parser-combinators") "git@github.com:tomerghelber/mathematica-scala-parser-combinators.git"))
-developers := List(Developer("tomerghelber", "Tomer Ghelber", "tomergelber@gmail.com", url("https://github.com/tomerghelber")))
+homepage := Some(
+  url("https://github.com/tomerghelber/mathematica-scala-parser-combinators")
+)
+scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/tomerghelber/mathematica-scala-parser-combinators")
+    "git@github.com:tomerghelber/mathematica-scala-parser-combinators.git"
+  )
+)
+developers := List(
+  Developer(
+    "tomerghelber",
+    "Tomer Ghelber",
+    "tomergelber@gmail.com",
+    url("https://github.com/tomerghelber")
+  )
+)
 licenses += ("gpl-3.0", url("https://www.gnu.org/licenses/gpl-3.0.html"))
 publishMavenStyle := true
 
