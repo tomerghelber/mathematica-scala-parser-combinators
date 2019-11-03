@@ -18,7 +18,7 @@ homepage := Some(
 )
 scmInfo := Some(
   ScmInfo(
-    url("https://github.com/tomerghelber/mathematica-scala-parser-combinators")
+    url("https://github.com/tomerghelber/mathematica-scala-parser-combinators"),
     "git@github.com:tomerghelber/mathematica-scala-parser-combinators.git"
   )
 )
