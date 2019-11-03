@@ -10,6 +10,9 @@ jobs:
 # "Mutation Tests" are too long and travis kills the job.
 #  - name: "Mutation Tests"
 #    script: sbt stryker
+  - stage: deploy
+    name: "Deploy to sonatype"
+    script: sbt publishSigned
 
 before_cache:
   # Tricks to avoid unnecessary cache updates
