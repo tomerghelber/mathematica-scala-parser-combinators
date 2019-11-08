@@ -5,20 +5,15 @@ scala:
 jobs:
   include:
   - stage: test
-    name: "Setup code climate coverage reporter"
+    name: "Unit Tests"
     script:
     - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
     - chmod +x ./cc-test-reporter
     - ./cc-test-reporter before-build
-  - stage: test
-    name: "Unit Tests"
-    script: sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
+    - sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
 # "Mutation Tests" are too long and travis kills the job.
 #  - name: "Mutation Tests"
 #    script: sbt stryker
-  - stage: test
-    name: "Report code climate coverage"
-    script:
     - SCALA_TARGET_DIRECTORY=target/scala-$(echo $TRAVIS_SCALA_VERSION | grep -o -P '^\d+\.\d+' '-')
     - ./cc-test-reporter format-coverage -t cobertura $SCALA_TARGET_DIRECTORY/coverage-report/cobertura.xml
     - ./cc-test-reporter upload-coverage
