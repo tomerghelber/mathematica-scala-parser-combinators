@@ -234,7 +234,12 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 //    case expr1 ~ "⊤" ~ expr2 => DownTeeNode(expr1, expr2)
 //  } | implies
 
-  private def root = not
+  private val rules = chainl1(not,
+    ("->" | "\uF522") ^^ {_=>(e1: ASTNode, e2: ASTNode) => RuleNode(e1, e2)}
+  | (":>" | "\uF51F") ^^ {_=>(e1: ASTNode, e2: ASTNode) => RuleDelayedNode(e1, e2)}
+  )
+
+  private def root = rules
 
   /**
    * Parse the given <code>expression</code> String into an ASTNode.
