@@ -1,13 +1,11 @@
-package tomerghelber.mathematica.eval
+package com.github.tomerghelber.mathematica
+package eval
 
 import org.scalacheck.Arbitrary
 import org.scalatest.{FunSpec, Matchers}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import tomerghelber.mathematica._
-import tomerghelber.mathematica.ast.{FunctionNode, NumberNode, SymbolNode}
-import tomerghelber.mathematica.parser.MathematicaParser
-
-import scala.collection.mutable
+import com.github.tomerghelber.mathematica.ast.{FunctionNode, NumberNode, SymbolNode}
+import com.github.tomerghelber.mathematica.parser.MathematicaParser
 
 /**
  * @author user
@@ -35,7 +33,7 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
 
     it("symbol evaluated") {
       forAll { (symbol: SymbolNode, expected: NumberNode) =>
-        val eval = new MathematicaEvaluator(mutable.Map((symbol.value, expected)))
+        val eval = new MathematicaEvaluator(Map((symbol.value, expected)))
         val actual = eval.eval(symbol)
         actual shouldBe expected
       }
@@ -49,11 +47,13 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
 
     it("plus evaluated") {
       forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
-        val actual = eval.eval(FunctionNode(SymbolNode("Plus"), Seq(first, second)))
-        val expected = NumberNode((eval.eval(first), eval.eval(second)) match {
-          case (NumberNode(a), NumberNode(b)) => (a.toDouble + b.toDouble).toString
-          case other => throw new MatchError(other)
-        })
+        val actualNode = eval.eval(FunctionNode(SymbolNode("Plus"), Seq(first, second)))
+        val expected = (eval.eval(first), eval.eval(second)) match {
+          case (NumberNode(a), NumberNode(b)) => a.toDouble + b.toDouble
+          case other: Any => throw new MatchError(other)
+        }
+        actualNode shouldBe a [NumberNode]
+        val actual = actualNode.asInstanceOf[NumberNode].value.toDouble
         actual shouldBe expected
       }
     }
@@ -63,7 +63,7 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
         val actual = eval.eval(FunctionNode(SymbolNode("Times"), Seq(first, second)))
         val expected = NumberNode((eval.eval(first), eval.eval(second)) match {
           case (NumberNode(a), NumberNode(b)) => (a.toDouble * b.toDouble).toString
-          case other => throw new MatchError(other)
+          case other: Any => throw new MatchError(other)
         })
         actual shouldBe expected
       }
@@ -74,7 +74,7 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
         val actual = eval.eval(FunctionNode(SymbolNode("Divide"), Seq(first, second)))
         val expected = NumberNode((eval.eval(first), eval.eval(second)) match {
           case (NumberNode(a), NumberNode(b)) => (a.toDouble / b.toDouble).toString
-          case other => throw new MatchError(other)
+          case other: Any => throw new MatchError(other)
         })
         actual shouldBe expected
       }

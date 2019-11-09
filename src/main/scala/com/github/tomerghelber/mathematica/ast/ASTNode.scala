@@ -1,4 +1,4 @@
-package tomerghelber.mathematica.ast
+package com.github.tomerghelber.mathematica.ast
 
 trait ASTNode
 
@@ -39,6 +39,9 @@ object NotExistsNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
 }
 object EquivalentNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
   protected val name = "Equivalent"
+}
+object ListNode extends UnapplyFunctionNode {
+  protected val name = "List"
 }
 
 case class LimitNode(expr1: ASTNode, expr3: ASTNode, expr2: ASTNode) extends ASTNode

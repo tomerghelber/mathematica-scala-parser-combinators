@@ -1,4 +1,4 @@
-package tomerghelber.mathematica.ast
+package com.github.tomerghelber.mathematica.ast
 
 object MessageNameNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
   protected val name: String = "MessageName"

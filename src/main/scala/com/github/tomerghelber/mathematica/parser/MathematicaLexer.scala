@@ -1,4 +1,4 @@
-package tomerghelber.mathematica.parser
+package com.github.tomerghelber.mathematica.parser
 
 import scala.collection.mutable
 import scala.util.parsing.combinator.lexical.Lexical
@@ -17,20 +17,16 @@ class MathematicaLexer extends Lexical with StdTokens {
       )
 
   private def number: Parser[NumericLit] = {
-    val sign: Parser[String] = accept("sign", {case '+' => "+" case '-' => "-"})
+    val sign: Parser[String] = acceptMatch("sign", {case '+' => "+" case '-' => "-"})
     val unsignedInteger: Parser[String] = rep1(digit) ^^ { number => number.mkString }
     val signedInteger: Parser[String] = opt(sign) ~ unsignedInteger ^^ {
       case signOptional ~ number => (signOptional ++ number).mkString
     }
-    val signedFraction: Parser[String] = signedInteger ~ ('/' ~> signedInteger) ^^ {
-      case p ~ q => p + "/" + q
-    }
-    val signedFloat: Parser[String] = signedInteger ~ ('.' ~> unsignedInteger) ^^ {
-      case beforeDot ~ afterDot => beforeDot + "." + afterDot
-    }
-    val scientificNotation: Parser[String] = signedFloat ~ ('E' ~> signedInteger) ^^ {
-      case base ~ expo => base + "E" + expo
-    }
+    def concat(before: Parser[String], char: Char, after: Parser[String]): Parser[String] =
+      before ~ char ~ after ^^ {case p ~ middle ~ q => p + middle + q}
+    val signedFraction: Parser[String] = concat(signedInteger, '/', signedInteger)
+    val signedFloat: Parser[String] = concat(signedInteger, '.', unsignedInteger)
+    val scientificNotation: Parser[String] = concat(signedFloat , 'E', signedInteger)
     (scientificNotation | signedFloat | signedFraction | signedInteger) ^^ NumericLit
   }
   private def identifier = letter ~ rep(letter | digit) ^^ {

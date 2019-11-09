@@ -1,4 +1,4 @@
-package tomerghelber.mathematica.parser
+package com.github.tomerghelber.mathematica.parser
 
 /**
  * @author user
@@ -8,6 +8,8 @@ object Delimiters {
 
   val ROUND_BRACKET_OPEN = "("
   val ROUND_BRACKET_CLOSE = ")"
+  val CURLY_BRACKET_OPEN = "{"
+  val CURLY_BRACKET_CLOSE = "}"
   val SQUARE_BRACKET_OPEN = "["
   val SQUARE_BRACKET_CLOSE = "]"
   val SQUARE_BRACKET_OPEN2 = "[["
@@ -48,6 +50,8 @@ object Delimiters {
   def values: Set[String] = Set(
     ROUND_BRACKET_OPEN,
     ROUND_BRACKET_CLOSE,
+    CURLY_BRACKET_OPEN,
+    CURLY_BRACKET_CLOSE,
     SQUARE_BRACKET_OPEN,
     SQUARE_BRACKET_CLOSE,
     SQUARE_BRACKET_OPEN2,

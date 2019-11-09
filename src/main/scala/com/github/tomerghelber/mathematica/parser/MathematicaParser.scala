@@ -1,9 +1,10 @@
-package tomerghelber.mathematica.parser
+package com.github.tomerghelber.mathematica.parser
 
+import com.github.tomerghelber.mathematica.ast
+import com.github.tomerghelber.mathematica.ast._
+import com.github.tomerghelber.mathematica.parser.Delimiters._
 import com.typesafe.scalalogging.LazyLogging
 
-import tomerghelber.mathematica.ast._
-import tomerghelber.mathematica.parser.Delimiters._
 import scala.util.parsing.combinator.syntactical.StdTokenParsers
 
 /** This is a parser of Mathematica language as described at
@@ -76,7 +77,7 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
   private val factorial: Parser[ASTNode] = lastFolderRight(composition,
     (EXCLAMATION_MARK ~ EXCLAMATION_MARK) ^^ {_=>(e: ASTNode) => Factorial2Node(e)}
   ) ~ opt(EXCLAMATION_MARK) ^^ {
-    case expr ~ factorialOpt => factorialOpt.map(_=>FactorialNode(expr)).getOrElse(expr)
+    case expr ~ factorialOpt => factorialOpt.map(_=>ast.FactorialNode(expr)).getOrElse(expr)
   }
 
   private val conjugateAndTranspose: Parser[ASTNode] = lastFolderRight(factorial,
@@ -96,11 +97,13 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 
   private val power: Parser[ASTNode] = rep1sep(derivative, CARET) ^^ (values => values.reduceRight(PowerNode.apply))
 
-//  private val verticalArrowAndVectorOperators: Parser[ASTNode] = power
+  private val verticalArrowAndVectorOperators: Parser[ASTNode] = CURLY_BRACKET_OPEN ~> rep1sep(power, COMMA) <~ CURLY_BRACKET_CLOSE ^^ {
+    elements => FunctionNode(SymbolNode("List"), elements)
+  } | power
 
   private val sqrt: Parser[ASTNode] = firstFolderRight(
     SQRT ^^ {_=>(e:ASTNode)=>SqrtNode(e)},
-    power
+    verticalArrowAndVectorOperators
   )
 
   private val differentialD: Parser[ASTNode] = firstFolderRight(
@@ -232,7 +235,12 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 //    case expr1 ~ "⊤" ~ expr2 => DownTeeNode(expr1, expr2)
 //  } | implies
 
-  private def root = not
+  private val rules = chainl1(not,
+    ("->" | "\uF522") ^^ {_=>(e1: ASTNode, e2: ASTNode) => RuleNode(e1, e2)}
+  | (":>" | "\uF51F") ^^ {_=>(e1: ASTNode, e2: ASTNode) => RuleDelayedNode(e1, e2)}
+  )
+
+  private def root = rules
 
   /**
    * Parse the given <code>expression</code> String into an ASTNode.

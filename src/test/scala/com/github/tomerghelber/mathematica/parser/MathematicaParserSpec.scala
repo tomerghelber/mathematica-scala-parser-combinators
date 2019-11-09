@@ -1,10 +1,11 @@
-package tomerghelber.mathematica.parser
+package com.github.tomerghelber.mathematica
+package parser
 
+import com.github.tomerghelber.mathematica.ast.SymbolNode
 import org.scalacheck.Arbitrary
 import org.scalatest.{FunSpec, Matchers}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import tomerghelber.mathematica._
-import tomerghelber.mathematica.ast._
+import com.github.tomerghelber.mathematica.ast._
 
 class MathematicaParserSpec extends FunSpec with Matchers with ScalaCheckPropertyChecks {
 
@@ -291,18 +292,59 @@ class MathematicaParserSpec extends FunSpec with Matchers with ScalaCheckPropert
 
 
   describe("Examples from WolfRam site") {
-    ignore("https://www.wolfram.com/language/gallery/implement-hello-world-in-the-cloud/") {
+    ignore("https://www.wolfram.com/language/gallery/implement-hello-world-in-the-cloud/ [1]") {
       forAll { p: MathematicaParser =>
 
         val out1 = p.parse("\"Hello, World\"")
+        out1 shouldBe StringNode("Hello, World")
+      }
+    }
+    ignore("https://www.wolfram.com/language/gallery/implement-hello-world-in-the-cloud/ [2]") {
+      forAll { p: MathematicaParser =>
         val out2 = p.parse("Do[Print[\"Hello, World\"], {5}]")
+        out2 shouldBe FunctionNode(SymbolNode("Do"), Seq(
+          FunctionNode(SymbolNode("Print"), Seq(
+            StringNode("Hello, World")
+          )),
+          FunctionNode(SymbolNode("List"), Seq(
+            NumberNode("5")
+          ))
+        ))
+
+      }
+    }
+    ignore("https://www.wolfram.com/language/gallery/implement-hello-world-in-the-cloud/ [3]") {
+      forAll { p: MathematicaParser =>
         val out3 = p.parse("CloudObject[\"Hello, World\"]")
+        out3 shouldBe FunctionNode(SymbolNode("Part"), Seq(
+          SymbolNode("CloudObject"),
+          StringNode("Hello, World"),
+        ))
+      }
+    }
+    ignore("https://www.wolfram.com/language/gallery/implement-hello-world-in-the-cloud/ [4]") {
+      forAll { p: MathematicaParser =>
         val out4 = p.parse(
           "CloudDeploy[\n" +
             " ExportForm[Style[Framed[\"Hello, World\", ImageMargins -> 60],\n" +
             "   80, Orange, FontFamily -> \"Verdana\"], \"GIF\"], \n" +
             " Permissions -> \"Public\"]"
         )
+        out4 shouldBe FunctionNode(SymbolNode("CloudDeploy"), Seq(
+          FunctionNode(SymbolNode("ExportForm"), Seq(
+            FunctionNode(SymbolNode("Style"), Seq(
+              FunctionNode(SymbolNode("Framed"), Seq(
+                StringNode("Hello, World"),
+                StringNode("ImageMargins -> 60"),
+              )),
+              StringNode("80"),
+              StringNode("Orange"),
+              StringNode("FontFamily -> \"Verdana\""),
+            )),
+            StringNode("GIF"),
+          )),
+          StringNode("Permissions -> \"Public\""),
+        ))
       }
     }
 

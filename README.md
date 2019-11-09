@@ -5,6 +5,9 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/fec458e9b494f6428613/maintainability)](https://codeclimate.com/github/tomerghelber/mathematica-scala-parser-combinators/maintainability)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fapi%2Fgithub.com%2Ftomerghelber%2Fmathematica-scala-parser-combinators%2Fmaster)](https://stryker-mutator.github.io)
 
+[![Sonatype Nexus (Releases)](https://img.shields.io/nexus/r/https/oss.sonatype.org/com.github.tomerghelber/mathimatica-parser_2.12.svg)](https://img.shields.io/nexus/r/https/oss.sonatype.org/com.github.tomerghelber/mathimatica-parser_2.12.svg)
+[![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/com.github.tomerghelber/mathimatica-parser_2.12.svg)](https://img.shields.io/nexus/s/https/oss.sonatype.org/com.github.tomerghelber/mathimatica-parser_2.12.svg)
+
 This repository directed to crate a parser for [Mathematica Language](https://www.wolfram.com/mathematica).
 The parser is written in scala using [scala-parser-combinators](https://github.com/scala/scala-parser-combinators)
 
