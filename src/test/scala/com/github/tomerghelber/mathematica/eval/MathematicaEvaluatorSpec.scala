@@ -1,6 +1,7 @@
-package tomerghelber.mathematica
-package eval
+package com.github.tomerghelber.mathematica.eval
 
+import com.github.tomerghelber.mathematica.ast.{FunctionNode, NumberNode, SymbolNode}
+import com.github.tomerghelber.mathematica.parser.MathematicaParser
 import org.scalacheck.Arbitrary
 import org.scalatest.{FunSpec, Matchers}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks

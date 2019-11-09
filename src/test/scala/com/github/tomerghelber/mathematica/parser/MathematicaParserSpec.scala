@@ -1,6 +1,6 @@
-package tomerghelber.mathematica
-package parser
+package com.github.tomerghelber.mathematica.parser
 
+import com.github.tomerghelber.mathematica.ast.SymbolNode
 import org.scalacheck.Arbitrary
 import org.scalatest.{FunSpec, Matchers}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks

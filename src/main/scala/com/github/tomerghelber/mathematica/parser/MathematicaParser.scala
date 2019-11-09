@@ -1,9 +1,11 @@
-package tomerghelber.mathematica.parser
+package com.github.tomerghelber.mathematica.parser
 
+import com.github.tomerghelber.mathematica.ast
+import com.github.tomerghelber.mathematica.ast.{ASTNode, CompositionNode, ConjugateNode, ConjugateTransposeNode, DecrementNode, DerivativeNode, DifferentialDNode, DivideNode, ElementNode, EqualNode, Factorial2Node, FactorialNode, FunctionNode, GreaterEqualNode, GreaterNode, IncrementNode, IntersectionNode, LessEqualNode, LessNode, MinusPlusNode, NotElementNode, NotNode, NumberNode, OverscriptNode, PartNode, PlusMinusNode, PlusNode, PowerNode, PredecrementNode, PreincrementNode, RightCompositionNode, RuleDelayedNode, RuleNode, SameQNode, SpanNode, SqrtNode, StringNode, SubscriptNode, SubsetNode, SupersetNode, SymbolNode, TerminalNode, TimesNode, TransposeNode, UnSameQNode, UnderscriptNode, UnequalNode, UnionNode}
 import com.typesafe.scalalogging.LazyLogging
-
 import tomerghelber.mathematica.ast._
 import tomerghelber.mathematica.parser.Delimiters._
+
 import scala.util.parsing.combinator.syntactical.StdTokenParsers
 
 /** This is a parser of Mathematica language as described at
@@ -76,7 +78,7 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
   private val factorial: Parser[ASTNode] = lastFolderRight(composition,
     (EXCLAMATION_MARK ~ EXCLAMATION_MARK) ^^ {_=>(e: ASTNode) => Factorial2Node(e)}
   ) ~ opt(EXCLAMATION_MARK) ^^ {
-    case expr ~ factorialOpt => factorialOpt.map(_=>FactorialNode(expr)).getOrElse(expr)
+    case expr ~ factorialOpt => factorialOpt.map(_=>ast.FactorialNode(expr)).getOrElse(expr)
   }
 
   private val conjugateAndTranspose: Parser[ASTNode] = lastFolderRight(factorial,

@@ -1,4 +1,4 @@
-package tomerghelber.mathematica.parser
+package com.github.tomerghelber.mathematica.parser
 
 import scala.util.parsing.combinator.Parsers
 

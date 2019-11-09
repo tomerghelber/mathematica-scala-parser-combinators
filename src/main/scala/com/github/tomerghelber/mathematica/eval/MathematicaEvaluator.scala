@@ -1,5 +1,6 @@
-package tomerghelber.mathematica.eval
+package com.github.tomerghelber.mathematica.eval
 
+import com.github.tomerghelber.mathematica.ast.{ASTNode, DivideNode, NumberNode, PlusNode, StringNode, SymbolNode, TimesNode}
 import com.typesafe.scalalogging.LazyLogging
 import tomerghelber.mathematica.ast._
 
