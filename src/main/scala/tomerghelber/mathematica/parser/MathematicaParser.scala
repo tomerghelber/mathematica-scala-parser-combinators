@@ -96,11 +96,13 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 
   private val power: Parser[ASTNode] = rep1sep(derivative, CARET) ^^ (values => values.reduceRight(PowerNode.apply))
 
-//  private val verticalArrowAndVectorOperators: Parser[ASTNode] = power
+  private val verticalArrowAndVectorOperators: Parser[ASTNode] = CURLY_BRACKET_OPEN ~> rep1sep(power, COMMA) <~ CURLY_BRACKET_CLOSE ^^ {
+    elements => FunctionNode(SymbolNode("List"), elements)
+  } | power
 
   private val sqrt: Parser[ASTNode] = firstFolderRight(
     SQRT ^^ {_=>(e:ASTNode)=>SqrtNode(e)},
-    power
+    verticalArrowAndVectorOperators
   )
 
   private val differentialD: Parser[ASTNode] = firstFolderRight(
