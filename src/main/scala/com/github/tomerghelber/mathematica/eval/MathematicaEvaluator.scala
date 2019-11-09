@@ -9,8 +9,14 @@ import scala.collection.mutable
  * @author user
  * @since 01-Nov-19
  */
-class MathematicaEvaluator(globalEnvironment: mutable.Map[String, ASTNode]= mutable.Map.empty[String, ASTNode])
+class MathematicaEvaluator private (globalEnvironment: mutable.Map[String, ASTNode])
   extends LazyLogging {
+
+  /* --- constructors --- */
+
+  def this(startEnvironment: Map[String, ASTNode]=Map.empty) = {
+    this(mutable.Map[String, ASTNode](startEnvironment.toSeq:_*))
+  }
 
   /* --- publics --- */
 

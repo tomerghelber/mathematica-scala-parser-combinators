@@ -7,8 +7,6 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import com.github.tomerghelber.mathematica.ast.{FunctionNode, NumberNode, SymbolNode}
 import com.github.tomerghelber.mathematica.parser.MathematicaParser
 
-import scala.collection.mutable
-
 /**
  * @author user
  * @since 01-Nov-19
@@ -35,7 +33,7 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
 
     it("symbol evaluated") {
       forAll { (symbol: SymbolNode, expected: NumberNode) =>
-        val eval = new MathematicaEvaluator(mutable.Map((symbol.value, expected)))
+        val eval = new MathematicaEvaluator(Map((symbol.value, expected)))
         val actual = eval.eval(symbol)
         actual shouldBe expected
       }
