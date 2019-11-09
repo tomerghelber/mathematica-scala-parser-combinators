@@ -2,31 +2,6 @@ language: scala
 scala:
   - 2.12.8
 
-jobs:
-  include:
-  - stage: test
-    name: "Unit Tests"
-    script:
-    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-    - chmod +x ./cc-test-reporter
-    - ./cc-test-reporter before-build
-    - sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
-# "Mutation Tests" are too long and travis kills the job.
-#  - name: "Mutation Tests"
-#    script: sbt stryker
-    - SCALA_TARGET_DIRECTORY=target/scala-$(echo $TRAVIS_SCALA_VERSION | grep -o -P '^\d+\.\d+' '-')
-    - ./cc-test-reporter format-coverage -t cobertura $SCALA_TARGET_DIRECTORY/coverage-report/cobertura.xml
-    - ./cc-test-reporter upload-coverage
-
-    # run ci-release only if previous stages passed
-  - stage: release
-    script: sbt ci-release
-
-stages:
-  - name: test
-  - name: release
-    if: ((branch = master AND type = push) OR (tag IS present)) AND NOT fork
-
 before_cache:
   # Tricks to avoid unnecessary cache updates
   - find $HOME/.sbt -name "*.lock" | xargs rm
@@ -46,3 +21,25 @@ before_install:
 
 install:
   - sbt compile
+  
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+  
+script:
+  - sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport
+  
+after_script:
+  - SCALA_TARGET_DIRECTORY=target/scala-$(echo $TRAVIS_SCALA_VERSION | grep -o -P '^\d+\.\d+' '-')
+  - ./cc-test-reporter format-coverage -t cobertura $SCALA_TARGET_DIRECTORY/coverage-report/cobertura.xml
+  - ./cc-test-reporter upload-coverage
+  
+deploy:
+  provider: script
+  script: sbt ci-release
+  edge: true
+  on:
+    branch: master
+    tags: true
+    condition: ((branch = master AND type = push) OR (tag IS present)) AND NOT fork
