@@ -25,7 +25,7 @@ class MathematicaEvaluator(globalEnvironment: mutable.Map[String, ASTNode]= muta
     node match {
       case a @ (_: SymbolNode | _: NumberNode | _: StringNode) => evalTerminals(a, environment)
       case a @ (PlusNode(_) | TimesNode(_) | DivideNode(_)) => evalMath(a, environment)
-      case other => throw new MatchError(other)
+      case other: Any => throw new MatchError(other)
     }
   }
 
@@ -47,9 +47,9 @@ class MathematicaEvaluator(globalEnvironment: mutable.Map[String, ASTNode]= muta
       case DivideNode(Seq(first, second)) =>
         (eval(first), eval(second)) match {
           case (NumberNode(a) , NumberNode(b)) => NumberNode((a.toDouble / b.toDouble).toString)
-          case other => throw new MatchError(other)
+          case other: Any => throw new MatchError(other)
         }
-      case other => throw new MatchError(other)
+      case other: Any => throw new MatchError(other)
     }
   }
 }
