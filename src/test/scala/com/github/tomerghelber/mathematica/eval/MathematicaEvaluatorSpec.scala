@@ -49,11 +49,13 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
 
     it("plus evaluated") {
       forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
-        val actual = eval.eval(FunctionNode(SymbolNode("Plus"), Seq(first, second)))
-        val expected = NumberNode((eval.eval(first), eval.eval(second)) match {
-          case (NumberNode(a), NumberNode(b)) => (a.toDouble + b.toDouble).toString
+        val actualNode = eval.eval(FunctionNode(SymbolNode("Plus"), Seq(first, second)))
+        val expected = (eval.eval(first), eval.eval(second)) match {
+          case (NumberNode(a), NumberNode(b)) => a.toDouble + b.toDouble
           case other => throw new MatchError(other)
-        })
+        }
+        actualNode shouldBe a [NumberNode]
+        val actual = actualNode.asInstanceOf[NumberNode].value.toDouble
         actual shouldBe expected
       }
     }
