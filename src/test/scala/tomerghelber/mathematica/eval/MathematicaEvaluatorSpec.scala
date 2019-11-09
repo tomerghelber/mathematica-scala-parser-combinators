@@ -1,9 +1,9 @@
-package tomerghelber.mathematica.eval
+package tomerghelber.mathematica
+package eval
 
 import org.scalacheck.Arbitrary
 import org.scalatest.{FunSpec, Matchers}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import tomerghelber.mathematica._
 import tomerghelber.mathematica.ast.{FunctionNode, NumberNode, SymbolNode}
 import tomerghelber.mathematica.parser.MathematicaParser
 
