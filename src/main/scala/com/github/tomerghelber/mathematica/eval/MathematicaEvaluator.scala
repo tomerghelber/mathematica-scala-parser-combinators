@@ -12,18 +12,34 @@ import scala.collection.mutable
 class MathematicaEvaluator(globalEnvironment: mutable.Map[String, ASTNode]= mutable.Map.empty[String, ASTNode])
   extends LazyLogging {
 
+  /* --- publics --- */
+
   def eval(node: ASTNode): ASTNode = {
     logger.debug("Evalutating " + node)
     eval(node, globalEnvironment)
   }
 
+  /* --- privates --- */
+
   private def eval(node: ASTNode, environment: mutable.Map[String, ASTNode]): ASTNode = {
+    node match {
+      case a @ (_: SymbolNode | _: NumberNode | _: StringNode) => evalTerminals(a, environment)
+      case a @ (PlusNode(_) | TimesNode(_) | DivideNode(_)) => evalMath(a, environment)
+      case other => throw new MatchError(other)
+    }
+  }
+
+  private def evalTerminals(node: ASTNode, environment: mutable.Map[String, ASTNode]): ASTNode = {
     node match {
       case NumberNode(fraction) if fraction.contains("/") =>
         NumberNode(fraction.split("/").map(_.toDouble).reduce(_ / _).toString)
-      case node: NumberNode => node
-      case node: StringNode => node
       case SymbolNode(symbol) => environment(symbol)
+      case node => node
+    }
+  }
+
+  private def evalMath(node: ASTNode, environment: mutable.Map[String, ASTNode]): NumberNode = {
+    node match {
       case PlusNode(arguments) =>
         NumberNode(arguments.map(eval(_, environment).asInstanceOf[NumberNode]).map(_.value.toDouble).sum.toString)
       case TimesNode(arguments) =>
