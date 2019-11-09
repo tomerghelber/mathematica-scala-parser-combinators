@@ -4,9 +4,9 @@ import com.github.tomerghelber.mathematica.ast.{NumberNode, StringNode, SymbolNo
 import com.github.tomerghelber.mathematica.eval.MathematicaEvaluator
 import com.github.tomerghelber.mathematica.parser.MathematicaParser
 import org.scalacheck.Gen
-import tomerghelber.mathematica.ast.{NumberNode, StringNode, SymbolNode}
-import tomerghelber.mathematica.eval.MathematicaEvaluator
-import tomerghelber.mathematica.parser.MathematicaParser
+import com.github.tomerghelber.mathematica.ast.{NumberNode, StringNode, SymbolNode}
+import com.github.tomerghelber.mathematica.eval.MathematicaEvaluator
+import com.github.tomerghelber.mathematica.parser.MathematicaParser
 
 /**
  * @author user

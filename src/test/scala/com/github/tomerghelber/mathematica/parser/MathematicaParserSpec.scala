@@ -1,10 +1,11 @@
-package com.github.tomerghelber.mathematica.parser
+package com.github.tomerghelber.mathematica
+package parser
 
 import com.github.tomerghelber.mathematica.ast.SymbolNode
 import org.scalacheck.Arbitrary
 import org.scalatest.{FunSpec, Matchers}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import tomerghelber.mathematica.ast._
+import com.github.tomerghelber.mathematica.ast._
 
 class MathematicaParserSpec extends FunSpec with Matchers with ScalaCheckPropertyChecks {
 

@@ -1,12 +1,11 @@
-package com.github.tomerghelber.mathematica.eval
+package com.github.tomerghelber.mathematica
+package eval
 
-import com.github.tomerghelber.mathematica.ast.{FunctionNode, NumberNode, SymbolNode}
-import com.github.tomerghelber.mathematica.parser.MathematicaParser
 import org.scalacheck.Arbitrary
 import org.scalatest.{FunSpec, Matchers}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import tomerghelber.mathematica.ast.{FunctionNode, NumberNode, SymbolNode}
-import tomerghelber.mathematica.parser.MathematicaParser
+import com.github.tomerghelber.mathematica.ast.{FunctionNode, NumberNode, SymbolNode}
+import com.github.tomerghelber.mathematica.parser.MathematicaParser
 
 import scala.collection.mutable
 

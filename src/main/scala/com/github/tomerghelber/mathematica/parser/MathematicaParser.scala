@@ -1,10 +1,9 @@
 package com.github.tomerghelber.mathematica.parser
 
 import com.github.tomerghelber.mathematica.ast
-import com.github.tomerghelber.mathematica.ast.{ASTNode, CompositionNode, ConjugateNode, ConjugateTransposeNode, DecrementNode, DerivativeNode, DifferentialDNode, DivideNode, ElementNode, EqualNode, Factorial2Node, FactorialNode, FunctionNode, GreaterEqualNode, GreaterNode, IncrementNode, IntersectionNode, LessEqualNode, LessNode, MinusPlusNode, NotElementNode, NotNode, NumberNode, OverscriptNode, PartNode, PlusMinusNode, PlusNode, PowerNode, PredecrementNode, PreincrementNode, RightCompositionNode, RuleDelayedNode, RuleNode, SameQNode, SpanNode, SqrtNode, StringNode, SubscriptNode, SubsetNode, SupersetNode, SymbolNode, TerminalNode, TimesNode, TransposeNode, UnSameQNode, UnderscriptNode, UnequalNode, UnionNode}
+import com.github.tomerghelber.mathematica.ast._
+import com.github.tomerghelber.mathematica.parser.Delimiters._
 import com.typesafe.scalalogging.LazyLogging
-import tomerghelber.mathematica.ast._
-import tomerghelber.mathematica.parser.Delimiters._
 
 import scala.util.parsing.combinator.syntactical.StdTokenParsers
 

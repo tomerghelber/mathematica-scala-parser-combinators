@@ -1,8 +1,7 @@
 package com.github.tomerghelber.mathematica.eval
 
-import com.github.tomerghelber.mathematica.ast.{ASTNode, DivideNode, NumberNode, PlusNode, StringNode, SymbolNode, TimesNode}
+import com.github.tomerghelber.mathematica.ast._
 import com.typesafe.scalalogging.LazyLogging
-import tomerghelber.mathematica.ast._
 
 import scala.collection.mutable
 
