@@ -4,7 +4,7 @@ trait ASTNode
 
 case class FunctionNode(name: ASTNode, arguments: Seq[ASTNode]) extends ASTNode
 
-object PartNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+object PartNode extends ApplyManyFunctionNode with UnapplyFunctionNode {
   protected val name: String = "Part"
 }
 
@@ -40,7 +40,7 @@ object NotExistsNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
 object EquivalentNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
   protected val name = "Equivalent"
 }
-object ListNode extends UnapplyFunctionNode {
+object ListNode extends ApplyManyFunctionNode with UnapplyFunctionNode {
   protected val name = "List"
 }
 
@@ -52,11 +52,18 @@ case class SpanNode(expr1: ASTNode, expr3: ASTNode, expr2: ASTNode) extends ASTN
 
 trait ApplyUnaryFunctionNode {
   protected def name: String
-  def apply(first: ASTNode): FunctionNode = FunctionNode(SymbolNode(name), Seq(first))
+  def apply(node: ASTNode): FunctionNode = createUnary(node)
+  val createUnary: ASTNode => FunctionNode = first => FunctionNode(SymbolNode(name), Seq(first))
 }
 trait ApplyBinaryFunctionNode {
   protected def name: String
-  def apply(first: ASTNode, second: ASTNode): FunctionNode = FunctionNode(SymbolNode(name), Seq(first, second))
+  def apply(first: ASTNode, second: ASTNode): FunctionNode = createBinary(first, second)
+  val createBinary: (ASTNode, ASTNode) => FunctionNode = (first, second) => FunctionNode(SymbolNode(name), Seq(first, second))
+}
+trait ApplyManyFunctionNode {
+  protected def name: String
+  def apply(nodes: Seq[ASTNode]): FunctionNode = createMany(nodes)
+  val createMany: Seq[ASTNode] => FunctionNode = nodes => FunctionNode(SymbolNode(name), nodes)
 }
 trait UnapplyFunctionNode {
   protected def name: String

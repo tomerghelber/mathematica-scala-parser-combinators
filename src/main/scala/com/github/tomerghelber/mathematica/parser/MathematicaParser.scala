@@ -33,38 +33,44 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
   private def lower: Parser[ASTNode] = terminal | ROUND_BRACKET_OPEN ~> root <~ ROUND_BRACKET_CLOSE
 
   private val overAndUnderscript: Parser[ASTNode] = chainr1(lower,
-    UNDERSCRIPT ^^ {_=>(e1: ASTNode, e2: ASTNode)=>UnderscriptNode(e1, e2)}
-  | OVERSCRIPT ^^ {_=>(e1: ASTNode, e2: ASTNode)=>OverscriptNode(e1, e2)}
+    UNDERSCRIPT ^^ {_=>UnderscriptNode.createBinary}
+  | OVERSCRIPT ^^ {_=>OverscriptNode.createBinary}
   )
 
   private val subscript: Parser[ASTNode] = rep1sep(overAndUnderscript, SUBSCRIPT) ^^
-    (subscripts => subscripts.reduceRight((e1, e2)=>SubscriptNode(e1, e2)))
+    (subscripts => subscripts.reduceRight(SubscriptNode.apply))
 
   private val part: Parser[ASTNode] = {
-    ((underparts: Parser[ASTNode]) => underparts ~ rep(
-          (SQUARE_BRACKET_OPEN  ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE )
-        | (SQUARE_BRACKET_OPEN2 ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE2)
-        | (SQUARE_BRACKET_OPEN3 ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE3)
+    ((underparts: Parser[ASTNode]) => underparts ~ rep1(
+      SQUARE_BRACKET_OPEN  ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE
     ) ^^ {
-      case expr ~ parts => parts.flatten.foldLeft(expr)(PartNode.apply)
-    })(subscript)
+      case expr ~ parts =>
+        FunctionNode(expr, parts.flatten)
+    }
+    | underparts ~ rep1(
+      (SQUARE_BRACKET_OPEN2 ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE2)
+    | (SQUARE_BRACKET_OPEN3 ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE3)
+    ) ^^ {
+      case expr ~ parts => PartNode(expr +: parts.flatten)
+    } | underparts
+    )(subscript)
   }
 
   private val incrementAndDecrement: Parser[ASTNode] = lastFolderRight(part,
-    INCREASE ^^ { _=>(e1: ASTNode) => IncrementNode.apply(e1) }
-  | DECREASE ^^ { _=>(e1: ASTNode) => DecrementNode.apply(e1) }
+    INCREASE ^^ { _=>IncrementNode.createUnary }
+  | DECREASE ^^ { _=>DecrementNode.createUnary }
   )
 
   private val preincrementAndPredecrement: Parser[ASTNode] = firstFolderRight(
-    INCREASE ^^ { _=>(e1: ASTNode) => PreincrementNode.apply(e1)}
-  | DECREASE ^^ { _=>(e1: ASTNode) => PredecrementNode.apply(e1)}
+    INCREASE ^^ { _=>PreincrementNode.createUnary}
+  | DECREASE ^^ { _=>PredecrementNode.createUnary}
     ,
     incrementAndDecrement
   )
 
   private val composition: Parser[ASTNode] = chainl1(preincrementAndPredecrement,
-    COMPOSITION ^^ {_=>(e1: ASTNode,e2: ASTNode)=>CompositionNode(e1,e2)}
-  | RIGHT_COMPOSITION ^^ {_=>(e1: ASTNode,e2: ASTNode)=>RightCompositionNode(e1,e2)}
+    COMPOSITION ^^ {_=>CompositionNode.createBinary}
+  | RIGHT_COMPOSITION ^^ {_=>RightCompositionNode.createBinary}
   )
 
 //  private def mapAndApply: Parser[ASTNode] = composition ~ ("/@" | "//@" | "@@" | "@@@") ~ composition ^^ {
@@ -75,15 +81,15 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 //  } | composition
 
   private val factorial: Parser[ASTNode] = lastFolderRight(composition,
-    (EXCLAMATION_MARK ~ EXCLAMATION_MARK) ^^ {_=>(e: ASTNode) => Factorial2Node(e)}
+    (EXCLAMATION_MARK ~ EXCLAMATION_MARK) ^^ {_=>Factorial2Node.createUnary}
   ) ~ opt(EXCLAMATION_MARK) ^^ {
     case expr ~ factorialOpt => factorialOpt.map(_=>ast.FactorialNode(expr)).getOrElse(expr)
   }
 
   private val conjugateAndTranspose: Parser[ASTNode] = lastFolderRight(factorial,
-    CONJUGATE ^^ {_=>(e:ASTNode)=>ConjugateNode(e)}
-  | TRANSPOSE ^^ {_=>(e:ASTNode)=>TransposeNode(e)}
-  | (CONJUGATE_TRANSPOSE | CONJUGATE_TRANSPOSE2) ^^ {_=>(e:ASTNode)=>ConjugateTransposeNode(e)}
+    CONJUGATE ^^ {_=>ConjugateNode.createUnary}
+  | TRANSPOSE ^^ {_=>TransposeNode.createUnary}
+  | (CONJUGATE_TRANSPOSE | CONJUGATE_TRANSPOSE2) ^^ {_=>ConjugateTransposeNode.createUnary}
   )
 
   private val derivative: Parser[ASTNode] = conjugateAndTranspose ~ rep("'") ^^ {
@@ -97,17 +103,16 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 
   private val power: Parser[ASTNode] = rep1sep(derivative, CARET) ^^ (values => values.reduceRight(PowerNode.apply))
 
-  private val verticalArrowAndVectorOperators: Parser[ASTNode] = CURLY_BRACKET_OPEN ~> rep1sep(power, COMMA) <~ CURLY_BRACKET_CLOSE ^^ {
-    elements => FunctionNode(SymbolNode("List"), elements)
-  } | power
+  private val verticalArrowAndVectorOperators: Parser[ASTNode] =
+    CURLY_BRACKET_OPEN ~> rep1sep(power, COMMA) <~ CURLY_BRACKET_CLOSE ^^ ListNode.createMany | power
 
   private val sqrt: Parser[ASTNode] = firstFolderRight(
-    SQRT ^^ {_=>(e:ASTNode)=>SqrtNode(e)},
+    SQRT ^^ {_=>SqrtNode.createUnary},
     verticalArrowAndVectorOperators
   )
 
   private val differentialD: Parser[ASTNode] = firstFolderRight(
-    "d" ^^ {_=>(e:ASTNode)=>DifferentialDNode(e)},
+    "d" ^^ {_=>DifferentialDNode.createUnary},
     sqrt
   )
 
@@ -155,10 +160,10 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 //  //  } | integrate
 
   private val plusAndMinus: Parser[ASTNode] = chainr1(times,
-    PLUS ^^ {_=> (e1: ASTNode, e2: ASTNode) => PlusNode(e1, e2)}
+    PLUS ^^ {_=> PlusNode.createBinary}
   | MINUS ^^ {_=>(expr1: ASTNode, expr2: ASTNode) => PlusNode(expr1, TimesNode(NumberNode("-1"), expr2))}
-  | PLUS_MINUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => PlusMinusNode(expr1, expr2)}
-  | MINUS_PLUS ^^ {_=> (expr1: ASTNode, expr2: ASTNode) => MinusPlusNode(expr1, expr2)}
+  | PLUS_MINUS ^^ {_=> PlusMinusNode.createBinary}
+  | MINUS_PLUS ^^ {_=> MinusPlusNode.createBinary}
   )
 
   private val intersection: Parser[ASTNode] = rep1sep(plusAndMinus, INTERSECTION) ^^ (_.reduce(IntersectionNode.apply))
@@ -170,27 +175,27 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
   } | union
 
   private val equalities: Parser[ASTNode] = chainl1(span,
-     ("==" | "\uF7D9")  ^^ { _ => (e1: ASTNode, e2: ASTNode)=>EqualNode(e1, e2)        }
-   | "!="               ^^ { _ => (e1: ASTNode, e2: ASTNode)=>UnequalNode(e1, e2)      }
-   | ">"                ^^ { _ => (e1: ASTNode, e2: ASTNode)=>GreaterNode(e1, e2)      }
-   | (">=" | "≥" | "⩾") ^^ { _ => (e1: ASTNode, e2: ASTNode)=>GreaterEqualNode(e1, e2) }
-   | "<"                ^^ { _ => (e1: ASTNode, e2: ASTNode)=>LessNode(e1, e2)         }
-   | ("<=" | "≤" | "⩽") ^^ { _ => (e1: ASTNode, e2: ASTNode)=>LessEqualNode(e1, e2)    }
+     ("==" | "\uF7D9")  ^^ { _ => EqualNode.createBinary        }
+   | "!="               ^^ { _ => UnequalNode.createBinary      }
+   | ">"                ^^ { _ => GreaterNode.createBinary      }
+   | (">=" | "≥" | "⩾") ^^ { _ => GreaterEqualNode.createBinary }
+   | "<"                ^^ { _ => LessNode.createBinary         }
+   | ("<=" | "≤" | "⩽") ^^ { _ => LessEqualNode.createBinary    }
   )
 
 //  private val horizontalArrowAndVectorOperators: Parser[ASTNode] = equalities
 //  private val diagonalArrowOperators: Parser[ASTNode] = horizontalArrowAndVectorOperators
 
   private val sameQ: Parser[ASTNode] = chainl1(equalities,
-    "===" ^^ {_ => (e1: ASTNode,e2: ASTNode)=>SameQNode(e1,e2)}
-   | "=!=" ^^ {_ => (e1: ASTNode,e2: ASTNode)=>UnSameQNode(e1,e2)}
+    "===" ^^ {_ => SameQNode.createBinary}
+   | "=!=" ^^ {_ => UnSameQNode.createBinary}
   )
 
   private val setRelationOperators: Parser[ASTNode] = chainl1(sameQ,
-    "∈" ^^ {_ =>(e1: ASTNode, e2: ASTNode)=>ElementNode(e1, e2)}
-   | "∉" ^^ {_ =>(e1: ASTNode, e2: ASTNode)=>NotElementNode(e1, e2)}
-   | "⊂" ^^ {_ =>(e1: ASTNode, e2: ASTNode)=>SubsetNode(e1, e2)}
-   | "⊃" ^^ {_ =>(e1: ASTNode, e2: ASTNode)=>SupersetNode(e1, e2)}
+    "∈" ^^ {_ =>ElementNode.createBinary}
+   | "∉" ^^ {_ =>NotElementNode.createBinary}
+   | "⊂" ^^ {_ =>SubsetNode.createBinary}
+   | "⊃" ^^ {_ =>SupersetNode.createBinary}
   )
 
 //  private def forallAndExists: Parser[ASTNode] = setRelationOperators ~ ("∀" | "∃" | "∄") ~ setRelationOperators ^^ {
@@ -199,7 +204,7 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 //    case expr1 ~ "∄" ~ expr2 => NotExistsNode(expr1, expr2)
 //  } | setRelationOperators
 //
-  private val not: Parser[ASTNode] = firstFolderRight(("!" | "¬")^^{_=>(e:ASTNode)=>NotNode(e)},
+  private val not: Parser[ASTNode] = firstFolderRight(("!" | "¬")^^{_=>NotNode.createUnary},
     setRelationOperators
   )
 
@@ -236,8 +241,8 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 //  } | implies
 
   private val rules = chainl1(not,
-    ("->" | "\uF522") ^^ {_=>(e1: ASTNode, e2: ASTNode) => RuleNode(e1, e2)}
-  | (":>" | "\uF51F") ^^ {_=>(e1: ASTNode, e2: ASTNode) => RuleDelayedNode(e1, e2)}
+    ("->" | "\uF522") ^^ {_=>RuleNode.createBinary}
+  | (":>" | "\uF51F") ^^ {_=>RuleDelayedNode.createBinary}
   )
 
   private def root = rules
