@@ -42,4 +42,4 @@ deploy:
   on:
     branch: master
     tags: true
-    condition: ((branch = master AND type = push) OR (tag IS present)) AND NOT fork
+    condition: NOT fork
