@@ -42,12 +42,18 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 
   private val part: Parser[ASTNode] = {
     ((underparts: Parser[ASTNode]) => underparts ~ rep(
-          (SQUARE_BRACKET_OPEN  ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE )
-        | (SQUARE_BRACKET_OPEN2 ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE2)
-        | (SQUARE_BRACKET_OPEN3 ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE3)
+      SQUARE_BRACKET_OPEN  ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE
     ) ^^ {
-      case expr ~ parts => parts.flatten.foldLeft(expr)(PartNode.apply)
-    })(subscript)
+      case expr ~ parts =>
+        FunctionNode(expr, parts.flatten)
+    }
+    | underparts ~ rep(
+      (SQUARE_BRACKET_OPEN2 ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE2)
+    | (SQUARE_BRACKET_OPEN3 ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE3)
+    ) ^^ {
+      case expr ~ parts => FunctionNode(SymbolNode("Part"), expr +: parts.flatten)
+    }
+    )(subscript)
   }
 
   private val incrementAndDecrement: Parser[ASTNode] = lastFolderRight(part,
