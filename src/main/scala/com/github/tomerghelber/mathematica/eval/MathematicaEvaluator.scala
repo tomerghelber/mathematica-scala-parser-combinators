@@ -29,18 +29,18 @@ class MathematicaEvaluator private (globalEnvironment: mutable.Map[String, ASTNo
 
   private def eval(node: ASTNode, environment: mutable.Map[String, ASTNode]): ASTNode = {
     node match {
-      case a @ (_: SymbolNode | _: NumberNode | _: StringNode) => evalTerminals(a, environment)
+      case a: TerminalNode => evalTerminals(a, environment)
       case a @ (PlusNode(_) | TimesNode(_) | DivideNode(_)) => evalMath(a, environment)
-      case other: Any => throw new MatchError(other)
+      case other: ASTNode => throw new MatchError(other)
     }
   }
 
-  private def evalTerminals(node: ASTNode, environment: mutable.Map[String, ASTNode]): ASTNode = {
+  private def evalTerminals(node: TerminalNode, environment: mutable.Map[String, ASTNode]): ASTNode = {
     node match {
       case NumberNode(fraction) if fraction.contains("/") =>
         NumberNode(fraction.split("/").map(_.toDouble).reduce(_ / _).toString)
       case SymbolNode(symbol) => environment(symbol)
-      case node => node
+      case node: TerminalNode => node
     }
   }
 
