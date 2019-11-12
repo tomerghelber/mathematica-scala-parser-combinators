@@ -4,7 +4,7 @@ trait ASTNode
 
 case class FunctionNode(name: ASTNode, arguments: Seq[ASTNode]) extends ASTNode
 
-object PartNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+object PartNode extends ApplyManyFunctionNode with UnapplyFunctionNode {
   protected val name: String = "Part"
 }
 
@@ -40,7 +40,7 @@ object NotExistsNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
 object EquivalentNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
   protected val name = "Equivalent"
 }
-object ListNode extends UnapplyFunctionNode {
+object ListNode extends ApplyManyFunctionNode with UnapplyFunctionNode {
   protected val name = "List"
 }
 
@@ -57,6 +57,10 @@ trait ApplyUnaryFunctionNode {
 trait ApplyBinaryFunctionNode {
   protected def name: String
   def apply(first: ASTNode, second: ASTNode): FunctionNode = FunctionNode(SymbolNode(name), Seq(first, second))
+}
+trait ApplyManyFunctionNode {
+  protected def name: String
+  def apply(nodes: Seq[ASTNode]): FunctionNode = FunctionNode(SymbolNode(name), nodes)
 }
 trait UnapplyFunctionNode {
   protected def name: String
