@@ -52,15 +52,18 @@ case class SpanNode(expr1: ASTNode, expr3: ASTNode, expr2: ASTNode) extends ASTN
 
 trait ApplyUnaryFunctionNode {
   protected def name: String
-  def apply(first: ASTNode): FunctionNode = FunctionNode(SymbolNode(name), Seq(first))
+  def apply(node: ASTNode): FunctionNode = create(node)
+  val create: ASTNode => FunctionNode = first => FunctionNode(SymbolNode(name), Seq(first))
 }
 trait ApplyBinaryFunctionNode {
   protected def name: String
-  def apply(first: ASTNode, second: ASTNode): FunctionNode = FunctionNode(SymbolNode(name), Seq(first, second))
+  def apply(first: ASTNode, second: ASTNode): FunctionNode = create(first, second)
+  val create: (ASTNode, ASTNode) => FunctionNode = (first, second) => FunctionNode(SymbolNode(name), Seq(first, second))
 }
 trait ApplyManyFunctionNode {
   protected def name: String
-  def apply(nodes: Seq[ASTNode]): FunctionNode = FunctionNode(SymbolNode(name), nodes)
+  def apply(nodes: Seq[ASTNode]): FunctionNode = create(nodes)
+  val create: Seq[ASTNode] => FunctionNode = nodes => FunctionNode(SymbolNode(name), nodes)
 }
 trait UnapplyFunctionNode {
   protected def name: String
