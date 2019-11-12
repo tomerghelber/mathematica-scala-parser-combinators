@@ -292,7 +292,7 @@ class MathematicaParserSpec extends FunSpec with Matchers with ScalaCheckPropert
 
 
   describe("Examples from WolfRam site") {
-    ignore("https://www.wolfram.com/language/gallery/implement-hello-world-in-the-cloud/ [1]") {
+    it("https://www.wolfram.com/language/gallery/implement-hello-world-in-the-cloud/ [1]") {
       forAll { p: MathematicaParser =>
 
         val out1 = p.parse("\"Hello, World\"")
@@ -313,7 +313,7 @@ class MathematicaParserSpec extends FunSpec with Matchers with ScalaCheckPropert
 
       }
     }
-    ignore("https://www.wolfram.com/language/gallery/implement-hello-world-in-the-cloud/ [3]") {
+    it("https://www.wolfram.com/language/gallery/implement-hello-world-in-the-cloud/ [3]") {
       forAll { p: MathematicaParser =>
         val out3 = p.parse("CloudObject[\"Hello, World\"]")
         out3 shouldBe FunctionNode(SymbolNode("CloudObject"), Seq(
