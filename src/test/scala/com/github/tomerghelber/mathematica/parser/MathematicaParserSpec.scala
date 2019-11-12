@@ -292,58 +292,60 @@ class MathematicaParserSpec extends FunSpec with Matchers with ScalaCheckPropert
 
 
   describe("Examples from WolfRam site") {
-    it("https://www.wolfram.com/language/gallery/implement-hello-world-in-the-cloud/ [1]") {
-      forAll { p: MathematicaParser =>
+    describe("https://www.wolfram.com/language/gallery/implement-hello-world-in-the-cloud/") {
+      it("[1]") {
+        forAll { p: MathematicaParser =>
 
-        val out1 = p.parse("\"Hello, World\"")
-        out1 shouldBe StringNode("Hello, World")
+          val out1 = p.parse("\"Hello, World\"")
+          out1 shouldBe StringNode("Hello, World")
+        }
       }
-    }
-    ignore("https://www.wolfram.com/language/gallery/implement-hello-world-in-the-cloud/ [2]") {
-      forAll { p: MathematicaParser =>
-        val out2 = p.parse("Do[Print[\"Hello, World\"], {5}]")
-        out2 shouldBe FunctionNode(SymbolNode("Do"), Seq(
-          FunctionNode(SymbolNode("Print"), Seq(
-            StringNode("Hello, World")
-          )),
-          ListNode(Seq(
-            NumberNode("5")
-          ))
-        ))
-
-      }
-    }
-    it("https://www.wolfram.com/language/gallery/implement-hello-world-in-the-cloud/ [3]") {
-      forAll { p: MathematicaParser =>
-        val out3 = p.parse("CloudObject[\"Hello, World\"]")
-        out3 shouldBe FunctionNode(SymbolNode("CloudObject"), Seq(
-          StringNode("Hello, World"),
-        ))
-      }
-    }
-    ignore("https://www.wolfram.com/language/gallery/implement-hello-world-in-the-cloud/ [4]") {
-      forAll { p: MathematicaParser =>
-        val out4 = p.parse(
-          "CloudDeploy[\n" +
-            " ExportForm[Style[Framed[\"Hello, World\", ImageMargins -> 60],\n" +
-            "   80, Orange, FontFamily -> \"Verdana\"], \"GIF\"], \n" +
-            " Permissions -> \"Public\"]"
-        )
-        out4 shouldBe FunctionNode(SymbolNode("CloudDeploy"), Seq(
-          FunctionNode(SymbolNode("ExportForm"), Seq(
-            FunctionNode(SymbolNode("Style"), Seq(
-              FunctionNode(SymbolNode("Framed"), Seq(
-                StringNode("Hello, World"),
-                StringNode("ImageMargins -> 60"),
-              )),
-              StringNode("80"),
-              StringNode("Orange"),
-              StringNode("FontFamily -> \"Verdana\""),
+      ignore("[2]") {
+        forAll { p: MathematicaParser =>
+          val out2 = p.parse("Do[Print[\"Hello, World\"], {5}]")
+          out2 shouldBe FunctionNode(SymbolNode("Do"), Seq(
+            FunctionNode(SymbolNode("Print"), Seq(
+              StringNode("Hello, World")
             )),
-            StringNode("GIF"),
-          )),
-          StringNode("Permissions -> \"Public\""),
-        ))
+            ListNode(Seq(
+              NumberNode("5")
+            ))
+          ))
+
+        }
+      }
+      it("[3]") {
+        forAll { p: MathematicaParser =>
+          val out3 = p.parse("CloudObject[\"Hello, World\"]")
+          out3 shouldBe FunctionNode(SymbolNode("CloudObject"), Seq(
+            StringNode("Hello, World"),
+          ))
+        }
+      }
+      ignore("[4]") {
+        forAll { p: MathematicaParser =>
+          val out4 = p.parse(
+            "CloudDeploy[\n" +
+              " ExportForm[Style[Framed[\"Hello, World\", ImageMargins -> 60],\n" +
+              "   80, Orange, FontFamily -> \"Verdana\"], \"GIF\"], \n" +
+              " Permissions -> \"Public\"]"
+          )
+          out4 shouldBe FunctionNode(SymbolNode("CloudDeploy"), Seq(
+            FunctionNode(SymbolNode("ExportForm"), Seq(
+              FunctionNode(SymbolNode("Style"), Seq(
+                FunctionNode(SymbolNode("Framed"), Seq(
+                  StringNode("Hello, World"),
+                  StringNode("ImageMargins -> 60"),
+                )),
+                StringNode("80"),
+                StringNode("Orange"),
+                StringNode("FontFamily -> \"Verdana\""),
+              )),
+              StringNode("GIF"),
+            )),
+            StringNode("Permissions -> \"Public\""),
+          ))
+        }
       }
     }
 
