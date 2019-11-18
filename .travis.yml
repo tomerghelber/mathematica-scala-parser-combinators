@@ -20,7 +20,7 @@ before_install:
   - git fetch --tags
 
 install:
-  - sbt compile
+  - sbt ++$TRAVIS_SCALA_VERSION compile
 
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -42,4 +42,4 @@ deploy:
   on:
     branch: master
     tags: true
-    condition: ((branch = master AND type = push) OR (tag IS present)) AND NOT fork
+    condition: NOT fork
