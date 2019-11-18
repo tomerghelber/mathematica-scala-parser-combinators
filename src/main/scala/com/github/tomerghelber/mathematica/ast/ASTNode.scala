@@ -2,7 +2,7 @@ package com.github.tomerghelber.mathematica.ast
 
 trait ASTNode
 
-case class FunctionNode(name: ASTNode, arguments: Seq[ASTNode]) extends ASTNode
+case class FunctionNode(name: SymbolNode, arguments: Seq[ASTNode]) extends ASTNode
 
 object PartNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
   protected val name: String = "Part"
