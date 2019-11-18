@@ -1,6 +1,8 @@
 package com.github.tomerghelber.mathematica.ast
 
-trait TerminalNode extends ASTNode
+sealed trait TerminalNode extends ASTNode {
+  def value: String
+}
 
 case class NumberNode(value: String) extends TerminalNode
 case class StringNode(value: String) extends TerminalNode
