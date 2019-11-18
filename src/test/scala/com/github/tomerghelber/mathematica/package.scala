@@ -4,9 +4,6 @@ import com.github.tomerghelber.mathematica.ast.{NumberNode, StringNode, SymbolNo
 import com.github.tomerghelber.mathematica.eval.MathematicaEvaluator
 import com.github.tomerghelber.mathematica.parser.MathematicaParser
 import org.scalacheck.Gen
-import com.github.tomerghelber.mathematica.ast.{NumberNode, StringNode, SymbolNode}
-import com.github.tomerghelber.mathematica.eval.MathematicaEvaluator
-import com.github.tomerghelber.mathematica.parser.MathematicaParser
 
 /**
  * @author user
@@ -49,4 +46,5 @@ package object mathematica {
   val symbolNodeGen: Gen[SymbolNode] = symbolStringGen.map(SymbolNode)
   val stringNodeGen: Gen[StringNode] = stringStringWithoutWrappersGen.map(StringNode)
   val numberNodeGen: Gen[NumberNode] = numberStringGen.map(NumberNode)
+  val terminalNodeGen: Gen[TerminalNode] = Gen.oneOf(symbolNodeGen, stringNodeGen, numberNodeGen)
 }
