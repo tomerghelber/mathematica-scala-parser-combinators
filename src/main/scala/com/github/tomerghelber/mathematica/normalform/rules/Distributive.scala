@@ -14,14 +14,15 @@ case class Distributive(upper: SymbolNode, lower: SymbolNode) extends NormalForm
   }
 
   protected def work(node: FunctionNode): FunctionNode = {
-    val args = permutations(node.arguments.map{
+    val args = Distributive.permutations(node.arguments.map{
       case arg: FunctionNode if arg.name == upper => arg.arguments
       case arg => Seq(arg)
     }).map(FunctionNode(lower, _))
     FunctionNode(upper, args)
   }
-
-  private def permutations[T](seqs: Seq[Seq[T]]): Seq[Seq[T]] = {
+}
+object Distributive {
+  def permutations[T](seqs: Seq[Seq[T]]): Seq[Seq[T]] = {
     seqs match {
       case Nil => Nil
       case head +: Nil => Seq(head)

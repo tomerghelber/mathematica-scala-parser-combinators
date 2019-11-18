@@ -22,23 +22,23 @@ class DistributiveSpec extends FunSpec with Matchers with ScalaCheckPropertyChec
 
   it("Should not work when symbol is not as lower") {
     forAll { (lower: SymbolNode, upper: SymbolNode, arguments: Seq[ASTNode], other: SymbolNode) =>
-      whenever(lower != other && lower != upper) {
-        val tested = Distributive(upper, lower)
-        val functionNode = FunctionNode(other, arguments)
-        tested.apply(functionNode) shouldBe functionNode
-      }
+      val lower = SymbolNode(upper.value + "lower")
+      val other = SymbolNode(upper.value + "other")
+      val tested = Distributive(upper, lower)
+      val functionNode = FunctionNode(other, arguments)
+      tested.apply(functionNode) shouldBe functionNode
     }
   }
 
-  it("Should be possible if get the lower symbol") {
-    forAll { (upper: SymbolNode, lower: SymbolNode, multiArguments: Seq[Seq[ASTNode]]) =>
-      whenever(upper != lower) {
-        val tested = Distributive(upper, lower)
-        val functionNode = FunctionNode(lower, multiArguments.map(FunctionNode(upper, _)))
-        val actual = tested.apply(functionNode)
-        val expected = FunctionNode(upper, multiArguments.flatten)
-        actual shouldBe expected
-      }
+  ignore("Should be possible if get the lower symbol") {
+    forAll(sizeRange(10)) { (upper: SymbolNode, multiArguments: Seq[Seq[ASTNode]]) =>
+      val lower = SymbolNode(upper.value + "lower")
+      val tested = Distributive(upper, lower)
+      val functionNode = FunctionNode(lower, multiArguments.map(FunctionNode(upper, _)))
+      val actual = tested.apply(functionNode)
+      val arguments = Distributive.permutations(multiArguments).map(FunctionNode(lower, _))
+      val expected = FunctionNode(upper, arguments)
+      actual shouldBe expected
     }
   }
 }
