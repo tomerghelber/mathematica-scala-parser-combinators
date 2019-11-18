@@ -24,8 +24,8 @@ case class Distributive(upper: SymbolNode, lower: SymbolNode) extends NormalForm
   private def permutations[T](seqs: Seq[Seq[T]]): Seq[Seq[T]] = {
     seqs match {
       case Nil => Nil
-      case head::Nil => Seq(head)
-      case head::tail =>
+      case head +: Nil => Seq(head)
+      case head +: tail =>
         for (one <- head; permutation <- permutations(tail)) yield {
           one +: permutation
         }
