@@ -24,8 +24,9 @@ class AssociativeSpec extends FunSpec with Matchers with ScalaCheckPropertyCheck
     }
   }
 
-  ignore("Should be possible if get the same symbol") {
-    forAll(sizeRange(10)) { (name: SymbolNode, multiArguments: Seq[Seq[ASTNode]]) =>
+  it("Should be possible if get the same symbol") {
+    forAll(sizeRange(5), maxDiscardedFactor(100.0)) {
+      (name: SymbolNode, multiArguments: Seq[Seq[ASTNode]]) =>
       val tested = Associative(name)
       val functionNode = FunctionNode(name, multiArguments.map(FunctionNode(name, _)))
       val actual = tested.apply(functionNode)
