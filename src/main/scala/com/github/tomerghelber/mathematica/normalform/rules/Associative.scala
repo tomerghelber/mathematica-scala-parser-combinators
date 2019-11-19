@@ -1,6 +1,6 @@
 package com.github.tomerghelber.mathematica.normalform.rules
 
-import com.github.tomerghelber.mathematica.ast.{FunctionNode, SymbolNode}
+import com.github.tomerghelber.mathematica.ast.{ASTNode, FunctionNode, SymbolNode}
 
 /**
  * @author user
@@ -14,7 +14,7 @@ case class Associative(name: SymbolNode) extends NormalFormRuleTemplate {
   protected def work(node: FunctionNode): FunctionNode = {
     val newArgs = node.arguments.flatMap {
       case arg: FunctionNode if arg.name == node.name => arg.arguments
-      case arg => Seq(arg)
+      case arg: ASTNode => Seq(arg)
     }
     node.copy(arguments = newArgs)
   }

@@ -1,6 +1,6 @@
 package com.github.tomerghelber.mathematica.normalform.rules
 
-import com.github.tomerghelber.mathematica.ast.{FunctionNode, SymbolNode}
+import com.github.tomerghelber.mathematica.ast.{ASTNode, FunctionNode, SymbolNode}
 
 /**
  * @author user
@@ -16,7 +16,7 @@ case class Distributive(upper: SymbolNode, lower: SymbolNode) extends NormalForm
   protected def work(node: FunctionNode): FunctionNode = {
     val args = Distributive.permutations(node.arguments.map{
       case arg: FunctionNode if arg.name == upper => arg.arguments
-      case arg => Seq(arg)
+      case arg: ASTNode => Seq(arg)
     }).map(FunctionNode(lower, _))
     FunctionNode(upper, args)
   }
