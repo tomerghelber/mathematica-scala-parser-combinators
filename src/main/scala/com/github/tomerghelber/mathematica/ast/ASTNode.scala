@@ -52,7 +52,7 @@ case class SpanNode(expr1: ASTNode, expr3: ASTNode, expr2: ASTNode) extends ASTN
 
 sealed trait FunctionNodeSymbol {
   protected val name: String
-  val symbol = SymbolNode(name)
+  lazy val symbol: SymbolNode = SymbolNode(name)
 }
 trait ApplyUnaryFunctionNode extends FunctionNodeSymbol {
   def apply(node: ASTNode): FunctionNode = createUnary(node)
