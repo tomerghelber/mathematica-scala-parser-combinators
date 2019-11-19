@@ -50,8 +50,10 @@ case class MinLimitNode(expr1: ASTNode, expr3: ASTNode, expr2: ASTNode) extends 
 
 case class SpanNode(expr1: ASTNode, expr3: ASTNode, expr2: ASTNode) extends ASTNode
 
-sealed trait FunctionNodeName {protected val name: String}
-sealed trait FunctionNodeSymbol extends FunctionNodeName {val symbol = SymbolNode(name)}
+sealed trait FunctionNodeSymbol {
+  protected val name: String
+  val symbol = SymbolNode(name)
+}
 trait ApplyUnaryFunctionNode extends FunctionNodeSymbol {
   def apply(node: ASTNode): FunctionNode = createUnary(node)
   val createUnary: ASTNode => FunctionNode = first => FunctionNode(SymbolNode(name), Seq(first))
@@ -64,9 +66,9 @@ trait ApplyManyFunctionNode extends FunctionNodeSymbol {
   def apply(nodes: Seq[ASTNode]): FunctionNode = createMany(nodes)
   val createMany: Seq[ASTNode] => FunctionNode = nodes => FunctionNode(SymbolNode(name), nodes)
 }
-trait UnapplyFunctionNode extends FunctionNodeName {
+trait UnapplyFunctionNode extends FunctionNodeSymbol {
   def unapply(arg: FunctionNode): Option[Seq[ASTNode]] = arg match {
-    case FunctionNode(SymbolNode(functionName), arguments) if functionName == name => Some(arguments)
+    case FunctionNode(functionSymbol, arguments) if functionSymbol == symbol => Some(arguments)
     case _ => None
   }
 }
