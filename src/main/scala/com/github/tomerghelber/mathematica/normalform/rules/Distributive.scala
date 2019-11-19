@@ -7,7 +7,7 @@ import com.github.tomerghelber.mathematica.ast.{ASTNode, FunctionNode, SymbolNod
  * @since 18-Nov-19
  */
 case class Distributive(upper: SymbolNode, lower: SymbolNode) extends NormalFormRuleTemplate {
-  require(upper != lower)
+  require(upper != lower, f"Lower $lower should be different then upper $upper")
 
   protected def can(node: FunctionNode): Boolean = {
     lower == node.name
