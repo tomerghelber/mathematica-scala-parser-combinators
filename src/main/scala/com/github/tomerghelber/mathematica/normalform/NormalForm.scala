@@ -9,9 +9,10 @@ import com.github.tomerghelber.mathematica.normalform.rules.{Associative, Distri
  */
 class NormalForm {
   private val rules: Set[NormalFormRule] = Set(
-    Distributive(SymbolNode("Plus"), SymbolNode("Mul")),
-    Associative(SymbolNode("Plus")),
-    Associative(SymbolNode("Mul")),
+    Distributive(PlusNode.symbol, TimesNode.symbol),
+    Distributive(OrNode.symbol, AndNode.symbol),
+    Associative(PlusNode.symbol),
+    Associative(TimesNode.symbol),
   )
 
   def apply(node: ASTNode): ASTNode = {
