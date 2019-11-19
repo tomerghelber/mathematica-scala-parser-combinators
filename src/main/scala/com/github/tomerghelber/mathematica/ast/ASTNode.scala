@@ -67,7 +67,7 @@ trait ApplyManyFunctionNode extends FunctionNodeSymbol {
   val createMany: Seq[ASTNode] => FunctionNode = nodes => FunctionNode(SymbolNode(name), nodes)
 }
 trait UnapplyFunctionNode extends FunctionNodeSymbol {
-  def unapply(arg: FunctionNode): Option[Seq[ASTNode]] = arg match {
+  def unapply(arg: ASTNode): Option[Seq[ASTNode]] = arg match {
     case FunctionNode(functionSymbol, arguments) if functionSymbol == symbol => Some(arguments)
     case _ => None
   }
