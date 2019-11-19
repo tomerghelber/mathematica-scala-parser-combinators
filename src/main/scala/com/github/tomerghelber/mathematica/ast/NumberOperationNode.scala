@@ -33,9 +33,9 @@ object MinusPlusNode extends ApplyUnaryFunctionNode with ApplyBinaryFunctionNode
 object DivideNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
   protected val name: String = "Divide"
 }
-object TimesNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+object TimesNode extends ApplyBinaryFunctionNode with ApplyManyFunctionNode with UnapplyFunctionNode {
   protected val name: String = "Times"
 }
-object PlusNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+object PlusNode extends ApplyBinaryFunctionNode with ApplyManyFunctionNode with UnapplyFunctionNode {
   protected val name: String = "Plus"
 }
