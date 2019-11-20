@@ -18,5 +18,17 @@ jobs:
     - name: Install
       run: sbt compile
 
+    - name: Download codeclimate test reporter
+      run: |
+        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        chmod +x ./cc-test-reporter
+    - name: Make codeclimate test reporter ready
+      run: ./cc-test-reporter before-build
+
     - name: Run tests
       run: sbt clean coverage test coverageReport
+
+    - name: Report to codeclimate
+      run: |
+       ./cc-test-reporter format-coverage -t cobertura target/scala-2.12/coverage-report/cobertura.xml
+       ./cc-test-reporter upload-coverage
