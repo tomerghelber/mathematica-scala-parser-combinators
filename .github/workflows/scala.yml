@@ -35,4 +35,5 @@ jobs:
     - name: Report to codeclimate
       run: |
        COVERAGE_FILE=target/scala-$(echo ${{ matrix.SCALA_VERSION }} | grep -o -P '^\d+\.\d+' '-')Y/coverage-report/cobertura.xml
+       mv $COVERAGE_FILE coverage/cobertura.xml
        ./cc-test-reporter after-build
