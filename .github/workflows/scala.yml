@@ -34,6 +34,5 @@ jobs:
 
     - name: Report to codeclimate
       run: |
-       SCALA_TARGET_DIRECTORY=target/scala-$(echo ${{ matrix.SCALA_VERSION }} | grep -o -P '^\d+\.\d+' '-') 
-       ./cc-test-reporter format-coverage -t $SCALA_TARGET_DIRECTORY/coverage-report/cobertura.xml
-       ./cc-test-reporter upload-coverage
+       COVERAGE_FILE=target/scala-$(echo ${{ matrix.SCALA_VERSION }} | grep -o -P '^\d+\.\d+' '-')Y/coverage-report/cobertura.xml
+       ./cc-test-reporter after-build
