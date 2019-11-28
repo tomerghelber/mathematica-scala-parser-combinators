@@ -23,7 +23,7 @@ jobs:
       run: sbt ++${{ matrix.SCALA_VERSION }} compile
 
     - name: Test & publish code coverage
-      uses: paambaati/codeclimate-action@v2
+      uses: paambaati/codeclimate-action@v2.3.0
       with:
         coverageCommand: sbt ++${{ matrix.SCALA_VERSION }} clean coverage test coverageReport
         debug: true
