@@ -33,8 +33,7 @@ jobs:
       run: sbt ++${{ matrix.SCALA_VERSION }} clean coverage test coverageReport
 
     - name: Report to codeclimate
-      env:
-        SCALA_TARGET_DIRECTORY: target/scala-$(echo ${{ matrix.SCALA_VERSION }} | grep -o -P '^\d+\.\d+' '-') 
       run: |
+       SCALA_TARGET_DIRECTORY=target/scala-$(echo ${{ matrix.SCALA_VERSION }} | grep -o -P '^\d+\.\d+' '-') 
        ./cc-test-reporter format-coverage -t $SCALA_TARGET_DIRECTORY/coverage-report/cobertura.xml
        ./cc-test-reporter upload-coverage
