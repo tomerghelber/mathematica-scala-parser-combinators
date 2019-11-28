@@ -9,6 +9,8 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         SCALA_VERSION: [2.12.8]
+    env:
+      SCALA_VERSION: ${{ matrix.SCALA_VERSION }}
     steps:
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
@@ -26,18 +28,14 @@ jobs:
       run: git fetch --tags
     - name: Install
       run: sbt ++$SCALA_VERSION compile
-      env:
-        SCALA_VERSION: ${{ matrix.SCALA_VERSION }}
 
     - name: Test & Publish code coverage
       run: |
         SCALA_TARGET_DIRECTORY=target/scala-$(echo $SCALA_VERSION | grep -o -P '^\d+\.\d+' '-')
-        GIT_BRANCH=$GITHUB_REF
-        GIT_COMMIT_SHA=$GITHUB_SHA
         ./cc-test-reporter before-build
         sbt clean coverage test coverageReport
         ./cc-test-reporter format-coverage -t cobertura -d $SCALA_TARGET_DIRECTORY/coverage-report/cobertura.xml
         ./cc-test-reporter upload-coverage
       env:
-        SCALA_VERSION: ${{ matrix.SCALA_VERSION }}
-        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        GIT_BRANCH: $GITHUB_REF
+        GIT_COMMIT_SHA: $GITHUB_SHA
