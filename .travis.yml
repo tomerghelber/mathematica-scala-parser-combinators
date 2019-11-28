@@ -13,6 +13,7 @@ cache:
     - $HOME/.cache/coursier
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot/
+    - $HOME/.m2/repository/
 
 # single test suite, non-parallel build.
 
