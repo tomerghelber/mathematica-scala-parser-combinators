@@ -22,18 +22,8 @@ jobs:
     - name: Install
       run: sbt ++${{ matrix.SCALA_VERSION }} compile
 
-    - name: Download codeclimate test reporter
-      run: |
-        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-        chmod +x ./cc-test-reporter
-    - name: Make codeclimate test reporter ready
-      run: ./cc-test-reporter before-build
-
-    - name: Run tests
-      run: sbt ++${{ matrix.SCALA_VERSION }} clean coverage test coverageReport
-
-    - name: Report to codeclimate
-      run: |
-       COVERAGE_FILE=target/scala-$(echo ${{ matrix.SCALA_VERSION }} | grep -o -P '^\d+\.\d+' '-')/coverage-report/cobertura.xml
-       mv $COVERAGE_FILE coverage/cobertura.xml
-       ./cc-test-reporter after-build
+    - name: Test & publish code coverage
+      uses: paambaati/codeclimate-action@v2
+      with:
+        coverageCommand: sbt ++${{ matrix.SCALA_VERSION }} clean coverage test coverageReport
+        debug: true
