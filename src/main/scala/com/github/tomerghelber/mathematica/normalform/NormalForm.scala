@@ -1,7 +1,7 @@
 package com.github.tomerghelber.mathematica.normalform
 
 import com.github.tomerghelber.mathematica.ast._
-import com.github.tomerghelber.mathematica.normalform.rules.{Associative, Distributive, NormalFormRule}
+import com.github.tomerghelber.mathematica.normalform.rules.{Associative, Commutative, Distributive, NormalFormRule}
 
 /**
  * @author user
@@ -9,10 +9,24 @@ import com.github.tomerghelber.mathematica.normalform.rules.{Associative, Distri
  */
 class NormalForm {
   private val rules: Set[NormalFormRule] = Set(
+    // Distributives
     Distributive(PlusNode.symbol, TimesNode.symbol),
     Distributive(OrNode.symbol, AndNode.symbol),
+    // Associatives
+    Associative(OrNode.symbol),
+    Associative(AndNode.symbol),
+    Associative(XorNode.symbol),
     Associative(PlusNode.symbol),
     Associative(TimesNode.symbol),
+    // Commutatives
+    Commutative(OrNode.symbol),
+    Commutative(AndNode.symbol),
+    Commutative(NorNode.symbol),
+    Commutative(NandNode.symbol),
+    Commutative(XorNode.symbol),
+    Commutative(XnorNode.symbol),
+    Commutative(PlusNode.symbol),
+    Commutative(TimesNode.symbol),
   )
 
   def apply(node: ASTNode): ASTNode = {
