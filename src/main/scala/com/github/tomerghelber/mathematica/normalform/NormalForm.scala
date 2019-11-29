@@ -3,7 +3,7 @@ package com.github.tomerghelber.mathematica.normalform
 import com.github.tomerghelber.mathematica.ast._
 import com.github.tomerghelber.mathematica.normalform.rules.{Associative, Commutative, Distributive, NormalFormRule}
 
-/**
+/** Normal form transformer.
  * @author user
  * @since 18-Nov-19
  */

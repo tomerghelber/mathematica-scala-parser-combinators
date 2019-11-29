@@ -1,6 +1,6 @@
 package com.github.tomerghelber.mathematica.parser
 
-/**
+/** All delimiters in Mathematica.
  * @author user
  * @since 31-Oct-19
  */
@@ -47,6 +47,7 @@ object Delimiters {
   val OVERSCRIPT = "\\&"
   val UNDERSCRIPT = "\\+"
 
+  /** Holds all the values in this object */
   def values: Set[String] = Set(
     ROUND_BRACKET_OPEN,
     ROUND_BRACKET_CLOSE,
