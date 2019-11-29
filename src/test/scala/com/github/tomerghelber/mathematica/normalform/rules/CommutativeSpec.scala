@@ -1,7 +1,7 @@
 package com.github.tomerghelber.mathematica.normalform.rules
 
 import com.github.tomerghelber.mathematica.ast.{ASTNode, FunctionNode, SymbolNode}
-import com.github.tomerghelber.mathematica.normalform.ASTNodeOrdering
+import com.github.tomerghelber.mathematica.normalform.NormalForm.ASTNodeOrdering
 import com.github.tomerghelber.mathematica.{nodeGen, symbolNodeGen}
 import org.scalacheck.Arbitrary
 import org.scalatest.{FunSpec, Matchers}
@@ -30,7 +30,7 @@ class CommutativeSpec extends FunSpec with Matchers with ScalaCheckPropertyCheck
       val tested = Commutative(name)
       val functionNode = FunctionNode(name, arguments)
       val actual = tested.apply(functionNode)
-      val expected = FunctionNode(name, arguments.sorted(ASTNodeOrdering))
+      val expected = FunctionNode(name, arguments.sorted)
       actual shouldBe expected
     }
   }

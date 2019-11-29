@@ -1,6 +1,7 @@
 package com.github.tomerghelber.mathematica.normalform
 
 import com.github.tomerghelber.mathematica.ast.{ASTNode, FunctionNode, SymbolNode, TerminalNode}
+import com.github.tomerghelber.mathematica.normalform.NormalForm.{ASTNodeOrdering, TerminalNodeOrdering}
 import com.github.tomerghelber.mathematica.{functionNodeGen, nodeGen, symbolNodeGen, terminalNodeGen}
 import org.scalacheck.Arbitrary
 import org.scalatest.{FunSpec, Matchers}
