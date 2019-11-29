@@ -185,10 +185,10 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
    | ("<=" | "≤" | "⩽") ^^ { _ => LessEqualNode.createBinary    }
   )
 
-//  private val horizontalArrowAndVectorOperators: Parser[ASTNode] = equalities
-//  private val diagonalArrowOperators: Parser[ASTNode] = horizontalArrowAndVectorOperators
+  private val horizontalArrowAndVectorOperators: Parser[ASTNode] = equalities
+  private val diagonalArrowOperators: Parser[ASTNode] = horizontalArrowAndVectorOperators
 
-  private val sameQ: Parser[ASTNode] = chainl1(equalities,
+  private val sameQ: Parser[ASTNode] = chainl1(diagonalArrowOperators,
     "===" ^^ {_ => SameQNode.createBinary}
    | "=!=" ^^ {_ => UnSameQNode.createBinary}
   )
@@ -200,14 +200,16 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
    | "⊃" ^^ {_ =>SupersetNode.createBinary}
   )
 
-//  private def forallAndExists: Parser[ASTNode] = setRelationOperators ~ ("∀" | "∃" | "∄") ~ setRelationOperators ^^ {
-//    case expr1 ~ "∀" ~ expr2 => ForAllNode(expr1, expr2)
-//    case expr1 ~ "∃" ~ expr2 => ExistsNode(expr1, expr2)
-//    case expr1 ~ "∄" ~ expr2 => NotExistsNode(expr1, expr2)
-//  } | setRelationOperators
-//
+  private def forallAndExists: Parser[ASTNode] = setRelationOperators ~ (
+    "∀" ^^{_=>ForAllNode.createBinary}
+  | "∃" ^^{_=>ExistsNode.createBinary}
+  | "∄" ^^{_=>NotExistsNode.createBinary}
+  ) ~ setRelationOperators ^^ {
+    case expr1 ~ op ~ expr2 => op(expr1, expr2)
+  } | setRelationOperators
+
   private val not: Parser[ASTNode] = firstFolderRight(("!" | "¬")^^{_=>NotNode.createUnary},
-    setRelationOperators
+    forallAndExists
   )
 
 //  private def and: Parser[ASTNode] = not ~ ("&&" | "∧" | "⊼") ~ not ^^ {
