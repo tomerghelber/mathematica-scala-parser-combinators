@@ -33,6 +33,11 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
   private def elemToOperator[T](p: Parser[T], op: ApplyBinaryFunctionNode): Parser[(ASTNode, ASTNode) => FunctionNode] =
     p ^^ {_=>op.createBinary}
 
+  def elemsToOperators[T](elem: Parser[T], firstOp: Parser[(T, T) => T], ops: Parser[(T, T) => T]*): Parser[T] =
+    elem ~ ops.foldRight(firstOp){case (op1, op2) => op1 | op2} ~ elem ^^ {
+      case expr1 ~ op ~ expr2 => op(expr1, expr2)
+    }
+
   private def lower: Parser[ASTNode] = terminal | ROUND_BRACKET_OPEN ~> root <~ ROUND_BRACKET_CLOSE
 
   private val overAndUnderscript: Parser[ASTNode] = chainr1(lower,
@@ -197,63 +202,53 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
   )
 
   private val setRelationOperators: Parser[ASTNode] = chainl1(sameQ,
-    elemToOperator("∈", ElementNode)
+     elemToOperator("∈", ElementNode)
    | elemToOperator("∉", NotElementNode)
    | elemToOperator("⊂", SubsetNode)
    | elemToOperator("⊃", SupersetNode)
   )
 
-  private def forallAndExists: Parser[ASTNode] = setRelationOperators ~ (
-    elemToOperator("∀", ForAllNode)
-  | elemToOperator("∃", ExistsNode)
-  | elemToOperator("∄", NotExistsNode)
-  ) ~ setRelationOperators ^^ {
-    case expr1 ~ op ~ expr2 => op(expr1, expr2)
-  } | setRelationOperators
+  private def forallAndExists: Parser[ASTNode] = elemsToOperators(setRelationOperators,
+    elemToOperator("∀", ForAllNode),
+    elemToOperator("∃", ExistsNode),
+    elemToOperator("∄", NotExistsNode)
+  ) | setRelationOperators
 
   private val not: Parser[ASTNode] = firstFolderRight(("!" | "¬")^^{_=>NotNode.createUnary},
     forallAndExists
   )
 
-  private def and: Parser[ASTNode] = not ~ (
-    elemToOperator("&&" | "∧", AndNode)
-  | elemToOperator("⊼", NandNode)
-  ) ~ not ^^ {
-    case expr1 ~ op ~ expr2 => op(expr1, expr2)
-  } | not
+  private def and: Parser[ASTNode] = elemsToOperators(not,
+    elemToOperator("&&" | "∧", AndNode),
+    elemToOperator("⊼", NandNode)
+  ) | not
 
-  private def xor: Parser[ASTNode] = and ~ (
-    elemToOperator("⊻", XorNode)
-  | elemToOperator("\uF4A2", XnorNode)
-  ) ~ and ^^ {
-    case expr1 ~ op ~ expr2 => op(expr1, expr2)
-  } | and
+  private def xor: Parser[ASTNode] = elemsToOperators(and,
+    elemToOperator("⊻", XorNode),
+    elemToOperator("\uF4A2", XnorNode)
+  ) | and
 
-  private def or: Parser[ASTNode] = xor ~ (
-      elemToOperator("||" | "∨", AndNode)
-    | elemToOperator("⊽", NandNode)
-    ) ~ xor ^^ {
-    case expr1 ~ op ~ expr2 => op(expr1, expr2)
-  } | xor
+  private def or: Parser[ASTNode] = elemsToOperators(xor,
+      elemToOperator("||" | "∨", AndNode),
+      elemToOperator("⊽", NandNode)
+    )
 
-  private def equivalent: Parser[ASTNode] = (or <~ "⧦") ~ or ^^ {
-    case expr1 ~ expr2 => EquivalentNode(expr1, expr2)
-  } | or
+  private def equivalent: Parser[ASTNode] = elemsToOperators(or,
+    elemToOperator("⧦", EquivalentNode)
+  ) | or
 
-  private def implies: Parser[ASTNode] = (equivalent <~ ("\uF523" | "⥰")) ~ equivalent ^^ {
-    case expr1 ~ expr2 => ImpliesNode(expr1, expr2)
-  } | equivalent
+  private def implies: Parser[ASTNode] = elemsToOperators(equivalent,
+    elemToOperator("\uF523" | "⥰", ImpliesNode)
+  ) | equivalent
 
-  def tees: Parser[ASTNode] = implies ~ (
-    elemToOperator("⊢", RightTeeNode)
-  | elemToOperator("⊨", DoubleRightTeeNode)
-  | elemToOperator("⊣", LeftTeeNode)
-  | elemToOperator("⫤", DoubleLeftTeeNode)
-  | elemToOperator("⊥", UpTeeNode)
-  | elemToOperator("⊤", DownTeeNode)
-  ) ~ implies ^^ {
-    case expr1 ~ op ~ expr2 => op(expr1, expr2)
-  } | implies
+  def tees: Parser[ASTNode] = elemsToOperators(implies,
+    elemToOperator("⊢", RightTeeNode),
+    elemToOperator("⊨", DoubleRightTeeNode),
+    elemToOperator("⊣", LeftTeeNode),
+    elemToOperator("⫤", DoubleLeftTeeNode),
+    elemToOperator("⊥", UpTeeNode),
+    elemToOperator("⊤", DownTeeNode)
+  ) | implies
 
   private val rules = chainl1(tees,
     elemToOperator("->" | "\uF522", RuleNode)
