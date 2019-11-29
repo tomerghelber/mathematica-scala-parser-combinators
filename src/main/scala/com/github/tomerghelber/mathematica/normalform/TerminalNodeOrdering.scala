@@ -2,7 +2,7 @@ package com.github.tomerghelber.mathematica.normalform
 
 import com.github.tomerghelber.mathematica.ast.{NumberNode, SymbolNode, TerminalNode}
 
-/**
+/** Ordering of `TerminalNode`.
  * @author user
  * @since 18-Nov-19
  */
