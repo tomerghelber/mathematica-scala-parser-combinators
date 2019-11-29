@@ -233,24 +233,26 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
     case expr1 ~ op ~ expr2 => op(expr1, expr2)
   } | xor
 
-//  private def equivalent: Parser[ASTNode] = (or <~ "⧦") ~ or ^^ {
-//    case expr1 ~ expr2 => EquivalentNode(expr1, expr2)
-//  } | or
-//
-//  private def implies: Parser[ASTNode] = (equivalent <~ ("\uF523" | "⥰")) ~ equivalent ^^ {
-//    case expr1 ~ expr2 => Implies(expr1, expr2)
-//  } | equivalent
+  private def equivalent: Parser[ASTNode] = (or <~ "⧦") ~ or ^^ {
+    case expr1 ~ expr2 => EquivalentNode(expr1, expr2)
+  } | or
 
-//  def tees: Parser[ASTNode] = implies ~ ("⊢" | "⊨" | "⊣" | "⫤" | "⊥" | "⊤") ~ implies ^^ {
-//    case expr1 ~ "⊢" ~ expr2 => RightTeeNode(expr1, expr2)
-//    case expr1 ~ "⊨" ~ expr2 => DoubleRightTeeNode(expr1, expr2)
-//    case expr1 ~ "⊣" ~ expr2 => LeftTeeNode(expr1, expr2)
-//    case expr1 ~ "⫤" ~ expr2 => DoubleLeftTeeNode(expr1, expr2)
-//    case expr1 ~ "⊥" ~ expr2 => UpTeeNode(expr1, expr2)
-//    case expr1 ~ "⊤" ~ expr2 => DownTeeNode(expr1, expr2)
-//  } | implies
+  private def implies: Parser[ASTNode] = (equivalent <~ ("\uF523" | "⥰")) ~ equivalent ^^ {
+    case expr1 ~ expr2 => ImpliesNode(expr1, expr2)
+  } | equivalent
 
-  private val rules = chainl1(or,
+  def tees: Parser[ASTNode] = implies ~ (
+    "⊢" ^^ {_=>RightTeeNode.createBinary}
+  | "⊨" ^^ {_=>DoubleRightTeeNode.createBinary}
+  | "⊣" ^^ {_=>LeftTeeNode.createBinary}
+  | "⫤" ^^ {_=>DoubleLeftTeeNode.createBinary}
+  | "⊥" ^^ {_=>UpTeeNode.createBinary}
+  | "⊤" ^^ {_=>DownTeeNode.createBinary}
+  ) ~ implies ^^ {
+    case expr1 ~ op ~ expr2 => op(expr1, expr2)
+  } | implies
+
+  private val rules = chainl1(tees,
     ("->" | "\uF522") ^^ {_=>RuleNode.createBinary}
   | (":>" | "\uF51F") ^^ {_=>RuleDelayedNode.createBinary}
   )
