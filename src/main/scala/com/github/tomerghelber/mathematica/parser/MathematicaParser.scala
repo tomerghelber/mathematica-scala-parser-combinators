@@ -149,19 +149,19 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
   private val times: Parser[ASTNode] = rep1sep(divide, opt(ASTERISK | MULTIPLICATION_SIGN)) ^^
     (_.reduceRight(TimesNode.apply))
 
-//  private def product: Parser[ASTNode] = times
-//
-//  private def integrate: Parser[ASTNode] = "∫" ~> product ~ product ^^ {
-//    case expr1 ~ expr2 => IntegrateNode(expr1, expr2)
-//  } | product
-//
-//  //  private def sumAndLimit: Parser[ASTNode] = "∑" | ("\uF438" | "\uF439" | "\uF43A") ^^ {
-//  //    case "\uF438" ~ e3 => LimitNode(e3, e1, e2)
-//  //    case "\uF439" ~ e3 => MaxLimitNode(e3, e1, e2)
-//  //    case "\uF43A" ~ e3 => MinLimitNode(e3, e1, e2)
-//  //  } | integrate
+  private def product: Parser[ASTNode] = times
 
-  private val plusAndMinus: Parser[ASTNode] = chainr1(times,
+  private def integrate: Parser[ASTNode] = "∫" ~> product ~ product ^^ {
+    case expr1 ~ expr2 => IntegrateNode(expr1, expr2)
+  } | product
+
+//  private def sumAndLimit: Parser[ASTNode] = "∑" | ("\uF438" | "\uF439" | "\uF43A") ^^ {
+//    case "\uF438" ~ e3 => LimitNode(e3, e1, e2)
+//    case "\uF439" ~ e3 => MaxLimitNode(e3, e1, e2)
+//    case "\uF43A" ~ e3 => MinLimitNode(e3, e1, e2)
+//  } | integrate
+
+  private val plusAndMinus: Parser[ASTNode] = chainr1(integrate,
     PLUS ^^ {_=> PlusNode.createBinary}
   | MINUS ^^ {_=>(expr1: ASTNode, expr2: ASTNode) => PlusNode(expr1, TimesNode(NumberNode("-1"), expr2))}
   | PLUS_MINUS ^^ {_=> PlusMinusNode.createBinary}
