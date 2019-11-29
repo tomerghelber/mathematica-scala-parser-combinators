@@ -33,7 +33,7 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
   private def elemToOperator[T](p: Parser[T], op: ApplyBinaryFunctionNode): Parser[(ASTNode, ASTNode) => FunctionNode] =
     p ^^ {_=>op.createBinary}
 
-  def elemsToOperators[T](elem: Parser[T], firstOp: Parser[(T, T) => T], ops: Parser[(T, T) => T]*): Parser[T] =
+  private def elemsToOperators[T](elem: Parser[T], firstOp: Parser[(T, T) => T], ops: Parser[(T, T) => T]*): Parser[T] =
     elem ~ ops.foldRight(firstOp){case (op1, op2) => op1 | op2} ~ elem ^^ {
       case expr1 ~ op ~ expr2 => op(expr1, expr2)
     }
@@ -193,10 +193,10 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
    | elemToOperator("<=" | "≤" | "⩽", LessEqualNode)
   )
 
-  private val horizontalArrowAndVectorOperators: Parser[ASTNode] = equalities
-  private val diagonalArrowOperators: Parser[ASTNode] = horizontalArrowAndVectorOperators
+//  private val horizontalArrowAndVectorOperators: Parser[ASTNode] = equalities
+//  private val diagonalArrowOperators: Parser[ASTNode] = horizontalArrowAndVectorOperators
 
-  private val sameQ: Parser[ASTNode] = chainl1(diagonalArrowOperators,
+  private val sameQ: Parser[ASTNode] = chainl1(equalities,
      elemToOperator("===", SameQNode)
    | elemToOperator("=!=", UnSameQNode)
   )
@@ -218,39 +218,39 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
     forallAndExists
   )
 
-  private def and: Parser[ASTNode] = elemsToOperators(not,
-    elemToOperator("&&" | "∧", AndNode),
-    elemToOperator("⊼", NandNode)
-  ) | not
+//  private def and: Parser[ASTNode] = elemsToOperators(not,
+//    elemToOperator("&&" | "∧", AndNode),
+//    elemToOperator("⊼", NandNode)
+//  ) | not
 
-  private def xor: Parser[ASTNode] = elemsToOperators(and,
-    elemToOperator("⊻", XorNode),
-    elemToOperator("\uF4A2", XnorNode)
-  ) | and
+//  private def xor: Parser[ASTNode] = elemsToOperators(and,
+//    elemToOperator("⊻", XorNode),
+//    elemToOperator("\uF4A2", XnorNode)
+//  ) | and
 
-  private def or: Parser[ASTNode] = elemsToOperators(xor,
-      elemToOperator("||" | "∨", AndNode),
-      elemToOperator("⊽", NandNode)
-    )
+//  private def or: Parser[ASTNode] = elemsToOperators(xor,
+//      elemToOperator("||" | "∨", AndNode),
+//      elemToOperator("⊽", NandNode)
+//    )
 
-  private def equivalent: Parser[ASTNode] = elemsToOperators(or,
-    elemToOperator("⧦", EquivalentNode)
-  ) | or
+//  private def equivalent: Parser[ASTNode] = elemsToOperators(or,
+//    elemToOperator("⧦", EquivalentNode)
+//  ) | or
 
-  private def implies: Parser[ASTNode] = elemsToOperators(equivalent,
-    elemToOperator("\uF523" | "⥰", ImpliesNode)
-  ) | equivalent
+//  private def implies: Parser[ASTNode] = elemsToOperators(equivalent,
+//    elemToOperator("\uF523" | "⥰", ImpliesNode)
+//  ) | equivalent
 
-  def tees: Parser[ASTNode] = elemsToOperators(implies,
-    elemToOperator("⊢", RightTeeNode),
-    elemToOperator("⊨", DoubleRightTeeNode),
-    elemToOperator("⊣", LeftTeeNode),
-    elemToOperator("⫤", DoubleLeftTeeNode),
-    elemToOperator("⊥", UpTeeNode),
-    elemToOperator("⊤", DownTeeNode)
-  ) | implies
+//  def tees: Parser[ASTNode] = elemsToOperators(implies,
+//    elemToOperator("⊢", RightTeeNode),
+//    elemToOperator("⊨", DoubleRightTeeNode),
+//    elemToOperator("⊣", LeftTeeNode),
+//    elemToOperator("⫤", DoubleLeftTeeNode),
+//    elemToOperator("⊥", UpTeeNode),
+//    elemToOperator("⊤", DownTeeNode)
+//  ) | implies
 
-  private val rules = chainl1(tees,
+  private val rules = chainl1(not,
     elemToOperator("->" | "\uF522", RuleNode)
   | elemToOperator(":>" | "\uF51F", RuleDelayedNode)
   )
