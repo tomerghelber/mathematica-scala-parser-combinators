@@ -44,8 +44,7 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
     ((underparts: Parser[ASTNode]) => symbol ~ rep1(
       SQUARE_BRACKET_OPEN  ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE
     ) ^^ {
-      case expr ~ parts =>
-        FunctionNode(expr, parts.flatten)
+      case expr ~ parts => FunctionNode(expr, parts.flatten)
     }
     | symbol ~ rep1(
       (SQUARE_BRACKET_OPEN2 ~> rep1sep(underparts, COMMA) <~ SQUARE_BRACKET_CLOSE2)
@@ -126,14 +125,14 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 
   private val squareAndCircle: Parser[ASTNode] = differentialD
 
-//  private def cross: Parser[ASTNode] = squareAndCircle ~ ("\uF4A0" ~> squareAndCircle <~ "\uF4A0") ~ squareAndCircle ^^ {
-//    case expr1 ~ expr2 ~ expr3 => CrossNode(expr1, expr2 , expr3)
-//  } | squareAndCircle
-//
-//  private def dot: Parser[ASTNode] = cross ~ ("." ~> cross <~ ".") ~ cross ^^ {
-//    case expr1 ~ expr2 ~ expr3 => DotNode(expr1, expr2 , expr3)
-//  } | cross
-//
+  private def cross: Parser[ASTNode] = squareAndCircle ~ ("\uF4A0" ~> squareAndCircle <~ "\uF4A0") ~ squareAndCircle ^^ {
+    case expr1 ~ expr2 ~ expr3 => CrossNode(expr1, expr2, expr3)
+  } | squareAndCircle
+
+  private def dot: Parser[ASTNode] = cross ~ ("." ~> cross <~ ".") ~ cross ^^ {
+    case expr1 ~ expr2 ~ expr3 => DotNode(expr1, expr2, expr3)
+  } | cross
+
 //  private def signedExpression: Parser[ASTNode] = ("+" | "-" | "±" | "∓") ~ dot ^^ {
 //    case "+" ~ expr => expr
 //    case "-" ~ expr => TimesNode(IntegerNode(-1), expr)
@@ -141,7 +140,7 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 //    case "∓" ~ expr => SingleMinusPlusNode(expr)
 //  } | dot
 
-  private val divide: Parser[ASTNode] = rep1sep(squareAndCircle, DIVIDE | OBELUS | DIVIDE2) ^^
+  private val divide: Parser[ASTNode] = rep1sep(dot, DIVIDE | OBELUS | DIVIDE2) ^^
     {_.reduceLeft(DivideNode.apply)}
 
   private val times: Parser[ASTNode] = rep1sep(divide, opt(ASTERISK | MULTIPLICATION_SIGN)) ^^
