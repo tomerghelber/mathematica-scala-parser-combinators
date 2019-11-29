@@ -115,17 +115,20 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
     sqrt
   )
 
-//  private def discreteOperators: Parser[ASTNode] = ("∂" | "∇" | "\uF4A3" | "\uF4A5" | "\uF4A4") ~ differentialD ~ differentialD ^^ {
-//    case "∂" ~ expr1 ~ expr2 => DNode(expr1, expr2)
-//    case  "∇" ~ expr1 ~ expr2 => DelNode(expr1, expr2)
-//    case "\uF4A3" ~ expr1 ~ expr2 => DiscreteShiftNode(expr1, expr2)
-//    case "\uF4A5" ~ expr1 ~ expr2 => DiscreteRatioNode(expr1, expr2)
-//    case "\uF4A4" ~ expr1 ~ expr2 => DifferenceDeltaNode(expr1, expr2)
-//  } | differentialD
+  private def discreteOperators: Parser[ASTNode] = (
+    "∂" ^^ {_=>DNode.createBinary}
+  | "∇" ^^ {_=>DelNode.createBinary}
+  | "\uF4A3" ^^ {_=>DiscreteShiftNode.createBinary}
+  | "\uF4A5" ^^ {_=>DiscreteRatioNode.createBinary}
+  | "\uF4A4" ^^ {_=>DifferenceDeltaNode.createBinary}
+  ) ~ differentialD ~ differentialD ^^ {
+    case op ~ expr1 ~ expr2 => op(expr1, expr2)
+  } | differentialD
 
-  private val squareAndCircle: Parser[ASTNode] = differentialD
+  private val squareAndCircle: Parser[ASTNode] = discreteOperators
 
-  private def cross: Parser[ASTNode] = squareAndCircle ~ ("\uF4A0" ~> squareAndCircle <~ "\uF4A0") ~ squareAndCircle ^^ {
+  private def cross: Parser[ASTNode] =
+    squareAndCircle ~ ("\uF4A0" ~> squareAndCircle <~ "\uF4A0") ~ squareAndCircle ^^ {
     case expr1 ~ expr2 ~ expr3 => CrossNode(expr1, expr2, expr3)
   } | squareAndCircle
 
