@@ -212,21 +212,27 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
     forallAndExists
   )
 
-//  private def and: Parser[ASTNode] = not ~ ("&&" | "∧" | "⊼") ~ not ^^ {
-//    case expr1 ~ ("&&" | "∧") ~ expr2 => AndNode(expr1, expr2)
-//    case expr1 ~ "⊼" ~ expr2 => NandNode(expr1, expr2)
-//  } | not
-//
-//  private def xor: Parser[ASTNode] = and ~ ("⊻" | "\uF4A2") ~ and ^^ {
-//    case expr1 ~ ("⊻" | "∧") ~ expr2 => XorNode(expr1, expr2)
-//    case expr1 ~ "\uF4A2" ~ expr2 => XnorNode(expr1, expr2)
-//  } | and
-//
-//  private def or: Parser[ASTNode] = xor ~ ("||" | "∨" | "⊽") ~ xor ^^ {
-//    case expr1 ~ ("||" | "∨") ~ expr2 => OrNode(expr1, expr2)
-//    case expr1 ~ ("⊽") ~ expr2 => NorNode(expr1, expr2)
-//  } | xor
-//
+  private def and: Parser[ASTNode] = not ~ (
+    ("&&" | "∧") ^^ {_=>AndNode.createBinary}
+  | "⊼" ^^ {_=>NandNode.createBinary}
+  ) ~ not ^^ {
+    case expr1 ~ op ~ expr2 => op(expr1, expr2)
+  } | not
+
+  private def xor: Parser[ASTNode] = and ~ (
+    "⊻" ^^ {_=>XorNode.createBinary}
+  | "\uF4A2" ^^ {_=>XnorNode.createBinary}
+  ) ~ and ^^ {
+    case expr1 ~ op ~ expr2 => op(expr1, expr2)
+  } | and
+
+  private def or: Parser[ASTNode] = xor ~ (
+      ("||" | "∨") ^^ {_=>AndNode.createBinary}
+    | "⊽" ^^ {_=>NandNode.createBinary}
+    ) ~ xor ^^ {
+    case expr1 ~ op ~ expr2 => op(expr1, expr2)
+  } | xor
+
 //  private def equivalent: Parser[ASTNode] = (or <~ "⧦") ~ or ^^ {
 //    case expr1 ~ expr2 => EquivalentNode(expr1, expr2)
 //  } | or
@@ -244,7 +250,7 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 //    case expr1 ~ "⊤" ~ expr2 => DownTeeNode(expr1, expr2)
 //  } | implies
 
-  private val rules = chainl1(not,
+  private val rules = chainl1(or,
     ("->" | "\uF522") ^^ {_=>RuleNode.createBinary}
   | (":>" | "\uF51F") ^^ {_=>RuleDelayedNode.createBinary}
   )
