@@ -16,6 +16,10 @@ object Delimiters {
   val SQUARE_BRACKET_CLOSE2 = "]]"
   val SQUARE_BRACKET_OPEN3 = "〚"
   val SQUARE_BRACKET_CLOSE3 = "〛"
+  val MAP_SIGN = "/@"
+  val MAP_ALL_SIGN = "//@"
+  val APPLY_2_SIGN = "@@"
+  val APPLY_3_SIGN = "@@@"
   val SPAN = ";;"
   val DOT = "."
   val CIRCLE = "\uF4A0"
@@ -93,6 +97,10 @@ object Delimiters {
     SQUARE_BRACKET_CLOSE2,
     SQUARE_BRACKET_OPEN3,
     SQUARE_BRACKET_CLOSE3,
+    MAP_SIGN,
+    MAP_ALL_SIGN,
+    APPLY_2_SIGN,
+    APPLY_3_SIGN,
     SPAN,
     DOT,
     CIRCLE,

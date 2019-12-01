@@ -83,14 +83,15 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
   | elemToOperator(RIGHT_COMPOSITION, RightCompositionNode)
   )
 
-//  private def mapAndApply: Parser[ASTNode] = composition ~ ("/@" | "//@" | "@@" | "@@@") ~ composition ^^ {
-//    case expr1 ~ "/@" ~ expr2 => MapNode(expr1, expr2)
-//    case expr1 ~ "//@" ~ expr2 => MapAllNode(expr1, expr2)
-//    case expr1 ~ "@@" ~ expr2 => Apply2Node(expr1, expr2)
-//    case expr1 ~ "@@@" ~ expr2 => Apply3Node(expr1, expr2)
-//  } | composition
+  private def mapAndApply: Parser[ASTNode] = elemsToOperators(
+    composition,
+    elemToOperator(MAP_SIGN, MapNode),
+    elemToOperator(MAP_ALL_SIGN, MapAllNode),
+    elemToOperator(APPLY_2_SIGN, Apply2Node),
+    elemToOperator(APPLY_3_SIGN, Apply3Node)
+  ) | composition
 
-  private val factorial: Parser[ASTNode] = lastFolderRight(composition,
+  private val factorial: Parser[ASTNode] = lastFolderRight(mapAndApply,
     elemToUnaryOperator(EXCLAMATION_MARK ~ EXCLAMATION_MARK, Factorial2Node)
   ) ~ opt(EXCLAMATION_MARK) ^^ {
     case expr ~ factorialOpt => factorialOpt.map(_=>ast.FactorialNode(expr)).getOrElse(expr)
