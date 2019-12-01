@@ -33,6 +33,9 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
   private def elemToOperator[T](p: Parser[T], op: ApplyBinaryFunctionNode): Parser[(ASTNode, ASTNode) => FunctionNode] =
     p ^^ {_=>op.createBinary}
 
+  private def elemToUnaryOperator[T](p: Parser[T], op: ApplyUnaryFunctionNode): Parser[ASTNode => FunctionNode] =
+    p ^^ {_=>op.createUnary}
+
   private def elemsToOperators[T](elem: Parser[T], firstOp: Parser[(T, T) => T], ops: Parser[(T, T) => T]*): Parser[T] =
     elem ~ ops.foldRight(firstOp){case (op1, op2) => op1 | op2} ~ elem ^^ {
       case expr1 ~ op ~ expr2 => op(expr1, expr2)
@@ -64,13 +67,13 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
   }
 
   private val incrementAndDecrement: Parser[ASTNode] = lastFolderRight(part,
-    INCREASE ^^ { _=>IncrementNode.createUnary }
-  | DECREASE ^^ { _=>DecrementNode.createUnary }
+    elemToUnaryOperator(INCREASE, IncrementNode)
+  | elemToUnaryOperator(DECREASE, DecrementNode)
   )
 
   private val preincrementAndPredecrement: Parser[ASTNode] = firstFolderRight(
-    INCREASE ^^ { _=>PreincrementNode.createUnary}
-  | DECREASE ^^ { _=>PredecrementNode.createUnary}
+    elemToUnaryOperator(INCREASE, PreincrementNode)
+  | elemToUnaryOperator(DECREASE, PredecrementNode)
     ,
     incrementAndDecrement
   )
@@ -88,15 +91,15 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 //  } | composition
 
   private val factorial: Parser[ASTNode] = lastFolderRight(composition,
-    (EXCLAMATION_MARK ~ EXCLAMATION_MARK) ^^ {_=>Factorial2Node.createUnary}
+    elemToUnaryOperator(EXCLAMATION_MARK ~ EXCLAMATION_MARK, Factorial2Node)
   ) ~ opt(EXCLAMATION_MARK) ^^ {
     case expr ~ factorialOpt => factorialOpt.map(_=>ast.FactorialNode(expr)).getOrElse(expr)
   }
 
   private val conjugateAndTranspose: Parser[ASTNode] = lastFolderRight(factorial,
-    CONJUGATE ^^ {_=>ConjugateNode.createUnary}
-  | TRANSPOSE ^^ {_=>TransposeNode.createUnary}
-  | (CONJUGATE_TRANSPOSE | CONJUGATE_TRANSPOSE2) ^^ {_=>ConjugateTransposeNode.createUnary}
+    elemToUnaryOperator(CONJUGATE, ConjugateNode)
+  | elemToUnaryOperator(TRANSPOSE, TransposeNode)
+  | elemToUnaryOperator(CONJUGATE_TRANSPOSE | CONJUGATE_TRANSPOSE2, ConjugateTransposeNode)
   )
 
   private val derivative: Parser[ASTNode] = conjugateAndTranspose ~ rep(APOSTROPHE) ^^ {
@@ -114,7 +117,7 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
     CURLY_BRACKET_OPEN ~> rep1sep(power, COMMA) <~ CURLY_BRACKET_CLOSE ^^ ListNode.createMany | power
 
   private val sqrt: Parser[ASTNode] = firstFolderRight(
-    SQRT ^^ {_=>SqrtNode.createUnary},
+    elemToUnaryOperator(SQRT, SqrtNode),
     verticalArrowAndVectorOperators
   )
 
