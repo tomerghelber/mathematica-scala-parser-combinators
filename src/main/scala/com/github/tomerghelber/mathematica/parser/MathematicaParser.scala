@@ -30,6 +30,9 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 
   private val terminal: Parser[TerminalNode] = number | symbol | string
 
+  private def elemToTernaryOperator[T](p: Parser[ASTNode], sep: Parser[T], op: ApplyTernaryFunctionNode): Parser[FunctionNode] =
+    p ~ (sep ~> p <~ sep) ~ p ^^ {case a ~ b ~ c =>op.createTernary(a, b, c)}
+
   private def elemToOperator[T](p: Parser[T], op: ApplyBinaryFunctionNode): Parser[(ASTNode, ASTNode) => FunctionNode] =
     p ^^ {_=>op.createBinary}
 
@@ -140,13 +143,9 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
   private val squareAndCircle: Parser[ASTNode] = discreteOperators
 
   private def cross: Parser[ASTNode] =
-    squareAndCircle ~ (CIRCLE ~> squareAndCircle <~ CIRCLE) ~ squareAndCircle ^^ {
-    case expr1 ~ expr2 ~ expr3 => CrossNode(expr1, expr2, expr3)
-  } | squareAndCircle
+    elemToTernaryOperator(squareAndCircle, CIRCLE, CrossNode) | squareAndCircle
 
-  private def dot: Parser[ASTNode] = cross ~ (DOT ~> cross <~ DOT) ~ cross ^^ {
-    case expr1 ~ expr2 ~ expr3 => DotNode(expr1, expr2, expr3)
-  } | cross
+  private def dot: Parser[ASTNode] = elemToTernaryOperator(cross, DOT, DotNode) | cross
 
 //  private def signedExpression: Parser[ASTNode] = ("+" | "-" | "±" | "∓") ~ dot ^^ {
 //    case "+" ~ expr => expr
@@ -184,9 +183,7 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
 
   private val union: Parser[ASTNode] = rep1sep(intersection, UNION) ^^ (_.reduce(UnionNode.apply))
 
-  private val span: Parser[ASTNode] = union ~ (SPAN ~> union <~ SPAN) ~ union ^^ {
-    case i ~ j ~ k => SpanNode(i, j, k)
-  } | union
+  private val span: Parser[ASTNode] = elemToTernaryOperator(union, SPAN, SpanNode) | union
 
   private val equalities: Parser[ASTNode] = chainl1(span,
      elemToOperator(EQUALITY | EQUALITY1, EqualNode)
