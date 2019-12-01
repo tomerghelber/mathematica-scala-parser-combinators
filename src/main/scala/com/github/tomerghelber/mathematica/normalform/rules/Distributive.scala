@@ -2,16 +2,14 @@ package com.github.tomerghelber.mathematica.normalform.rules
 
 import com.github.tomerghelber.mathematica.ast.{ASTNode, FunctionNode, SymbolNode}
 
-/**
+/** A normal form rule for distributive functions.
  * @author user
  * @since 18-Nov-19
  */
 case class Distributive(upper: SymbolNode, lower: SymbolNode) extends NormalFormRuleTemplate {
   require(upper != lower, f"Lower $lower should be different then upper $upper")
 
-  protected def can(node: FunctionNode): Boolean = {
-    lower == node.name
-  }
+  protected def can(node: FunctionNode): Boolean = lower == node.name
 
   protected def work(node: FunctionNode): FunctionNode = {
     val args = Distributive.permutations(node.arguments.map{
@@ -22,6 +20,11 @@ case class Distributive(upper: SymbolNode, lower: SymbolNode) extends NormalForm
   }
 }
 object Distributive {
+  /** Choosing one element from each sequence to create all permutations.
+   * @param seqs The sequences to choose from.
+   * @tparam T The type of the elements.
+   * @return All permutations
+   */
   def permutations[T](seqs: Seq[Seq[T]]): Seq[Seq[T]] = {
     seqs match {
       case Nil => Nil

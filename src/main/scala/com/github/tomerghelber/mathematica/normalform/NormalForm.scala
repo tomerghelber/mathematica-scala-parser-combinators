@@ -3,7 +3,7 @@ package com.github.tomerghelber.mathematica.normalform
 import com.github.tomerghelber.mathematica.ast._
 import com.github.tomerghelber.mathematica.normalform.rules.{Associative, Commutative, Distributive, NormalFormRule}
 
-/**
+/** Normal form transformer.
  * @author user
  * @since 18-Nov-19
  */
@@ -42,4 +42,43 @@ class NormalForm {
         newNode
     }
   }
+}
+object NormalForm {
+  /** Ordering of `TerminalNode`.
+   * @author user
+   * @since 18-Nov-19
+   */
+  implicit object TerminalNodeOrdering extends Ordering[TerminalNode] {
+    override def compare(x: TerminalNode, y: TerminalNode): Int = {
+      (x, y) match {
+        case (x, y) if x.getClass == y.getClass => Ordering.String.compare(x.value, y.value)
+        case (_: NumberNode, _) => -1
+        case (_, _: NumberNode) => 1
+        case (_, _: SymbolNode) => -1
+        case (_: SymbolNode, _) => 1
+      }
+    }
+  }
+
+  /** Ordering of `ASTNode`.
+   * @author user
+   * @since 18-Nov-19
+   */
+  implicit object ASTNodeOrdering extends Ordering[ASTNode] {
+    override def compare(x: ASTNode, y: ASTNode): Int = {
+      (x, y) match {
+        case (x: TerminalNode, y: TerminalNode) => TerminalNodeOrdering.compare(x, y)
+        case (x: FunctionNode, y: FunctionNode) => normalFormFunctionNodeOrdering.compare(x, y)
+        case (_: TerminalNode, _: FunctionNode) => -1
+        case (_: FunctionNode, _: TerminalNode) => 1
+      }
+    }
+    private val normalFormFunctionNodeOrdering = {
+      val functionNameOrdering = Ordering.by[FunctionNode, TerminalNode](_.name)
+      val functionArgumentsOrdering =
+        Ordering.by[FunctionNode, Iterable[ASTNode]](_.arguments)(Ordering.Iterable[ASTNode])
+      functionNameOrdering thenComparing functionArgumentsOrdering
+    }
+  }
+
 }

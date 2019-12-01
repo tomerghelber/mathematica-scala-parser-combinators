@@ -1,7 +1,8 @@
 package com.github.tomerghelber.mathematica.normalform
 
 import com.github.tomerghelber.mathematica.ast.{NumberNode, StringNode, SymbolNode}
-import com.github.tomerghelber.mathematica.{numberNodeGen, symbolNodeGen, stringNodeGen}
+import com.github.tomerghelber.mathematica.normalform.NormalForm.TerminalNodeOrdering
+import com.github.tomerghelber.mathematica.{numberNodeGen, stringNodeGen, symbolNodeGen}
 import org.scalacheck.Arbitrary
 import org.scalatest.{FunSpec, Matchers}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks

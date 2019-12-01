@@ -5,6 +5,8 @@ import scala.util.parsing.combinator.lexical.Lexical
 import scala.util.parsing.combinator.token.StdTokens
 import scala.util.parsing.input.CharArrayReader.EofCh
 
+/** Lexer for Mathematica tokens.
+ */
 class MathematicaLexer extends Lexical with StdTokens {
 
   // see `token` in `Scanners`
