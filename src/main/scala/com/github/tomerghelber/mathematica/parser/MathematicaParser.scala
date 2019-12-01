@@ -111,11 +111,9 @@ class MathematicaParser extends StdTokenParsers with ParserUtil with LazyLogging
     case expr ~ derivatives => DerivativeNode(derivatives.size, expr)
   }
 
-//  private def stringJoin: Parser[ASTNode] = derivative ~ ("<>" ~> derivative <~ "<>") ~ derivative ^^ {
-//    case expr1 ~ expr2 ~ expr3 => StringJoinNode(expr1, expr2, expr3)
-//  } | derivative
+  private def stringJoin: Parser[ASTNode] = elemToTernaryOperator(derivative, STRING_JOIN, StringJoinNode) | derivative
 
-  private val power: Parser[ASTNode] = rep1sep(derivative, CARET) ^^ (values => values.reduceRight(PowerNode.apply))
+  private val power: Parser[ASTNode] = rep1sep(stringJoin, CARET) ^^ (values => values.reduceRight(PowerNode.apply))
 
   private val verticalArrowAndVectorOperators: Parser[ASTNode] =
     CURLY_BRACKET_OPEN ~> rep1sep(power, COMMA) <~ CURLY_BRACKET_CLOSE ^^ ListNode.createMany | power

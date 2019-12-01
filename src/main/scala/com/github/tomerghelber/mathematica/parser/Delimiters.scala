@@ -20,6 +20,7 @@ object Delimiters {
   val MAP_ALL_SIGN = "//@"
   val APPLY_2_SIGN = "@@"
   val APPLY_3_SIGN = "@@@"
+  val STRING_JOIN = "<>"
   val SPAN = ";;"
   val DOT = "."
   val CIRCLE = "\uF4A0"
@@ -101,6 +102,7 @@ object Delimiters {
     MAP_ALL_SIGN,
     APPLY_2_SIGN,
     APPLY_3_SIGN,
+    STRING_JOIN,
     SPAN,
     DOT,
     CIRCLE,
