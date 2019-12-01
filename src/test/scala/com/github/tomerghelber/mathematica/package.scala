@@ -1,12 +1,9 @@
 package com.github.tomerghelber
 
-import com.github.tomerghelber.mathematica.ast.{NumberNode, StringNode, SymbolNode}
+import com.github.tomerghelber.mathematica.ast._
 import com.github.tomerghelber.mathematica.eval.MathematicaEvaluator
 import com.github.tomerghelber.mathematica.parser.MathematicaParser
 import org.scalacheck.Gen
-import com.github.tomerghelber.mathematica.ast.{NumberNode, StringNode, SymbolNode}
-import com.github.tomerghelber.mathematica.eval.MathematicaEvaluator
-import com.github.tomerghelber.mathematica.parser.MathematicaParser
 
 /**
  * @author user
@@ -45,8 +42,24 @@ package object mathematica {
   val numberStringGen: Gen[String] = Gen.oneOf(integerStringGen, rationalStringGen, floatStringGen,
     scientificNotationGen)
 
+  // Factories
+  private def FunctionNodeFactory(depth: Int=2, maxSpan: Int=3): Gen[FunctionNode] = {
+    val argumentsGen = if (depth > 0) {
+      Gen.oneOf(terminalNodeGen, FunctionNodeFactory(depth - 1, maxSpan))
+    } else {
+      terminalNodeGen
+    }
+    for {
+      name <- symbolNodeGen
+      arguments <- Gen.listOfN(maxSpan, argumentsGen)
+    } yield FunctionNode(name, arguments)
+  }
+
   // Nodes
   val symbolNodeGen: Gen[SymbolNode] = symbolStringGen.map(SymbolNode)
   val stringNodeGen: Gen[StringNode] = stringStringWithoutWrappersGen.map(StringNode)
   val numberNodeGen: Gen[NumberNode] = numberStringGen.map(NumberNode)
+  val terminalNodeGen: Gen[TerminalNode] = Gen.oneOf(symbolNodeGen, stringNodeGen, numberNodeGen)
+  val functionNodeGen: Gen[FunctionNode] = FunctionNodeFactory()
+  val nodeGen: Gen[ASTNode] = Gen.oneOf(terminalNodeGen, Gen.lzy(functionNodeGen))
 }

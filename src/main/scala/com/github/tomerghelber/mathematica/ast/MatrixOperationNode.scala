@@ -1,7 +1,5 @@
 package com.github.tomerghelber.mathematica.ast
 
-trait MatrixOperationNode extends ASTNode
-
 object ConjugateNode extends ApplyUnaryFunctionNode with UnapplyFunctionNode {
   protected val name: String = "Conjugate"
 }
