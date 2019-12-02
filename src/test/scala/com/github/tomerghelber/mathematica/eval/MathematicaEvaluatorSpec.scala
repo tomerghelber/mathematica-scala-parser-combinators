@@ -47,11 +47,11 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
       forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
         val actualNode = eval.eval(PlusNode(first, second))
         val expected = (eval.eval(first), eval.eval(second)) match {
-          case (NumberNode(a), NumberNode(b)) => a.toDouble + b.toDouble
+          case (NumberNode(a), NumberNode(b)) => BigDecimal(a) + BigDecimal(b)
           case other: Any => throw new MatchError(other)
         }
         actualNode shouldBe a[NumberNode]
-        val actual = actualNode.asInstanceOf[NumberNode].value.toDouble
+        val actual = BigDecimal(actualNode.asInstanceOf[NumberNode].value)
         actual shouldBe expected +- 0.000001
       }
     }
@@ -60,7 +60,7 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
       forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
         val actual = eval.eval(TimesNode(first, second))
         val expected = NumberNode((eval.eval(first), eval.eval(second)) match {
-          case (NumberNode(a), NumberNode(b)) => (a.toDouble * b.toDouble).toString
+          case (NumberNode(a), NumberNode(b)) => (BigDecimal(a) * BigDecimal(b)).toString
           case other: Any => throw new MatchError(other)
         })
         actual shouldBe expected
@@ -71,7 +71,7 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
       forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
         val actual = eval.eval(DivideNode(first, second))
         val expected = NumberNode((eval.eval(first), eval.eval(second)) match {
-          case (NumberNode(a), NumberNode(b)) => (a.toDouble / b.toDouble).toString
+          case (NumberNode(a), NumberNode(b)) => (BigDecimal(a) / BigDecimal(b)).toString
           case other: Any => throw new MatchError(other)
         })
         actual shouldBe expected
