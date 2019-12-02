@@ -33,18 +33,19 @@ class ASTNodeOrderingSpec extends FunSpec with Matchers with ScalaCheckPropertyC
   }
 
   it("Symbols should be used first to order functions") {
-    forAll { (name1: SymbolNode, name2: SymbolNode, arguments: Seq[ASTNode]) =>
-      val f1 = FunctionNode(name1, arguments)
-      val f2 = FunctionNode(name2, arguments)
+    forAll { (name1: SymbolNode, name2: SymbolNode, arguments1: Seq[ASTNode], arguments2: Seq[ASTNode]) =>
+      val f1 = FunctionNode(name1, arguments1)
+      val f2 = FunctionNode(name2, arguments2)
       ASTNodeOrdering.compare(f1, f2) shouldEqual ASTNodeOrdering.compare(name1, name2)
       ASTNodeOrdering.compare(f2, f1) shouldEqual ASTNodeOrdering.compare(name2, name1)
     }
   }
 
   it("First inner arguments should influence order") {
-    forAll { (name: SymbolNode, additionalNode1: ASTNode, additionalNode2: ASTNode, arguments: Seq[ASTNode]) =>
-      val f1 = FunctionNode(name, additionalNode1 +: arguments)
-      val f2 = FunctionNode(name, additionalNode2 +: arguments)
+    forAll { (name: SymbolNode, additionalNode1: ASTNode, additionalNode2: ASTNode, arguments1: Seq[ASTNode],
+              arguments2: Seq[ASTNode]) =>
+      val f1 = FunctionNode(name, additionalNode1 +: arguments1)
+      val f2 = FunctionNode(name, additionalNode2 +: arguments2)
       ASTNodeOrdering.compare(f1, f2) shouldEqual ASTNodeOrdering.compare(additionalNode1, additionalNode2)
       ASTNodeOrdering.compare(f2, f1) shouldEqual ASTNodeOrdering.compare(additionalNode2, additionalNode1)
     }
@@ -59,12 +60,12 @@ class ASTNodeOrderingSpec extends FunSpec with Matchers with ScalaCheckPropertyC
     }
   }
 
-  it("Longer argument should be order after shorter") {
+  it("Longer argument should be order before shorter") {
     forAll { (name: SymbolNode, additionalNode: ASTNode, arguments: Seq[ASTNode]) =>
       val f1 = FunctionNode(name, arguments)
       val f2 = FunctionNode(name, arguments :+ additionalNode)
-      ASTNodeOrdering.compare(f1, f2) shouldEqual -1
-      ASTNodeOrdering.compare(f2, f1) shouldEqual 1
+      ASTNodeOrdering.compare(f1, f2) shouldEqual 1
+      ASTNodeOrdering.compare(f2, f1) shouldEqual -1
     }
   }
 }
