@@ -57,7 +57,7 @@ class MathematicaLexer extends Lexical with StdTokens {
    *  starting with the longest one -- otherwise a delimiter D will never be matched if there is
    *  another delimiter that is a prefix of D.
    */
-  private lazy val _delim: Parser[Token] = {
+  protected lazy val delim: Parser[Token] = {
     def parseDelim(s: String): Parser[Token] = accept(s.toList) ^^ { x => Keyword(s) }
 
     val d = new Array[String](delimiters.size)
@@ -65,5 +65,4 @@ class MathematicaLexer extends Lexical with StdTokens {
     scala.util.Sorting.quickSort(d)
     (d.toList map parseDelim).foldRight(failure("no matching delimiter"): Parser[Token])((x, y) => y | x)
   }
-  protected def delim: Parser[Token] = _delim
 }
