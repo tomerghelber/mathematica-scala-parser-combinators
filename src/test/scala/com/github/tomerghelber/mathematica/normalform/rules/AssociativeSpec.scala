@@ -15,7 +15,7 @@ class AssociativeSpec extends FunSpec with Matchers with ScalaCheckPropertyCheck
   private implicit val nodeArbitrary: Arbitrary[ASTNode] = Arbitrary(nodeGen)
 
   it("Should not work when symbol is not as function name") {
-    forAll { (name: SymbolNode, arguments: Seq[ASTNode], other: SymbolNode) =>
+    forAll(sizeRange(10), maxDiscardedFactor(100.0)) { (name: SymbolNode, arguments: Seq[ASTNode], other: SymbolNode) =>
       whenever(name != other) {
         val tested = Associative(name)
         val functionNode = FunctionNode(other, arguments)
