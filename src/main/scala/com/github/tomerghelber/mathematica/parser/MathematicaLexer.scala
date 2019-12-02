@@ -53,10 +53,11 @@ class MathematicaLexer extends Lexical with StdTokens {
   /** The set of delimiters (ordering does not matter). */
   val delimiters = new mutable.HashSet[String]
 
+  /** Construct parser for delimiters by |'ing together the parsers for the individual delimiters,
+   *  starting with the longest one -- otherwise a delimiter D will never be matched if there is
+   *  another delimiter that is a prefix of D.
+   */
   private lazy val _delim: Parser[Token] = {
-    // construct parser for delimiters by |'ing together the parsers for the individual delimiters,
-    // starting with the longest one -- otherwise a delimiter D will never be matched if there is
-    // another delimiter that is a prefix of D
     def parseDelim(s: String): Parser[Token] = accept(s.toList) ^^ { x => Keyword(s) }
 
     val d = new Array[String](delimiters.size)
