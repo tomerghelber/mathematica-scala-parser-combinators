@@ -23,7 +23,9 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
       forAll { (eval: MathematicaEvaluator, base: NumberNode) =>
         val actual = eval.eval(base)
         actual shouldBe a[NumberNode]
-        noException should be thrownBy BigDecimal(actual.asInstanceOf[NumberNode].value)
+        withClue("Result number " + actual.asInstanceOf[NumberNode].value) {
+          noException should be thrownBy BigDecimal(actual.asInstanceOf[NumberNode].value)
+        }
       }
     }
 
