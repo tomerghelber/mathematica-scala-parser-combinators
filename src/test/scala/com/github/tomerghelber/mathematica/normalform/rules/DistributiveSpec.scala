@@ -15,13 +15,13 @@ class DistributiveSpec extends FunSpec with Matchers with ScalaCheckPropertyChec
   private implicit val nodeArbitrary: Arbitrary[ASTNode] = Arbitrary(nodeGen)
 
   it("Cannot be created with lower and upper the same") {
-    forAll { name: SymbolNode =>
+    forAll(sizeRange(10), maxDiscardedFactor(100.0)) { name: SymbolNode =>
       an[IllegalArgumentException] should be thrownBy Distributive(name, name)
     }
   }
 
   it("Should not work when symbol is not as lower") {
-    forAll { (upper: SymbolNode, arguments: Seq[ASTNode]) =>
+    forAll(sizeRange(10), maxDiscardedFactor(100.0)) { (upper: SymbolNode, arguments: Seq[ASTNode]) =>
       val lower = SymbolNode(upper.value + "lower")
       val tested = Distributive(upper, lower)
       val functionNode = FunctionNode(upper, arguments)
@@ -30,8 +30,7 @@ class DistributiveSpec extends FunSpec with Matchers with ScalaCheckPropertyChec
   }
 
   it("Should be possible if get the lower symbol") {
-    forAll {
-      (upper: SymbolNode, multiArguments: Seq[Seq[ASTNode]]) =>
+    forAll(sizeRange(10), maxDiscardedFactor(100.0)) { (upper: SymbolNode, multiArguments: Seq[Seq[ASTNode]]) =>
       val lower = SymbolNode(upper.value + "lower")
       val tested = Distributive(upper, lower)
       val functionNode = FunctionNode(lower, multiArguments.map(FunctionNode(upper, _)))
