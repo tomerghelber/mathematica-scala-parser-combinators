@@ -31,7 +31,7 @@ class DistributiveSpec extends FunSpec with Matchers with ScalaCheckPropertyChec
   }
 
   it("Should be possible if get the lower symbol") {
-    forAll(sizeRange(5), maxDiscardedFactor(100.0)) {
+    forAll {
       (upper: SymbolNode, multiArguments: Seq[Seq[ASTNode]]) =>
       val lower = SymbolNode(upper.value + "lower")
       val tested = Distributive(upper, lower)
