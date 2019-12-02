@@ -31,7 +31,9 @@ class AssociativeSpec extends FunSpec with Matchers with ScalaCheckPropertyCheck
       val functionNode = FunctionNode(name, multiArguments.map(FunctionNode(name, _)))
       val actual = tested.apply(functionNode)
       val expected = FunctionNode(name, multiArguments.flatten)
-      actual shouldBe expected
+      withClue(f"Size of actual is ${actual.arguments.size} and expected's is ${expected.arguments.size}") {
+        actual shouldBe expected
+      }
     }
   }
 }
