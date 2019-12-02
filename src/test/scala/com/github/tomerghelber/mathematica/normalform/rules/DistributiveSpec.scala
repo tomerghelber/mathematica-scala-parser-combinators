@@ -23,9 +23,8 @@ class DistributiveSpec extends FunSpec with Matchers with ScalaCheckPropertyChec
   it("Should not work when symbol is not as lower") {
     forAll { (upper: SymbolNode, arguments: Seq[ASTNode]) =>
       val lower = SymbolNode(upper.value + "lower")
-      val other = SymbolNode(upper.value + "other")
       val tested = Distributive(upper, lower)
-      val functionNode = FunctionNode(other, arguments)
+      val functionNode = FunctionNode(upper, arguments)
       tested.apply(functionNode) shouldBe functionNode
     }
   }
