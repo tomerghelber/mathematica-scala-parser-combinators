@@ -30,8 +30,7 @@ package object mathematica {
   val integerStringGen: Gen[String] = longGen.map(_.toString)
   val rationalStringGen: Gen[String] = for(q <-longGen; p <-longGen if p != 0) yield { q + "/" + p}
   val floatStringGen: Gen[String] = Gen.chooseNum(Double.MinValue, Double.MaxValue).map(_.toString)
-  val scientificNotationGen: Gen[String] = (for(unscaledVal <- longGen; scale<- integerGen) yield
-      BigDecimal.apply(unscaledVal, scale)).map(_.toString)
+  val scientificNotationGen: Gen[String] = Gen.chooseNum(Double.MinValue, Double.MaxValue).map(BigDecimal(_).toString)
   val numberStringGen: Gen[String] = Gen.oneOf(integerStringGen, rationalStringGen, floatStringGen,
     scientificNotationGen)
 
