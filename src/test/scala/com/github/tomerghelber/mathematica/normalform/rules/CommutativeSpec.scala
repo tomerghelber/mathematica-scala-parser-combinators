@@ -16,12 +16,11 @@ class CommutativeSpec extends FunSpec with Matchers with ScalaCheckPropertyCheck
   private implicit val nodeArbitrary: Arbitrary[ASTNode] = Arbitrary(nodeGen)
 
   it("Should not work when symbol is not as function name") {
-    forAll { (name: SymbolNode, arguments: Seq[ASTNode], other: SymbolNode) =>
-      whenever(name != other) {
-        val tested = Commutative(name)
-        val functionNode = FunctionNode(other, arguments)
-        tested.apply(functionNode) shouldBe functionNode
-      }
+    forAll { (name: SymbolNode, arguments: Seq[ASTNode]) =>
+      val other = SymbolNode(name.value + "other")
+      val tested = Commutative(name)
+      val functionNode = FunctionNode(other, arguments)
+      tested.apply(functionNode) shouldBe functionNode
     }
   }
 
