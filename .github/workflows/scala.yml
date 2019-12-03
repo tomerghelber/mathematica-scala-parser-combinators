@@ -17,7 +17,7 @@ jobs:
     - name: Cache repositry
       uses: actions/cache@v1.0.3
       with:
-        path: $HOME/.m2/repository/
+        path: ../../.m2/repository/
         # An explicit key for restoring and saving the cache
         key: maven-repo
 
@@ -38,11 +38,11 @@ jobs:
     - name: Cache repositry
       uses: actions/cache@v1.0.3
       with:
-        path: $HOME/.m2/repository/
+        path: ../../.m2/repository/
         # An explicit key for restoring and saving the cache
         key: maven-repo
 
-    - name: Run tests
+    - name: Run mutation tests
       run: sbt stryker
 
   FormattingTests:
@@ -56,12 +56,5 @@ jobs:
       with:
         java-version: 1.8
 
-    - name: Cache repositry
-      uses: actions/cache@v1.0.3
-      with:
-        path: $HOME/.m2/repository/
-        # An explicit key for restoring and saving the cache
-        key: maven-repo
-
-    - name: Run tests
+    - name: Run formatting checks
       run: sbt scalafmtSbtCheck
