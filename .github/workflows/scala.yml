@@ -8,10 +8,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+
+    - name: Cache repositry
+      uses: actions/cache@v1.0.3
+      with:
+        path: $HOME/.m2/repository/
+        # An explicit key for restoring and saving the cache
+        key: maven-repo
+
     - name: Run tests
       run: sbt clean test
 
@@ -20,10 +29,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+
+    - name: Cache repositry
+      uses: actions/cache@v1.0.3
+      with:
+        path: $HOME/.m2/repository/
+        # An explicit key for restoring and saving the cache
+        key: maven-repo
+
     - name: Run tests
       run: sbt stryker
 
@@ -32,9 +50,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+
+    - name: Cache repositry
+      uses: actions/cache@v1.0.3
+      with:
+        path: $HOME/.m2/repository/
+        # An explicit key for restoring and saving the cache
+        key: maven-repo
+
     - name: Run tests
       run: sbt scalafmtSbtCheck
