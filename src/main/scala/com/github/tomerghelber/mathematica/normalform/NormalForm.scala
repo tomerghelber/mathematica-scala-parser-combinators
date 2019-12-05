@@ -52,10 +52,12 @@ object NormalForm {
     override def compare(x: TerminalNode, y: TerminalNode): Int = {
       (x, y) match {
         case (x, y) if x.getClass == y.getClass => Ordering.String.compare(x.value, y.value)
-        case (_: NumberNode, _) => -1
-        case (_, _: NumberNode) => 1
-        case (_, _: SymbolNode) => -1
-        case (_: SymbolNode, _) => 1
+        case (_: NumberNode, _: StringNode) => -1
+        case (_: NumberNode, _: SymbolNode) => -1
+        case (_: StringNode, _: NumberNode) => 1
+        case (_: StringNode, _: SymbolNode) => -1
+        case (_: SymbolNode, _: NumberNode) => 1
+        case (_: SymbolNode, _: StringNode) => 1
       }
     }
   }
