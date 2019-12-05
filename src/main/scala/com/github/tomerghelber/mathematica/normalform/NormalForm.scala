@@ -7,8 +7,25 @@ import com.github.tomerghelber.mathematica.normalform.rules.{Associative, Commut
  * @author user
  * @since 18-Nov-19
  */
-class NormalForm {
-  private val rules: Set[NormalFormRule] = Set(
+class NormalForm(rules: Set[NormalFormRule]) {
+  def this() = this(NormalForm.BASIC_RULES)
+
+  def apply(node: ASTNode): ASTNode = {
+    node match {
+      case terminal: TerminalNode => terminal
+      case FunctionNode(name, arguments) =>
+        var newNode = FunctionNode(name, arguments.map(apply))
+        var lastNode = node
+        while (lastNode != newNode) {
+          lastNode = newNode
+          newNode = rules.foldRight(newNode)(_ apply _)
+        }
+        newNode
+    }
+  }
+}
+object NormalForm {
+  val BASIC_RULES: Set[NormalFormRule] = Set(
     // Distributives
     Distributive(PlusNode.symbol, TimesNode.symbol),
     Distributive(OrNode.symbol, AndNode.symbol),
@@ -29,21 +46,6 @@ class NormalForm {
     Commutative(TimesNode.symbol),
   )
 
-  def apply(node: ASTNode): ASTNode = {
-    node match {
-      case terminal: TerminalNode => terminal
-      case FunctionNode(name, arguments) =>
-        var newNode = FunctionNode(name, arguments.map(apply))
-        var lastNode = node
-        while (lastNode != newNode) {
-          lastNode = newNode
-          newNode = rules.foldRight(newNode)(_ apply _)
-        }
-        newNode
-    }
-  }
-}
-object NormalForm {
   /** Ordering of `TerminalNode`.
    * @author user
    * @since 18-Nov-19
