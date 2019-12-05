@@ -1,6 +1,7 @@
 {
   "sbtVersion": "1.3.4",
   "scalaVersions": [
+    "2.13.1",
     "2.12.8"
   ],
   "modules": {
