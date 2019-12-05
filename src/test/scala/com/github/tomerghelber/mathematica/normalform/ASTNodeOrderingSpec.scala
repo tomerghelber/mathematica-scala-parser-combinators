@@ -52,6 +52,15 @@ class ASTNodeOrderingSpec extends AnyFunSpec with Matchers with ScalaCheckProper
     }
   }
 
+  it("Middle inner arguments should influence order") {
+    forAll { (name: SymbolNode, additionalNode1: ASTNode, additionalNode2: ASTNode, arguments: Seq[ASTNode]) =>
+      val f1 = FunctionNode(name, arguments ++ (additionalNode1 +: arguments))
+      val f2 = FunctionNode(name, arguments ++ (additionalNode2 +: arguments))
+      ASTNodeOrdering.compare(f1, f2) shouldEqual ASTNodeOrdering.compare(additionalNode1, additionalNode2)
+      ASTNodeOrdering.compare(f2, f1) shouldEqual ASTNodeOrdering.compare(additionalNode2, additionalNode1)
+    }
+  }
+
   it("Last inner arguments should influence order") {
     forAll { (name: SymbolNode, additionalNode1: ASTNode, additionalNode2: ASTNode, arguments: Seq[ASTNode]) =>
       val f1 = FunctionNode(name, arguments :+ additionalNode1)
