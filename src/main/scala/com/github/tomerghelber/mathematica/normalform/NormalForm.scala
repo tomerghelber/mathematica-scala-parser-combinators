@@ -76,10 +76,9 @@ object NormalForm {
       }
     }
     private val normalFormFunctionNodeOrdering = {
-      val functionNameOrdering = Ordering.by[FunctionNode, TerminalNode](_.name)
-      val functionArgumentsOrdering =
-        Ordering.by[FunctionNode, Iterable[ASTNode]](_.arguments)(Ordering.Iterable[ASTNode])
-      functionNameOrdering thenComparing functionArgumentsOrdering
+      val functionNameOrdering = TerminalNodeOrdering.on[FunctionNode](_.name)
+      functionNameOrdering thenComparing ((functionNode: FunctionNode) => functionNode.arguments,
+        Ordering.Iterable(ASTNodeOrdering))
     }
   }
 
