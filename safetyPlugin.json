@@ -27,6 +27,12 @@
         "needDoublePercent": true
       }
     },
+    "org.scalatestplus": {
+      "scalatestplus-scalacheck": {
+        "version": "3.1.0.0-RC2",
+        "needDoublePercent": true
+      }
+    },
     "org.scalacheck": {
       "scalacheck": {
         "version": "1.14.2",
