@@ -70,13 +70,15 @@ class MathematicaEvaluatorSpec extends AnyFunSpec with Matchers with ScalaCheckP
 
     it("divide not by zero evaluated") {
       forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
-        whenever(BigDecimal(second.value) != 0) {
-          val actual = eval.eval(DivideNode(first, second))
-          val expected = NumberNode((eval.eval(first), eval.eval(second)) match {
-            case (NumberNode(a), NumberNode(b)) => (BigDecimal(a) / BigDecimal(b)).toString
-            case other: Any => throw new MatchError(other)
-          })
-          actual shouldBe expected
+        (eval.eval(first), eval.eval(second)) match {
+          case (NumberNode(a), NumberNode(b)) =>
+            val lower = BigDecimal(b)
+            whenever(lower != 0) {
+              val actual = eval.eval(DivideNode(first, second))
+              val expected = (BigDecimal(a) / BigDecimal(b)).toString
+              actual shouldBe expected
+            }
+          case other: Any => throw new MatchError(other)
         }
       }
     }
