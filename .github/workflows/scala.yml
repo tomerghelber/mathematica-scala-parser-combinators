@@ -21,6 +21,9 @@ jobs:
         # An explicit key for restoring and saving the cache
         key: maven-repo
 
+    - name: Install
+      run: sbt compile
+
     - name: Run tests
       run: sbt clean test
 
@@ -41,6 +44,9 @@ jobs:
         path: ../../.m2/repository/
         # An explicit key for restoring and saving the cache
         key: maven-repo
+
+    - name: Install
+      run: sbt compile
 
     - name: Run mutation tests
       run: sbt stryker
