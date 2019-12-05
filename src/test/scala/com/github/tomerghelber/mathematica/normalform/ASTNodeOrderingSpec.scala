@@ -5,14 +5,14 @@ import com.github.tomerghelber.mathematica.normalform.NormalForm.{ASTNodeOrderin
 import com.github.tomerghelber.mathematica.{functionNodeGen, nodeGen, symbolNodeGen, terminalNodeGen}
 import org.scalacheck.Arbitrary
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.funspec.AsyncFunSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 /**
  * @author user
  * @since 18-Nov-19
  */
-class ASTNodeOrderingSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChecks {
+class ASTNodeOrderingSpec extends AsyncFunSpec with Matchers with ScalaCheckPropertyChecks {
 
   private implicit val nodeArbitrary: Arbitrary[ASTNode] = Arbitrary(nodeGen)
   private implicit val functionNodeArbitrary: Arbitrary[FunctionNode] = Arbitrary(functionNodeGen)

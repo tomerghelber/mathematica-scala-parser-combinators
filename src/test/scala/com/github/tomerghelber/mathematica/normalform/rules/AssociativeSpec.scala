@@ -4,14 +4,14 @@ import com.github.tomerghelber.mathematica.ast.{ASTNode, FunctionNode, SymbolNod
 import com.github.tomerghelber.mathematica.{nodeGen, symbolNodeGen}
 import org.scalacheck.Arbitrary
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.funspec.AsyncFunSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 /**
  * @author user
  * @since 18-Nov-19
  */
-class AssociativeSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChecks {
+class AssociativeSpec extends AsyncFunSpec with Matchers with ScalaCheckPropertyChecks {
   private implicit val symbolNodeArbitrary: Arbitrary[SymbolNode] = Arbitrary(symbolNodeGen)
   private implicit val nodeArbitrary: Arbitrary[ASTNode] = Arbitrary(nodeGen)
 
