@@ -75,7 +75,7 @@ class MathematicaEvaluatorSpec extends AnyFunSpec with Matchers with ScalaCheckP
             val lower = BigDecimal(b)
             whenever(lower != 0) {
               val actual = eval.eval(DivideNode(first, second))
-              val expected = (BigDecimal(a) / BigDecimal(b)).toString
+              val expected = NumberNode((BigDecimal(a) / lower).toString)
               actual shouldBe expected
             }
           case other: Any => throw new MatchError(other)
