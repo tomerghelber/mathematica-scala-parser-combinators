@@ -364,6 +364,7 @@ class MathematicaParserSpec extends AnyFunSpec with Matchers with ScalaCheckProp
             "     \"RGB\"], {\"PoissonNoise\", .5}] &, \"JPEG\"], \n" +
             " Permissions -> \"Public\"]"
         )
+        out1 should not be null
       }
     }
   }

@@ -110,6 +110,10 @@ class MathematicaEvaluatorSpec extends AnyFunSpec with Matchers with ScalaCheckP
             "   80, Orange, FontFamily -> \"Verdana\"], \"GIF\"], \n" +
             " Permissions -> \"Public\"]"
         ))
+        out1 should not be null
+        out2 should not be null
+        out3 should not be null
+        out4 should not be null
       }
     }
 
@@ -127,6 +131,7 @@ class MathematicaEvaluatorSpec extends AnyFunSpec with Matchers with ScalaCheckP
             "     \"RGB\"], {\"PoissonNoise\", .5}] &, \"JPEG\"], \n" +
             " Permissions -> \"Public\"]"
         ))
+        out1 should not be null
       }
     }
   }
