@@ -3,14 +3,15 @@ package com.github.tomerghelber.mathematica.normalform.rules
 import com.github.tomerghelber.mathematica.ast.{ASTNode, FunctionNode, SymbolNode}
 import com.github.tomerghelber.mathematica.{nodeGen, symbolNodeGen}
 import org.scalacheck.Arbitrary
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.funspec.AnyFunSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 /**
  * @author user
  * @since 18-Nov-19
  */
-class AssociativeSpec extends FunSpec with Matchers with ScalaCheckPropertyChecks {
+class AssociativeSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChecks {
   private implicit val symbolNodeArbitrary: Arbitrary[SymbolNode] = Arbitrary(symbolNodeGen)
   private implicit val nodeArbitrary: Arbitrary[ASTNode] = Arbitrary(nodeGen)
 

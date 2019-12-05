@@ -3,11 +3,12 @@ package parser
 
 import com.github.tomerghelber.mathematica.ast.SymbolNode
 import org.scalacheck.Arbitrary
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.funspec.AnyFunSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import com.github.tomerghelber.mathematica.ast._
 
-class MathematicaParserSpec extends FunSpec with Matchers with ScalaCheckPropertyChecks {
+class MathematicaParserSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChecks {
 
   implicit def arbSymbolNode: Arbitrary[SymbolNode] = Arbitrary(symbolNodeGen)
   implicit def arbMathematicaParser: Arbitrary[MathematicaParser] = Arbitrary(mathematicaParserGen)

@@ -2,7 +2,8 @@ package com.github.tomerghelber.mathematica
 package eval
 
 import org.scalacheck.Arbitrary
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.funspec.AnyFunSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import com.github.tomerghelber.mathematica.ast.{DivideNode, FunctionNode, NumberNode, PlusNode, SymbolNode, TimesNode}
 import com.github.tomerghelber.mathematica.parser.MathematicaParser
@@ -11,7 +12,7 @@ import com.github.tomerghelber.mathematica.parser.MathematicaParser
  * @author user
  * @since 01-Nov-19
  */
-class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckPropertyChecks {
+class MathematicaEvaluatorSpec extends AnyFunSpec with Matchers with ScalaCheckPropertyChecks {
 
   implicit def arbMathematicaEvaluator: Arbitrary[MathematicaEvaluator] = Arbitrary(mathematicaEvaluatorGen)
   implicit def arbMathematicaParser: Arbitrary[MathematicaParser] = Arbitrary(mathematicaParserGen)
