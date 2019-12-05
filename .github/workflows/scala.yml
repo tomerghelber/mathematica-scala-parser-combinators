@@ -39,7 +39,7 @@ jobs:
       run: sbt compile
 
     - name: Run tests
-      run: sbt clean test -P
+      run: sbt test
 
     - name: Clear before cache
       run: |
