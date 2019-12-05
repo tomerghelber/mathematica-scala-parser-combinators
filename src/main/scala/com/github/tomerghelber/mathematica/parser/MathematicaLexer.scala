@@ -36,13 +36,19 @@ class MathematicaLexer extends Lexical with StdTokens {
       val name = (first :: lasts).mkString
       if (reserved contains name) Keyword(name) else Identifier(name)
   }
-  private def string =
-    ( '\'' ~> rep( chrExcept('\'', '\n', EofCh) ) <~ '\'' ^^ (chars => StringLit(chars.mkString))
-    | '\"' ~> rep( chrExcept('\"', '\n', EofCh) ) <~ '\"' ^^ (chars => StringLit(chars.mkString))
+  private def string: Parser[Token] = {
+    def string(chr: Char): Parser[StringLit] =
+      chr ~> rep( chrExcept(chr, '\n', EofCh) ) <~ chr ^^ (chars => StringLit(chars.mkString))
+
+    def nonClosedString(chr: Char): Parser[Token] = chr ~> failure("unclosed string literal")
+
+    ( string('\'')
+    | string('\"')
     | EofCh                                             ^^^ EOF
-    | '\'' ~> failure("unclosed string literal")
-    | '\"' ~> failure("unclosed string literal")
+    | nonClosedString('\'')
+    | nonClosedString('\"')
     )
+  }
 
   // see `whitespace in `Scanners`
   override def whitespace: Parser[Any] = rep(whitespaceChar)
