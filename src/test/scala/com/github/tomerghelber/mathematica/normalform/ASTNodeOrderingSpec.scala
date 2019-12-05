@@ -74,7 +74,7 @@ class ASTNodeOrderingSpec extends AnyFunSpec with Matchers with ScalaCheckProper
   }
 
   it("Longer argument should be order after shorter") {
-    forAll { (name: SymbolNode, additionalNode: ASTNode, arguments: Seq[ASTNode]) =>
+    forAll(sizeRange(10)) { (name: SymbolNode, additionalNode: ASTNode, arguments: Seq[ASTNode]) =>
       val f1 = FunctionNode(name, arguments)
       val f2 = FunctionNode(name, arguments :+ additionalNode)
       ASTNodeOrdering.compare(f1, f2) shouldEqual -1
