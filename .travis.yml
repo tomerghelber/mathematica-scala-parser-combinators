@@ -1,5 +1,6 @@
 language: scala
 scala:
+  - 2.13.1
   - 2.12.8
 
 before_cache:
