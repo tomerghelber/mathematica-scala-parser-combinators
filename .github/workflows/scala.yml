@@ -21,31 +21,11 @@ jobs:
         # An explicit key for restoring and saving the cache
         key: maven-repo
 
-    - name: Cache sbt
-      uses: actions/cache@v1.0.3
-      with:
-        path: ~/.sbt/boot/
-        # An explicit key for restoring and saving the cache
-        key: sbt-repo
-
-    - name: Cache ivy2
-      uses: actions/cache@v1.0.3
-      with:
-        path: ~/.ivy2/cache
-        # An explicit key for restoring and saving the cache
-        key: ivy2-repo
-
     - name: Install
       run: sbt compile
 
     - name: Run tests
       run: sbt test
-
-    - name: Clear before cache
-      run: |
-        - find ~/.sbt -name "*.lock" | xargs rm
-        - find ~/.ivy2 -name "ivydata-*.properties" | xargs rm
-        - rm -f ~/.ivy2/.sbt.ivy.lock
 
   MutationTests:
     runs-on: ubuntu-latest
@@ -65,31 +45,11 @@ jobs:
         # An explicit key for restoring and saving the cache
         key: maven-repo
 
-    - name: Cache sbt
-      uses: actions/cache@v1.0.3
-      with:
-        path: ~/.sbt/boot/
-        # An explicit key for restoring and saving the cache
-        key: sbt-repo
-
-    - name: Cache ivy2
-      uses: actions/cache@v1.0.3
-      with:
-        path: ~/.ivy2/cache
-        # An explicit key for restoring and saving the cache
-        key: ivy2-repo
-
     - name: Install
       run: sbt compile
 
     - name: Run mutation tests
       run: sbt stryker
-
-    - name: Clear before cache
-      run: |
-        - find ~/.sbt -name "*.lock" | xargs rm
-        - find ~/.ivy2 -name "ivydata-*.properties" | xargs rm
-        - rm -f ~/.ivy2/.sbt.ivy.lock
 
   FormattingTests:
     runs-on: ubuntu-latest
