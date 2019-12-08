@@ -1,7 +1,8 @@
 package com.github.tomerghelber.mathematica.normalform
 
 import com.github.tomerghelber.mathematica.ast._
-import com.github.tomerghelber.mathematica.normalform.rules.{Associative, Commutative, Distributive, Rule}
+import com.github.tomerghelber.mathematica.rules.Rule
+import com.github.tomerghelber.mathematica.rules.normalform.{Associative, Commutative, Distributive}
 
 /** Normal form transformer.
  * @author user

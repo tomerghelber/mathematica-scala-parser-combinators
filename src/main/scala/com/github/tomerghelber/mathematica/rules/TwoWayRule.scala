@@ -1,4 +1,4 @@
-package com.github.tomerghelber.mathematica.normalform.rules
+package com.github.tomerghelber.mathematica.rules
 
 import com.github.tomerghelber.mathematica.ast.FunctionNode
 

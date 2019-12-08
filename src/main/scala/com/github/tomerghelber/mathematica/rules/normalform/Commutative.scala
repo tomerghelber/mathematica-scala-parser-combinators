@@ -1,7 +1,8 @@
-package com.github.tomerghelber.mathematica.normalform.rules
+package com.github.tomerghelber.mathematica.rules.normalform
 
 import com.github.tomerghelber.mathematica.ast.{FunctionNode, SymbolNode}
 import com.github.tomerghelber.mathematica.normalform.NormalForm.ASTNodeOrdering
+import com.github.tomerghelber.mathematica.rules.RuleTemplate
 
 /** A normal form rule for commutative functions.
  * @author user

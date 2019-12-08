@@ -1,6 +1,7 @@
-package com.github.tomerghelber.mathematica.normalform.rules
+package com.github.tomerghelber.mathematica.rules.normalform
 
 import com.github.tomerghelber.mathematica.ast.{ASTNode, FunctionNode, SymbolNode}
+import com.github.tomerghelber.mathematica.rules.RuleTemplate
 
 /** A normal form rule for associative functions.
  * @author user
