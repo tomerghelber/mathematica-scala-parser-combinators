@@ -6,7 +6,7 @@ import com.github.tomerghelber.mathematica.ast.FunctionNode
  * @author user
  * @since 18-Nov-19
  */
-trait NormalFormRuleTemplate extends NormalFormRule {
+trait RuleTemplate extends Rule {
   final override def apply(node: FunctionNode): FunctionNode = {
     if (can(node)) {
       work(node)

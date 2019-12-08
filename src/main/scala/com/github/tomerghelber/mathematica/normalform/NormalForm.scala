@@ -1,13 +1,13 @@
 package com.github.tomerghelber.mathematica.normalform
 
 import com.github.tomerghelber.mathematica.ast._
-import com.github.tomerghelber.mathematica.normalform.rules.{Associative, Commutative, Distributive, NormalFormRule}
+import com.github.tomerghelber.mathematica.normalform.rules.{Associative, Commutative, Distributive, Rule}
 
 /** Normal form transformer.
  * @author user
  * @since 18-Nov-19
  */
-class NormalForm(rules: Set[NormalFormRule]) {
+class NormalForm(rules: Set[Rule]) {
   def this() = this(NormalForm.BASIC_RULES)
 
   def apply(node: ASTNode): ASTNode = {
@@ -25,7 +25,7 @@ class NormalForm(rules: Set[NormalFormRule]) {
   }
 }
 object NormalForm {
-  val BASIC_RULES: Set[NormalFormRule] = Set(
+  val BASIC_RULES: Set[Rule] = Set(
     // Distributives
     Distributive(PlusNode.symbol, TimesNode.symbol),
     Distributive(OrNode.symbol, AndNode.symbol),

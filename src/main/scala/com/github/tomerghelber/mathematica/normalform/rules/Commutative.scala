@@ -7,7 +7,7 @@ import com.github.tomerghelber.mathematica.normalform.NormalForm.ASTNodeOrdering
  * @author user
  * @since 18-Nov-19
  */
-case class Commutative(name: SymbolNode) extends NormalFormRuleTemplate {
+case class Commutative(name: SymbolNode) extends RuleTemplate {
   protected def can(node: FunctionNode): Boolean = node.name == name
 
   protected def work(node: FunctionNode): FunctionNode =

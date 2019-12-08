@@ -6,10 +6,8 @@ import com.github.tomerghelber.mathematica.ast.{ASTNode, FunctionNode, SymbolNod
  * @author user
  * @since 18-Nov-19
  */
-case class Associative(name: SymbolNode) extends NormalFormRuleTemplate {
-  protected def can(node: FunctionNode): Boolean = {
-    node.name == name
-  }
+case class Associative(name: SymbolNode) extends RuleTemplate {
+  protected def can(node: FunctionNode): Boolean = node.name == name
 
   protected def work(node: FunctionNode): FunctionNode = {
     val newArgs = node.arguments.flatMap {
