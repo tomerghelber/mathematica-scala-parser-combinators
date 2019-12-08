@@ -2,7 +2,8 @@ package com.github.tomerghelber.mathematica
 package eval
 
 import org.scalacheck.Arbitrary
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.funspec.AsyncFunSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import com.github.tomerghelber.mathematica.ast.{DivideNode, FunctionNode, NumberNode, PlusNode, SymbolNode, TimesNode}
 import com.github.tomerghelber.mathematica.parser.MathematicaParser
@@ -11,7 +12,7 @@ import com.github.tomerghelber.mathematica.parser.MathematicaParser
  * @author user
  * @since 01-Nov-19
  */
-class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckPropertyChecks {
+class MathematicaEvaluatorSpec extends AsyncFunSpec with Matchers with ScalaCheckPropertyChecks {
 
   implicit def arbMathematicaEvaluator: Arbitrary[MathematicaEvaluator] = Arbitrary(mathematicaEvaluatorGen)
   implicit def arbMathematicaParser: Arbitrary[MathematicaParser] = Arbitrary(mathematicaParserGen)
@@ -23,8 +24,9 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
       forAll { (eval: MathematicaEvaluator, base: NumberNode) =>
         val actual = eval.eval(base)
         actual shouldBe a[NumberNode]
-        val value = actual.asInstanceOf[NumberNode].value.toDouble
-        java.lang.Double.isFinite(value) shouldBe true
+        withClue("Result number " + actual.asInstanceOf[NumberNode].value) {
+          noException should be thrownBy BigDecimal(actual.asInstanceOf[NumberNode].value)
+        }
       }
     }
 
@@ -46,11 +48,11 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
       forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
         val actualNode = eval.eval(PlusNode(first, second))
         val expected = (eval.eval(first), eval.eval(second)) match {
-          case (NumberNode(a), NumberNode(b)) => a.toDouble + b.toDouble
+          case (NumberNode(a), NumberNode(b)) => BigDecimal(a) + BigDecimal(b)
           case other: Any => throw new MatchError(other)
         }
         actualNode shouldBe a[NumberNode]
-        val actual = actualNode.asInstanceOf[NumberNode].value.toDouble
+        val actual = BigDecimal(actualNode.asInstanceOf[NumberNode].value)
         actual shouldBe expected +- 0.000001
       }
     }
@@ -59,21 +61,32 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
       forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
         val actual = eval.eval(TimesNode(first, second))
         val expected = NumberNode((eval.eval(first), eval.eval(second)) match {
-          case (NumberNode(a), NumberNode(b)) => (a.toDouble * b.toDouble).toString
+          case (NumberNode(a), NumberNode(b)) => (BigDecimal(a) * BigDecimal(b)).toString
           case other: Any => throw new MatchError(other)
         })
         actual shouldBe expected
       }
     }
 
-    it("divide evaluated") {
+    it("divide not by zero evaluated") {
       forAll { (eval: MathematicaEvaluator, first: NumberNode, second: NumberNode) =>
-        val actual = eval.eval(DivideNode(first, second))
-        val expected = NumberNode((eval.eval(first), eval.eval(second)) match {
-          case (NumberNode(a), NumberNode(b)) => (a.toDouble / b.toDouble).toString
+        (eval.eval(first), eval.eval(second)) match {
+          case (NumberNode(a), NumberNode(b)) =>
+            val lower = BigDecimal(b)
+            whenever(lower != 0) {
+              val actual = eval.eval(DivideNode(first, second))
+              val expected = NumberNode((BigDecimal(a) / lower).toString)
+              actual shouldBe expected
+            }
           case other: Any => throw new MatchError(other)
-        })
-        actual shouldBe expected
+        }
+      }
+    }
+
+    it("divide by zero not evaluated") {
+      forAll { (eval: MathematicaEvaluator, first: NumberNode) =>
+        val second = NumberNode(BigDecimal(0).toString)
+        an[ArithmeticException] should be thrownBy  eval.eval(DivideNode(first, second))
       }
     }
 
@@ -97,6 +110,10 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
             "   80, Orange, FontFamily -> \"Verdana\"], \"GIF\"], \n" +
             " Permissions -> \"Public\"]"
         ))
+        out1 should not be null
+        out2 should not be null
+        out3 should not be null
+        out4 should not be null
       }
     }
 
@@ -114,6 +131,7 @@ class MathematicaEvaluatorSpec extends FunSpec with Matchers with ScalaCheckProp
             "     \"RGB\"], {\"PoissonNoise\", .5}] &, \"JPEG\"], \n" +
             " Permissions -> \"Public\"]"
         ))
+        out1 should not be null
       }
     }
   }

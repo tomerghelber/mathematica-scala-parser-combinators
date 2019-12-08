@@ -9,3 +9,15 @@ object CompositionNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode 
 object RightCompositionNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
   protected val name: String = "RightComposition"
 }
+object MapNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Map"
+}
+object MapAllNode extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "MapAll"
+}
+object Apply2Node extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Apply2"
+}
+object Apply3Node extends ApplyBinaryFunctionNode with UnapplyFunctionNode {
+  protected val name: String = "Apply3"
+}

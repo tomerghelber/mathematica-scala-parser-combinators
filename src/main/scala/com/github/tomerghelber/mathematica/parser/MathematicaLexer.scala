@@ -36,13 +36,19 @@ class MathematicaLexer extends Lexical with StdTokens {
       val name = (first :: lasts).mkString
       if (reserved contains name) Keyword(name) else Identifier(name)
   }
-  private def string =
-    ( '\'' ~> rep( chrExcept('\'', '\n', EofCh) ) <~ '\'' ^^ (chars => StringLit(chars.mkString))
-    | '\"' ~> rep( chrExcept('\"', '\n', EofCh) ) <~ '\"' ^^ (chars => StringLit(chars.mkString))
+  private def string: Parser[Token] = {
+    def string(chr: Char): Parser[StringLit] =
+      chr ~> rep( chrExcept(chr, '\n', EofCh) ) <~ chr ^^ (chars => StringLit(chars.mkString))
+
+    def nonClosedString(chr: Char): Parser[Token] = chr ~> failure("unclosed string literal")
+
+    ( string('\'')
+    | string('\"')
     | EofCh                                             ^^^ EOF
-    | '\'' ~> failure("unclosed string literal")
-    | '\"' ~> failure("unclosed string literal")
+    | nonClosedString('\'')
+    | nonClosedString('\"')
     )
+  }
 
   // see `whitespace in `Scanners`
   override def whitespace: Parser[Any] = rep(whitespaceChar)
@@ -53,10 +59,11 @@ class MathematicaLexer extends Lexical with StdTokens {
   /** The set of delimiters (ordering does not matter). */
   val delimiters = new mutable.HashSet[String]
 
-  private lazy val _delim: Parser[Token] = {
-    // construct parser for delimiters by |'ing together the parsers for the individual delimiters,
-    // starting with the longest one -- otherwise a delimiter D will never be matched if there is
-    // another delimiter that is a prefix of D
+  /** Construct parser for delimiters by |'ing together the parsers for the individual delimiters,
+   *  starting with the longest one -- otherwise a delimiter D will never be matched if there is
+   *  another delimiter that is a prefix of D.
+   */
+  protected lazy val delim: Parser[Token] = {
     def parseDelim(s: String): Parser[Token] = accept(s.toList) ^^ { x => Keyword(s) }
 
     val d = new Array[String](delimiters.size)
@@ -64,5 +71,4 @@ class MathematicaLexer extends Lexical with StdTokens {
     scala.util.Sorting.quickSort(d)
     (d.toList map parseDelim).foldRight(failure("no matching delimiter"): Parser[Token])((x, y) => y | x)
   }
-  protected def delim: Parser[Token] = _delim
 }

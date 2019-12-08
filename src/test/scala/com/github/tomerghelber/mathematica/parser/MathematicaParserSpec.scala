@@ -3,11 +3,12 @@ package parser
 
 import com.github.tomerghelber.mathematica.ast.SymbolNode
 import org.scalacheck.Arbitrary
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.funspec.AsyncFunSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import com.github.tomerghelber.mathematica.ast._
 
-class MathematicaParserSpec extends FunSpec with Matchers with ScalaCheckPropertyChecks {
+class MathematicaParserSpec extends AsyncFunSpec with Matchers with ScalaCheckPropertyChecks {
 
   implicit def arbSymbolNode: Arbitrary[SymbolNode] = Arbitrary(symbolNodeGen)
   implicit def arbMathematicaParser: Arbitrary[MathematicaParser] = Arbitrary(mathematicaParserGen)
@@ -363,6 +364,7 @@ class MathematicaParserSpec extends FunSpec with Matchers with ScalaCheckPropert
             "     \"RGB\"], {\"PoissonNoise\", .5}] &, \"JPEG\"], \n" +
             " Permissions -> \"Public\"]"
         )
+        out1 should not be null
       }
     }
   }

@@ -4,10 +4,11 @@ import com.github.tomerghelber.mathematica.ast.{NumberNode, StringNode, SymbolNo
 import com.github.tomerghelber.mathematica.normalform.NormalForm.TerminalNodeOrdering
 import com.github.tomerghelber.mathematica.{numberNodeGen, stringNodeGen, symbolNodeGen}
 import org.scalacheck.Arbitrary
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.funspec.AsyncFunSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-class TerminalNodeOrderingSpec extends FunSpec with Matchers with ScalaCheckPropertyChecks {
+class TerminalNodeOrderingSpec extends AsyncFunSpec with Matchers with ScalaCheckPropertyChecks {
 
   private implicit val symbolNodeArbitrary: Arbitrary[SymbolNode] = Arbitrary(symbolNodeGen)
   private implicit val numberNodeArbitrary: Arbitrary[NumberNode] = Arbitrary(numberNodeGen)

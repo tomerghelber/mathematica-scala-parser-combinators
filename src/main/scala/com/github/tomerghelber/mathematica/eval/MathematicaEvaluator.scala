@@ -38,7 +38,7 @@ class MathematicaEvaluator private (globalEnvironment: mutable.Map[String, ASTNo
   private def evalTerminals(node: TerminalNode, environment: mutable.Map[String, ASTNode]): ASTNode = {
     node match {
       case NumberNode(fraction) if fraction.contains("/") =>
-        NumberNode(fraction.split("/").map(_.toDouble).reduce(_ / _).toString)
+        NumberNode(fraction.split("/").map(BigDecimal(_)).reduce(_ / _).toString)
       case SymbolNode(symbol) => environment(symbol)
       case node: TerminalNode => node
     }
@@ -47,12 +47,12 @@ class MathematicaEvaluator private (globalEnvironment: mutable.Map[String, ASTNo
   private def evalMath(node: ASTNode, environment: mutable.Map[String, ASTNode]): NumberNode = {
     node match {
       case PlusNode(arguments) =>
-        NumberNode(arguments.map(eval(_, environment).asInstanceOf[NumberNode]).map(_.value.toDouble).sum.toString)
+        NumberNode(arguments.map(eval(_, environment).asInstanceOf[NumberNode]).map(s=>BigDecimal(s.value)).sum.toString)
       case TimesNode(arguments) =>
-        NumberNode(arguments.map(eval(_, environment).asInstanceOf[NumberNode]).map(_.value.toDouble).product.toString)
+        NumberNode(arguments.map(eval(_, environment).asInstanceOf[NumberNode]).map(s=>BigDecimal(s.value)).product.toString)
       case DivideNode(Seq(first, second)) =>
         (eval(first), eval(second)) match {
-          case (NumberNode(a) , NumberNode(b)) => NumberNode((a.toDouble / b.toDouble).toString)
+          case (NumberNode(a) , NumberNode(b)) => NumberNode((BigDecimal(a) / BigDecimal(b)).toString)
           case other: Any => throw new MatchError(other)
         }
       case other: Any => throw new MatchError(other)

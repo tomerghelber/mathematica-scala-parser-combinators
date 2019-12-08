@@ -1,14 +1,32 @@
 package com.github.tomerghelber.mathematica.normalform
 
 import com.github.tomerghelber.mathematica.ast._
-import com.github.tomerghelber.mathematica.normalform.rules.{Associative, Commutative, Distributive, NormalFormRule}
+import com.github.tomerghelber.mathematica.rules.Rule
+import com.github.tomerghelber.mathematica.rules.normalform.{Associative, Commutative, Distributive}
 
 /** Normal form transformer.
  * @author user
  * @since 18-Nov-19
  */
-class NormalForm {
-  private val rules: Set[NormalFormRule] = Set(
+class NormalForm(rules: Set[Rule]) {
+  def this() = this(NormalForm.BASIC_RULES)
+
+  def apply(node: ASTNode): ASTNode = {
+    node match {
+      case terminal: TerminalNode => terminal
+      case FunctionNode(name, arguments) =>
+        var newNode = FunctionNode(name, arguments.map(apply))
+        var lastNode = node
+        while (lastNode != newNode) {
+          lastNode = newNode
+          newNode = rules.foldRight(newNode)(_ apply _)
+        }
+        newNode
+    }
+  }
+}
+object NormalForm {
+  val BASIC_RULES: Set[Rule] = Set(
     // Distributives
     Distributive(PlusNode.symbol, TimesNode.symbol),
     Distributive(OrNode.symbol, AndNode.symbol),
@@ -29,21 +47,6 @@ class NormalForm {
     Commutative(TimesNode.symbol),
   )
 
-  def apply(node: ASTNode): ASTNode = {
-    node match {
-      case terminal: TerminalNode => terminal
-      case FunctionNode(name, arguments) =>
-        var newNode = FunctionNode(name, arguments.map(apply))
-        var lastNode = node
-        while (lastNode != newNode) {
-          lastNode = newNode
-          newNode = rules.foldRight(newNode)(_ apply _)
-        }
-        newNode
-    }
-  }
-}
-object NormalForm {
   /** Ordering of `TerminalNode`.
    * @author user
    * @since 18-Nov-19
@@ -74,9 +77,8 @@ object NormalForm {
       }
     }
     private val normalFormFunctionNodeOrdering = {
-      val functionNameOrdering = Ordering.by[FunctionNode, TerminalNode](_.name)
-      val functionArgumentsOrdering =
-        Ordering.by[FunctionNode, Iterable[ASTNode]](_.arguments)(Ordering.Iterable[ASTNode])
+      val functionNameOrdering = TerminalNodeOrdering.on[FunctionNode](_.name)
+      val functionArgumentsOrdering = Ordering.Iterable(ASTNodeOrdering).on[FunctionNode](_.arguments)
       functionNameOrdering thenComparing functionArgumentsOrdering
     }
   }

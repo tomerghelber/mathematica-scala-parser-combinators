@@ -4,14 +4,15 @@ import com.github.tomerghelber.mathematica.ast.{ASTNode, FunctionNode, SymbolNod
 import com.github.tomerghelber.mathematica.normalform.NormalForm.{ASTNodeOrdering, TerminalNodeOrdering}
 import com.github.tomerghelber.mathematica.{functionNodeGen, nodeGen, symbolNodeGen, terminalNodeGen}
 import org.scalacheck.Arbitrary
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.funspec.AsyncFunSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 /**
  * @author user
  * @since 18-Nov-19
  */
-class ASTNodeOrderingSpec extends FunSpec with Matchers with ScalaCheckPropertyChecks {
+class ASTNodeOrderingSpec extends AsyncFunSpec with Matchers with ScalaCheckPropertyChecks {
 
   private implicit val nodeArbitrary: Arbitrary[ASTNode] = Arbitrary(nodeGen)
   private implicit val functionNodeArbitrary: Arbitrary[FunctionNode] = Arbitrary(functionNodeGen)
@@ -33,25 +34,47 @@ class ASTNodeOrderingSpec extends FunSpec with Matchers with ScalaCheckPropertyC
   }
 
   it("Symbols should be used first to order functions") {
-    forAll { (name1: SymbolNode, name2: SymbolNode, arguments: Seq[ASTNode]) =>
-      val f1 = FunctionNode(name1, arguments)
-      val f2 = FunctionNode(name2, arguments)
+    forAll(sizeRange(10)) {
+      (name1: SymbolNode, name2: SymbolNode, arguments1: Seq[ASTNode], arguments2: Seq[ASTNode]) =>
+      val f1 = FunctionNode(name1, arguments1)
+      val f2 = FunctionNode(name2, arguments2)
       ASTNodeOrdering.compare(f1, f2) shouldEqual ASTNodeOrdering.compare(name1, name2)
       ASTNodeOrdering.compare(f2, f1) shouldEqual ASTNodeOrdering.compare(name2, name1)
     }
   }
 
-  it("Inner arguments should influance order") {
-    forAll { (name: SymbolNode, additionalNode1: ASTNode, additionalNode2: ASTNode, arguments: Seq[ASTNode]) =>
-      val f1 = FunctionNode(name, additionalNode1 +: arguments)
-      val f2 = FunctionNode(name, additionalNode2 +: arguments)
+  it("First inner arguments should influence order") {
+    forAll(sizeRange(10)) { (name: SymbolNode, additionalNode1: ASTNode, additionalNode2: ASTNode,
+       arguments1: Seq[ASTNode], arguments2: Seq[ASTNode]) =>
+      val f1 = FunctionNode(name, additionalNode1 +: arguments1)
+      val f2 = FunctionNode(name, additionalNode2 +: arguments2)
+      ASTNodeOrdering.compare(f1, f2) shouldEqual ASTNodeOrdering.compare(additionalNode1, additionalNode2)
+      ASTNodeOrdering.compare(f2, f1) shouldEqual ASTNodeOrdering.compare(additionalNode2, additionalNode1)
+    }
+  }
+
+  it("Middle inner arguments should influence order") {
+    forAll(sizeRange(10)) {
+      (name: SymbolNode, additionalNode1: ASTNode, additionalNode2: ASTNode, arguments: Seq[ASTNode]) =>
+      val f1 = FunctionNode(name, arguments ++ (additionalNode1 +: arguments))
+      val f2 = FunctionNode(name, arguments ++ (additionalNode2 +: arguments))
+      ASTNodeOrdering.compare(f1, f2) shouldEqual ASTNodeOrdering.compare(additionalNode1, additionalNode2)
+      ASTNodeOrdering.compare(f2, f1) shouldEqual ASTNodeOrdering.compare(additionalNode2, additionalNode1)
+    }
+  }
+
+  it("Last inner arguments should influence order") {
+    forAll(sizeRange(10)) {
+      (name: SymbolNode, additionalNode1: ASTNode, additionalNode2: ASTNode, arguments: Seq[ASTNode]) =>
+      val f1 = FunctionNode(name, arguments :+ additionalNode1)
+      val f2 = FunctionNode(name, arguments :+ additionalNode2)
       ASTNodeOrdering.compare(f1, f2) shouldEqual ASTNodeOrdering.compare(additionalNode1, additionalNode2)
       ASTNodeOrdering.compare(f2, f1) shouldEqual ASTNodeOrdering.compare(additionalNode2, additionalNode1)
     }
   }
 
   it("Longer argument should be order after shorter") {
-    forAll { (name: SymbolNode, additionalNode: ASTNode, arguments: Seq[ASTNode]) =>
+    forAll(sizeRange(10)) { (name: SymbolNode, additionalNode: ASTNode, arguments: Seq[ASTNode]) =>
       val f1 = FunctionNode(name, arguments)
       val f2 = FunctionNode(name, arguments :+ additionalNode)
       ASTNodeOrdering.compare(f1, f2) shouldEqual -1
