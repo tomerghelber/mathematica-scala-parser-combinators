@@ -4,9 +4,6 @@ on: [push]
 
 jobs:
   UnitTests:
-    strategy:
-      matrix:
-        scala_version: [2.13.1, 2.13.0, 2.12.8]
 
     runs-on: ubuntu-latest
 
@@ -26,15 +23,12 @@ jobs:
         key: maven-repo
 
     - name: Install
-      run: sbt ++ ${{ matrix.scala_version }} compile
+      run: sbt compile
 
     - name: Run tests
-      run: sbt ++ ${{ matrix.scala_version }} test
+      run: sbt test
 
   MutationTests:
-    strategy:
-      matrix:
-        scala_version: [2.13.1, 2.13.0, 2.12.8]
 
     runs-on: ubuntu-latest
 
@@ -54,10 +48,10 @@ jobs:
         key: maven-repo
 
     - name: Install
-      run: sbt ++ ${{ matrix.scala_version }} compile
+      run: sbt compile
 
     - name: Run mutation tests
-      run: sbt ++ ${{ matrix.scala_version }} stryker
+      run: sbt stryker
 
   FormattingTests:
     runs-on: ubuntu-latest
