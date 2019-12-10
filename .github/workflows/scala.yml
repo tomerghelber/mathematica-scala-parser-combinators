@@ -7,9 +7,6 @@ jobs:
     strategy:
       matrix:
         scala_version: [2.13.1, 2.13.0, 2.12.8]
-    
-    env:
-      TRAVIS_SCALA_VERSION: ${{ matrix.scala_version }}
 
     runs-on: ubuntu-latest
 
@@ -29,18 +26,15 @@ jobs:
         key: maven-repo
 
     - name: Install
-      run: sbt ++$TRAVIS_SCALA_VERSION compile
+      run: sbt ++${{ matrix.scala_version }} compile
 
     - name: Run tests
-      run: sbt ++$TRAVIS_SCALA_VERSION test
+      run: sbt ++${{ matrix.scala_version }} test
 
   MutationTests:
     strategy:
       matrix:
         scala_version: [2.13.1, 2.13.0, 2.12.8]
-    
-    env:
-      TRAVIS_SCALA_VERSION: ${{ matrix.scala_version }}
 
     runs-on: ubuntu-latest
 
@@ -60,10 +54,10 @@ jobs:
         key: maven-repo
 
     - name: Install
-      run: sbt ++$TRAVIS_SCALA_VERSION compile
+      run: sbt ++${{ matrix.scala_version }} compile
 
     - name: Run mutation tests
-      run: sbt ++$TRAVIS_SCALA_VERSION stryker
+      run: sbt ++${{ matrix.scala_version }} stryker
 
   FormattingTests:
     runs-on: ubuntu-latest
