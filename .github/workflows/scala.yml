@@ -26,10 +26,10 @@ jobs:
         key: maven-repo
 
     - name: Install
-      run: sbt ++${{ matrix.scala_version }} compile
+      run: sbt ++ ${{ matrix.scala_version }} compile
 
     - name: Run tests
-      run: sbt ++${{ matrix.scala_version }} test
+      run: sbt ++ ${{ matrix.scala_version }} test
 
   MutationTests:
     strategy:
@@ -54,10 +54,10 @@ jobs:
         key: maven-repo
 
     - name: Install
-      run: sbt ++${{ matrix.scala_version }} compile
+      run: sbt ++ ${{ matrix.scala_version }} compile
 
     - name: Run mutation tests
-      run: sbt ++${{ matrix.scala_version }} stryker
+      run: sbt ++ ${{ matrix.scala_version }} stryker
 
   FormattingTests:
     runs-on: ubuntu-latest
