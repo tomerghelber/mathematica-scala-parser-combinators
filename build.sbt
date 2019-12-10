@@ -10,6 +10,8 @@ libraryDependencies += "org.scalatest"     %% "scalatest"                % "3.1.
 libraryDependencies += "org.scalacheck"    %% "scalacheck"               % "1.14.2"      % Test
 libraryDependencies += "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2" % Test
 
+scalacOptions ++= Seq("-deprecation")
+
 // POM settings for Sonatype
 organization := "com.github.tomerghelber"
 homepage := Some(
