@@ -24,11 +24,11 @@ package object mathematica {
     .map(_.replaceAll("\\\\", "\\\\")
       .replaceAll("\"", "\\\""))
   val stringStringGen: Gen[String] = stringWithoutWrappersGen.map(s => "\"" + s + "\"")
-  val symbolStringGen: Gen[String] = for (head <- Gen.alphaChar; last <- Gen.alphaNumStr) yield { head + last }
+  val symbolStringGen: Gen[String] = for (head <- Gen.alphaChar; last <- Gen.alphaNumStr) yield { s"$head$last" }
   private val integerGen: Gen[Int] = Gen.chooseNum(Int.MinValue, Int.MaxValue)
   private val longGen: Gen[Long] = Gen.chooseNum(Long.MinValue, Long.MaxValue)
   val integerStringGen: Gen[String] = longGen.map(_.toString)
-  val rationalStringGen: Gen[String] = for(q <-longGen; p <-longGen if p != 0) yield { q + "/" + p}
+  val rationalStringGen: Gen[String] = for(q <-longGen; p <-longGen if p != 0) yield { s"$q/$p" }
   val floatStringGen: Gen[String] = Gen.chooseNum(Double.MinValue, Double.MaxValue).map(_.toString)
   val scientificNotationGen: Gen[String] = Gen.chooseNum(Double.MinValue, Double.MaxValue).map(BigDecimal(_).toString)
   val numberStringGen: Gen[String] = Gen.oneOf(integerStringGen, rationalStringGen, floatStringGen,
