@@ -29,10 +29,10 @@ jobs:
         key: maven-repo
 
     - name: Install
-      run: sbt ++$$TRAVIS_SCALA_VERSION compile
+      run: sbt ++$TRAVIS_SCALA_VERSION compile
 
     - name: Run tests
-      run: sbt ++$$TRAVIS_SCALA_VERSION test
+      run: sbt ++$TRAVIS_SCALA_VERSION test
 
   MutationTests:
     strategy:
@@ -60,10 +60,10 @@ jobs:
         key: maven-repo
 
     - name: Install
-      run: sbt ++$$TRAVIS_SCALA_VERSION compile
+      run: sbt ++$TRAVIS_SCALA_VERSION compile
 
     - name: Run mutation tests
-      run: sbt ++$$TRAVIS_SCALA_VERSION stryker
+      run: sbt ++$TRAVIS_SCALA_VERSION stryker
 
   FormattingTests:
     runs-on: ubuntu-latest
