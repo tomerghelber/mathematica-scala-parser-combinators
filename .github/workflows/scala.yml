@@ -4,6 +4,7 @@ on: [push]
 
 jobs:
   UnitTests:
+
     runs-on: ubuntu-latest
 
     steps:
@@ -28,6 +29,7 @@ jobs:
       run: sbt test
 
   MutationTests:
+
     runs-on: ubuntu-latest
 
     steps:

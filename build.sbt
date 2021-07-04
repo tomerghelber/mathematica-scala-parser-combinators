@@ -1,6 +1,6 @@
 name := "mathimatica-parser"
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.13.1"
 
 libraryDependencies += "org.scala-lang.modules"     %% "scala-parser-combinators" % "1.1.2"
 libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging"            % "3.9.2"
